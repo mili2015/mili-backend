@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,14 +37,19 @@ public class MyHandlerException {
     public MyResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         logger.error("handleMethodArgumentNotValidException", exception);
 
-        List<String> errors = exception.getBindingResult()
+        var errors = exception.getFieldErrors();
+        var fields = new HashMap<String, String>();
+
+        errors.forEach(error -> fields.put(error.getField(), error.getDefaultMessage()));
+
+ /*       List<String> errors = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
 
         MyResponse myResponse = new MyResponse(HttpStatus.BAD_REQUEST.value());
-        errors.forEach(myResponse::addMessage);
+        fields.forEach((field, message) -> myResponse.addMessage(field + ": " + message));
         return myResponse;
     }
 
