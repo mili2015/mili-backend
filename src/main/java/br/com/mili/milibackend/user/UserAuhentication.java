@@ -1,7 +1,7 @@
 package br.com.mili.milibackend.user;
 
 
-import br.com.mili.milibackend.infra.security.model.CustomUserPrincipal;
+import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 

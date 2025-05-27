@@ -1,11 +1,17 @@
 package br.com.mili.milibackend.gfd.domain.interfaces;
 
-import br.com.mili.milibackend.gfd.application.dto.GfdFornecedorGetInputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdFornecedorGetOutputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdVerificarDocumentosInputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdVerificarDocumentosOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.*;
+
+import java.util.List;
 
 public interface IGfdManagerService {
-    public GfdVerificarDocumentosOutputDto verifyDocumentos (GfdVerificarDocumentosInputDto inputDto) ;
-    public GfdFornecedorGetOutputDto  getFornecedor (GfdFornecedorGetInputDto inputDto) ;
+    GfdVerificarFornecedorOutputDto verifyFornecedor(GfdVerificarFornecedorInputDto inputDto);
+
+    List<GfdVerificarDocumentosOutputDto> verifyDocumentos(GfdVerificarDocumentosInputDto inputDto);
+
+    GfdFornecedorGetOutputDto getFornecedor(GfdFornecedorGetInputDto inputDto);
+
+    GfdUploadDocumentoOutputDto uploadDocumento(GfdUploadDocumentoInputDto inputDto);
+
+    GfdDocumentosGetAllOutputDto getAllDocumentos(GfdDocumentosGetAllInputDto inputDto);
 }

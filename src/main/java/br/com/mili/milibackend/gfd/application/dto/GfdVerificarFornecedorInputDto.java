@@ -1,0 +1,15 @@
+package br.com.mili.milibackend.gfd.application.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class GfdVerificarFornecedorInputDto {
+    private Integer id;
+    private Integer codUsuario;
+}

@@ -1,11 +1,11 @@
 package br.com.mili.milibackend.user.application.service;
 
-import br.com.mili.milibackend.infra.security.model.Roles;
-import br.com.mili.milibackend.infra.security.service.AuthService;
+import br.com.mili.milibackend.shared.infra.security.model.Roles;
+import br.com.mili.milibackend.shared.infra.security.service.AuthService;
+import br.com.mili.milibackend.shared.util.Util;
 import br.com.mili.milibackend.user.domain.entity.User;
 import br.com.mili.milibackend.user.infra.repository.UserRepository;
 import br.com.mili.milibackend.user.infra.repository.projection.UserFindUserByUsername;
-import br.com.mili.milibackend.shared.util.Util;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,14 +17,17 @@ import java.util.List;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+
+    public UserService(UserRepository userRepository, ModelMapper modelMapper, AuthService authService) {
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+        this.authService = authService;
+    }
 
     public User findByUsername(String username) {
         UserFindUserByUsername userFound = userRepository.findByUsername(username);

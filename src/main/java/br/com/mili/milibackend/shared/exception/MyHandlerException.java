@@ -4,7 +4,6 @@ import br.com.mili.milibackend.shared.MyResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.jpa.JpaSystemException;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @ControllerAdvice
@@ -44,8 +41,8 @@ public class MyHandlerException {
 
  /*       List<String> errors = exception.getBindingResult()
                 .getFieldErrors()
-                .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .stream()
                 .collect(Collectors.toList());*/
 
         MyResponse myResponse = new MyResponse(HttpStatus.BAD_REQUEST.value());

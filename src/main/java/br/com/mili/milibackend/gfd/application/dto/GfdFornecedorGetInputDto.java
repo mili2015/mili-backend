@@ -5,9 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
 public class GfdFornecedorGetInputDto {
     private Integer codUsuario;
+    private Integer id;
+
 }
