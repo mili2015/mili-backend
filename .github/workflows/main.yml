@@ -1,0 +1,35 @@
+name: Backup S3
+
+on:
+  push:
+    branches:
+      - master  # ou outra branch
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3 # checkout do código-fonte,
+
+      - name: Instalar AWS CLI
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip
+          pip3 install awscli
+
+      - name: Compactar código fonte
+        run: |
+          mkdir -p mili-backend
+          rsync -av --exclude='mili-backend/' ./ mili-backend/
+          rm -rf mili-backend/.git          
+          zip -r "mili-backend.zip" mili-backend
+
+      - name: Enviar código para S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'sa-east-1'
+        run: |          
+          aws s3 cp "mili-backend.zip" s3://dev-mili-github/mili-backend/
