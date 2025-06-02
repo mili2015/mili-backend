@@ -28,7 +28,7 @@ import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_FORNEC
 @RestController
 @RequestMapping(GfdController.ENDPOINT)
 public class GfdController {
-    protected static final String ENDPOINT = "/v1/gfd";
+    protected static final String ENDPOINT = "/mili-backend/v1/gfd";
 
     private final IGfdManagerService gfdManagerService;
 

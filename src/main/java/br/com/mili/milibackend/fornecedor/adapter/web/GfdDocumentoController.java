@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(GfdDocumentoController.ENDPOINT)
 public class GfdDocumentoController {
-    protected static final String ENDPOINT = "/v1/fornecedor-documentos";
+    protected static final String ENDPOINT = "/mili-backend/v1/fornecedor-documentos";
 
     private final IGfdDocumentoService gfdDocumentoService;
 
