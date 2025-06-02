@@ -50,6 +50,13 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs*/**");
     }
 
+
+    @Bean
+    public WebSecurityCustomizer webSecurityActuatorCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/milibackend/actuator/**");
+    }
+
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
