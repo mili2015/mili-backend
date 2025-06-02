@@ -27,7 +27,7 @@ import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_FORNEC
 @RestController
 @RequestMapping(FornecedorController.ENDPOINT)
 public class FornecedorController {
-    protected static final String ENDPOINT = "/v1/fornecedores";
+    protected static final String ENDPOINT = "/mili-backend/v1/fornecedores";
 
     private final IFornecedorService fornecedorService;
 
