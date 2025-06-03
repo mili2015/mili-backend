@@ -39,7 +39,7 @@ public class GfdDocumentoRepositoryImpl implements IGfdDocumentoCustomRepository
         }
 
         //order esta fixo por conta que coloquei o idroot apenas para pegar o id
-        idQuery.orderBy(cb.asc(idRoot.get("id")));
+        idQuery.orderBy(cb.desc(idRoot.get("id")));
 
         TypedQuery<Integer> typedIdQuery = em.createQuery(idQuery);
         typedIdQuery.setFirstResult((int) pageable.getOffset());
@@ -77,6 +77,7 @@ public class GfdDocumentoRepositoryImpl implements IGfdDocumentoCustomRepository
 
         dtoQuery.where(root.get("id").in(ids));
         dtoQuery.distinct(true);
+        dtoQuery.orderBy(cb.desc(root.get("id")));
 
         List<GfdDocumentoResumoDto> results = em.createQuery(dtoQuery).getResultList();
 
