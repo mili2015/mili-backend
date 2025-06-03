@@ -1,6 +1,7 @@
 package br.com.mili.milibackend.fornecedor.infra.repository.gfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumento;
+import br.com.mili.milibackend.fornecedor.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.repository.IGfdDocumentoCustomRepository;
 import br.com.mili.milibackend.fornecedor.infra.dto.GfdDocumentoResumoDto;
 import jakarta.persistence.EntityManager;
@@ -24,15 +25,37 @@ public class GfdDocumentoRepositoryImpl implements IGfdDocumentoCustomRepository
     @Override
     public Page<GfdDocumentoResumoDto> getAll(Specification<GfdDocumento> spec, Pageable pageable) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<GfdDocumentoResumoDto> cq = cb.createQuery(GfdDocumentoResumoDto.class);
-        Root<GfdDocumento> root = cq.from(GfdDocumento.class);
 
-        //adição de joins
-        Join<?, ?> tipoDocumentoJoin = root.join("gfdTipoDocumento", JoinType.LEFT);
+        // 1 - Consulta para pegar só os IDs da página (com filtro, ordenação e paginação)
+        CriteriaQuery<Integer> idQuery = cb.createQuery(Integer.class);
+        Root<GfdDocumento> idRoot = idQuery.from(GfdDocumento.class);
+        idQuery.select(idRoot.get("id"));
 
+        if (spec != null) {
+            Predicate predicate = spec.toPredicate(idRoot, idQuery, cb);
+            if (predicate != null) {
+                idQuery.where(predicate);
+            }
+        }
 
-        // select só com os campos que interessam pro DTO
-        cq.select(cb.construct(
+        //order esta fixo por conta que coloquei o idroot apenas para pegar o id
+        idQuery.orderBy(cb.asc(idRoot.get("id")));
+
+        TypedQuery<Integer> typedIdQuery = em.createQuery(idQuery);
+        typedIdQuery.setFirstResult((int) pageable.getOffset());
+        typedIdQuery.setMaxResults(pageable.getPageSize());
+        List<Integer> ids = typedIdQuery.getResultList();
+
+        if (ids.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, 0);
+        }
+
+        // 2 - Consulta para buscar os dados completos dos documentos pelos IDs
+        CriteriaQuery<GfdDocumentoResumoDto> dtoQuery = cb.createQuery(GfdDocumentoResumoDto.class);
+        Root<GfdDocumento> root = dtoQuery.from(GfdDocumento.class);
+        Join<GfdDocumento, GfdTipoDocumento> tipoDocumentoJoin = root.join("gfdTipoDocumento", JoinType.LEFT);
+
+        dtoQuery.select(cb.construct(
                 GfdDocumentoResumoDto.class,
                 root.get("id"),
                 root.get("ctforCodigo"),
@@ -46,40 +69,36 @@ public class GfdDocumentoRepositoryImpl implements IGfdDocumentoCustomRepository
                 root.get("tipoArquivo"),
                 root.get("observacao"),
                 root.get("status"),
-                cb.construct(GfdDocumentoResumoDto.GfdTipoDocumentoDto.class, tipoDocumentoJoin.get("id"), tipoDocumentoJoin.get("nome"), tipoDocumentoJoin.get("diasValidade"))
-
+                cb.construct(GfdDocumentoResumoDto.GfdTipoDocumentoDto.class,
+                        tipoDocumentoJoin.get("id"),
+                        tipoDocumentoJoin.get("nome"),
+                        tipoDocumentoJoin.get("diasValidade"))
         ));
 
-        // aplica a Specification (predicados)
-        if (spec != null) {
-            Predicate predicate = spec.toPredicate(root, cq, cb);
-            if (predicate != null) cq.where(predicate);
-        }
+        dtoQuery.where(root.get("id").in(ids));
+        dtoQuery.distinct(true);
 
-        // ordenação
-        if (pageable.getSort().isSorted()) {
-            List<Order> orders = pageable.getSort().stream()
-                    .map(order -> order.isAscending() ? cb.asc(root.get(order.getProperty())) : cb.desc(root.get(order.getProperty())))
-                    .toList();
-            cq.orderBy(orders);
-        }
+        List<GfdDocumentoResumoDto> results = em.createQuery(dtoQuery).getResultList();
 
-        // executa com paginação
-        TypedQuery<GfdDocumentoResumoDto> query = em.createQuery(cq);
-        query.setFirstResult((int) pageable.getOffset());
-        query.setMaxResults(pageable.getPageSize());
+        // 3 - conta total para a página (mesma lógica que já tinha)
+        long total = getTotalCount(spec, cb);
 
-        // conta total para a Page
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    private long getTotalCount(Specification<GfdDocumento> spec, CriteriaBuilder cb) {
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<GfdDocumento> countRoot = countQuery.from(GfdDocumento.class);
-        countQuery.select(cb.count(countRoot));
+
+        countQuery.select(cb.countDistinct(countRoot));
+
         if (spec != null) {
             Predicate countPredicate = spec.toPredicate(countRoot, countQuery, cb);
-            if (countPredicate != null) countQuery.where(countPredicate);
+            if (countPredicate != null) {
+                countQuery.where(countPredicate);
+            }
         }
 
-        long total = em.createQuery(countQuery).getSingleResult();
-
-        return new PageImpl<>(query.getResultList(), pageable, total);
+        return em.createQuery(countQuery).getSingleResult();
     }
 }
