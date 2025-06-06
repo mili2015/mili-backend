@@ -1,7 +1,7 @@
 package br.com.mili.milibackend.gfd.application.dto;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.shared.annotation.ValidaIntervaloData;
+import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
 import br.com.mili.milibackend.shared.page.Filtro;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

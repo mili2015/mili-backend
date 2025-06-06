@@ -1,7 +1,6 @@
 package br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
-import jakarta.persistence.Column;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -32,6 +31,8 @@ public class GfdDocumentoCreateInputDto {
         private LocalDate dataCadastro;
 
         private LocalDate dataEmissao;
+
+        private LocalDate dataValidade;
 
         private String tipoArquivo;
 

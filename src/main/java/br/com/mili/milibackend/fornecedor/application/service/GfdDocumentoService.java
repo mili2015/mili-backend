@@ -21,7 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static br.com.mili.milibackend.fornecedor.adapter.exception.GfdDocumentoCodeException.FORNECEDOR_DOCUMENTO_NAO_ENCONTRADO;
+import static br.com.mili.milibackend.fornecedor.adapter.exception.GfdDocumentoCodeException.GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA;
+import static br.com.mili.milibackend.fornecedor.adapter.exception.GfdDocumentoCodeException.GFD_DOCUMENTO_NAO_ENCONTRADO;
 
 @Service
 public class GfdDocumentoService implements IGfdDocumentoService {
@@ -109,25 +110,42 @@ public class GfdDocumentoService implements IGfdDocumentoService {
 
     @Override
     public GfdDocumentoUpdateOutputDto update(GfdDocumentoUpdateInputDto inputDto) {
-        var fornecedor = gfdDocumentoRepository.findById(inputDto.getId())
+        var gfdDocumento = gfdDocumentoRepository.findById(inputDto.getId())
                 .orElseThrow(() ->
-                        new NotFoundException(FORNECEDOR_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), FORNECEDOR_DOCUMENTO_NAO_ENCONTRADO.getCode())
+                        new NotFoundException(GFD_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), GFD_DOCUMENTO_NAO_ENCONTRADO.getCode())
                 );
 
-        modelMapper.map(inputDto, fornecedor);
+        modelMapper.map(inputDto, gfdDocumento);
 
-        fornecedor.setStatus(GfdDocumentoStatusEnum.valueOf(inputDto.getStatus()));
+        gfdDocumento.setStatus(GfdDocumentoStatusEnum.valueOf(inputDto.getStatus()));
 
-        gfdDocumentoRepository.save(fornecedor);
+        gfdDocumentoRepository.save(gfdDocumento);
 
-        return modelMapper.map(fornecedor, GfdDocumentoUpdateOutputDto.class);
+        return modelMapper.map(gfdDocumento, GfdDocumentoUpdateOutputDto.class);
+    }
+
+    @Override
+    public void delete(GfdDocumentoDeleteInputDto inputDto) {
+        var gfdDocumento = gfdDocumentoRepository.findById(inputDto.getId())
+                .orElseThrow(() ->
+                        new NotFoundException(GFD_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), GFD_DOCUMENTO_NAO_ENCONTRADO.getCode())
+                );
+
+        boolean isNotStatusEnviado = !gfdDocumento.getStatus().equals(GfdDocumentoStatusEnum.ENVIADO);
+
+        if( isNotStatusEnviado) {
+            throw  new NotFoundException(GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA.getMensagem(), GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA.getCode());
+        }
+
+        gfdDocumentoRepository.delete(gfdDocumento);
+
     }
 
     @Override
     public GfdDocumentoDownloadOutputDto download(GfdDocumentoDownloadInputDto inputDto) {
         var fornecedor = gfdDocumentoRepository.findById(inputDto.getId())
                 .orElseThrow(() ->
-                        new NotFoundException(FORNECEDOR_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), FORNECEDOR_DOCUMENTO_NAO_ENCONTRADO.getCode())
+                        new NotFoundException(GFD_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), GFD_DOCUMENTO_NAO_ENCONTRADO.getCode())
                 );
 
         // recupera no s3

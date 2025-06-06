@@ -101,13 +101,18 @@ public class GfdManagerService implements IGfdManagerService {
 
     }
 
-    @Override
-    public GfdFornecedorGetOutputDto getFornecedor(GfdFornecedorGetInputDto inputDto) {
-        var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), inputDto.getId());
+    private Fornecedor recuperarForncedor(Integer inputDto, Integer inputDto1) {
+        var fornecedor = recuperarFornecedor(inputDto, inputDto1);
 
         if (fornecedor == null) {
             throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
         }
+        return fornecedor;
+    }
+
+    @Override
+    public GfdFornecedorGetOutputDto getFornecedor(GfdFornecedorGetInputDto inputDto) {
+        var fornecedor = recuperarForncedor(inputDto.getCodUsuario(), inputDto.getId());
 
         return modelMapper.map(fornecedor, GfdFornecedorGetOutputDto.class);
     }
@@ -116,11 +121,7 @@ public class GfdManagerService implements IGfdManagerService {
     public GfdUploadDocumentoOutputDto uploadDocumento(GfdUploadDocumentoInputDto inputDto) {
         var listGfdDocumentoOutputDto = new ArrayList<GfdUploadDocumentoOutputDto.GfdTipoDocumentoDto>();
 
-        var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), inputDto.getId());
-
-        if (fornecedor == null) {
-            throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
-        }
+        var fornecedor = recuperarForncedor(inputDto.getCodUsuario(), inputDto.getId());
 
         // recupera o tipo do documento
         // *posteriormente* verifica se foi enviado o cod do funcionario caso foi enviado sera adicionado como funcionario
@@ -150,8 +151,9 @@ public class GfdManagerService implements IGfdManagerService {
                     .dataCadastro(LocalDate.now())
                     .tipoArquivo(mimeType.toString())
                     .dataEmissao(gfdDocumentoDto.getDataEmissao())
+                    .dataValidade(gfdDocumentoDto.getDataValidade())
                     .usuario(inputDto.getUsuario())
-                    .status(GfdDocumentoStatusEnum.EM_ANALISE)
+                    .status(GfdDocumentoStatusEnum.ENVIADO)
                     .gfdTipoDocumento(gfdTipoDocumentoDto)
                     .build();
 
@@ -170,11 +172,7 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public GfdDocumentosGetAllOutputDto getAllDocumentos( GfdDocumentosGetAllInputDto inputDto) {
-        var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), inputDto.getId());
-
-        if (fornecedor == null) {
-            throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
-        }
+        var fornecedor = recuperarForncedor(inputDto.getCodUsuario(), inputDto.getId());
 
         var gfdDocumentoGetAllInputDto = modelMapper.map(inputDto, GfdDocumentoGetAllInputDto.class);
         gfdDocumentoGetAllInputDto.setCtforCodigo(fornecedor.getCodigo());

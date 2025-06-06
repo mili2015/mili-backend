@@ -233,8 +233,11 @@ class GfdManagerServiceTest {
         GfdUploadDocumentoInputDto inputDto = new GfdUploadDocumentoInputDto();
         inputDto.setId(1);
         inputDto.setGfdTipoDocumento(new GfdUploadDocumentoInputDto.GfdTipoDocumentoDto(1));
+
+
+
         inputDto.setListGfdDocumento(Arrays.asList(
-                new GfdUploadDocumentoInputDto.GfdDocumentoDto(new AttachmentDto("file.txt", "data"), LocalDate.now())
+                new GfdUploadDocumentoInputDto.GfdDocumentoDto(new AttachmentDto("file.txt", "data"), LocalDate.now(), LocalDate.now().plusDays(1))
         ));
 
         Fornecedor fornecedor = new Fornecedor();

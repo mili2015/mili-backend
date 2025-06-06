@@ -1,7 +1,5 @@
 package br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento;
 
-import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -24,6 +22,5 @@ public class GfdDocumentoUpdateInputDto {
     @NotNull
     private String status;
 
-    @NotBlank
     private String observacao;
 }
