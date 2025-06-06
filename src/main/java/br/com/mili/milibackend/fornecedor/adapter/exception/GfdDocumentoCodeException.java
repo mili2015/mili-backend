@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum GfdDocumentoCodeException {
 
-    FORNECEDOR_DOCUMENTO_NAO_ENCONTRADO("FORNECEDOR_DOCUMENTO_NAO_ENCONTRADO", "O documento não foi encontrado");
+    GFD_DOCUMENTO_NAO_ENCONTRADO("GFD_DOCUMENTO_NAO_ENCONTRADO", "O documento não foi encontrado"),
+    GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA("GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA", "Apenas é possível apagar documentos com status ENVIADO");
 
     private final String code;
     private final String mensagem;

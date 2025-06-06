@@ -9,6 +9,7 @@ public interface IGfdDocumentoService {
     GfdDocumentoCreateOutputDto create(GfdDocumentoCreateInputDto inputDto);
     MyPage<GfdDocumentoGetAllOutputDto> getAll(GfdDocumentoGetAllInputDto inputDto);
     GfdDocumentoUpdateOutputDto update (GfdDocumentoUpdateInputDto inputDto);
+    void delete (GfdDocumentoDeleteInputDto inputDto);
     GfdDocumentoDownloadOutputDto download(GfdDocumentoDownloadInputDto inputDto);
     List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId);
 }

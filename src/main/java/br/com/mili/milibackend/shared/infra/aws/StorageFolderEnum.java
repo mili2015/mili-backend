@@ -1,8 +1,7 @@
 package br.com.mili.milibackend.shared.infra.aws;
 
 public enum StorageFolderEnum {
-    ROTEIRO("roteiro"),
-    GFD("gfd");
+    GFD("/fornecedor/gfd");
 
 
     private final String value;

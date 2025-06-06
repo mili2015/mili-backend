@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 @Getter
 public enum GfdDocumentoStatusEnum {
+    ENVIADO("ENVIADO"),
     EM_ANALISE("EM ANALISE"),
     NAO_CONFORME("NAO CONFORME"),
     CONFORME("CONFORME"),
