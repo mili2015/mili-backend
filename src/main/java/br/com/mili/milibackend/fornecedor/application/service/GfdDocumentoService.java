@@ -13,6 +13,7 @@ import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import com.google.gson.Gson;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -39,6 +40,7 @@ public class GfdDocumentoService implements IGfdDocumentoService {
     }
 
     @Override
+    @Transactional
     public GfdDocumentoCreateOutputDto create(GfdDocumentoCreateInputDto inputDto) {
         var gfdDocumento = modelMapper.map(inputDto.getGfdDocumentoDto(), GfdDocumento.class);
 
