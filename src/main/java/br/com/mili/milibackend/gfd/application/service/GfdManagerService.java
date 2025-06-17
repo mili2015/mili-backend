@@ -130,6 +130,7 @@ public class GfdManagerService implements IGfdManagerService {
 
         //salva o arquivo no banco
         var listGfdDocumentoDto = inputDto.getListGfdDocumento();
+
         for (GfdUploadDocumentoInputDto.GfdDocumentoDto gfdDocumentoDto : listGfdDocumentoDto) {
             var base64File = gfdDocumentoDto.getBase64File().file();
 
@@ -171,7 +172,7 @@ public class GfdManagerService implements IGfdManagerService {
     }
 
     @Override
-    public GfdDocumentosGetAllOutputDto getAllDocumentos( GfdDocumentosGetAllInputDto inputDto) {
+    public GfdDocumentosGetAllOutputDto getAllDocumentos(GfdDocumentosGetAllInputDto inputDto) {
         var fornecedor = recuperarForncedor(inputDto.getCodUsuario(), inputDto.getId());
 
         var gfdDocumentoGetAllInputDto = modelMapper.map(inputDto, GfdDocumentoGetAllInputDto.class);
@@ -188,10 +189,37 @@ public class GfdManagerService implements IGfdManagerService {
         var pageGfdDocumentoDto = new PageBaseImpl<>(gfdDocumentoDto, pageGfdDocumentoService.getPage(), pageGfdDocumentoService.getSize(), pageGfdDocumentoService.getTotalElements()) {
         };
 
+        var todosTiposDocumentoFornecedor = getFornecedorTipoDocumentos();
+
+        // mostra doc anterior e doc proximo
+        Integer idDocumento = inputDto.getTipoDocumentoId();
+
+        var indexof = todosTiposDocumentoFornecedor.stream()
+                .filter(tipo -> tipo.getId().equals(idDocumento))
+                .findFirst()
+                .map(todosTiposDocumentoFornecedor::indexOf)
+                .orElse(-1);
+
+        var nextDoc = 0;
+        var previusDoc = 0;
+
+        if (!todosTiposDocumentoFornecedor.isEmpty()) {
+            var lastTipoDocumentoId = getFornecedorTipoDocumentos().get(getFornecedorTipoDocumentos().size() - 1).getId();
+            var isLastTipoDocumentoId = lastTipoDocumentoId <= idDocumento;
+
+            nextDoc = isLastTipoDocumentoId ? 0 : todosTiposDocumentoFornecedor.get(indexof + 1).getId();
+            previusDoc = indexof > 0 ? todosTiposDocumentoFornecedor.get(indexof - 1).getId() : 0;
+        }
+
+        // adiciona os tipos documento
         var gfdTipoDocumentoDto = popularTipoDocumetoDto(inputDto, gfdDocumentoDto);
 
-
-        return new GfdDocumentosGetAllOutputDto(pageGfdDocumentoDto, gfdTipoDocumentoDto);
+        return GfdDocumentosGetAllOutputDto.builder()
+                .gfdTipoDocumento(gfdTipoDocumentoDto)
+                .gfdDocumento(pageGfdDocumentoDto)
+                .nextDoc(nextDoc)
+                .previousDoc(previusDoc)
+                .build();
     }
 
     private void addNonMandatoryDocuments(Set<GfdVerificarDocumentosOutputDto> outputDtoList, List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> listDocumento, List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos) {
@@ -250,7 +278,7 @@ public class GfdManagerService implements IGfdManagerService {
             gfdTipoDocumentoDto.setId(gfdDocumentoDto.get(0).getGfdTipoDocumento().getId());
             gfdTipoDocumentoDto.setNome(gfdDocumentoDto.get(0).getGfdTipoDocumento().getNome());
             gfdTipoDocumentoDto.setDiasValidade(gfdDocumentoDto.get(0).getGfdTipoDocumento().getDiasValidade());
-        } else if(inputDto.getTipoDocumentoId() != null) {
+        } else if (inputDto.getTipoDocumentoId() != null) {
             var tipoDocumento = GfdTipoDocumentoService.getById(inputDto.getTipoDocumentoId());
             gfdTipoDocumentoDto.setId(tipoDocumento.getId());
             gfdTipoDocumentoDto.setNome(tipoDocumento.getNome());
