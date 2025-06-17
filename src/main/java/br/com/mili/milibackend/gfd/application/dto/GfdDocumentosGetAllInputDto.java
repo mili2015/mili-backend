@@ -1,8 +1,8 @@
 package br.com.mili.milibackend.gfd.application.dto;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
 import br.com.mili.milibackend.shared.page.Filtro;
+import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +18,7 @@ import java.time.LocalDate;
 @ValidaIntervaloData(inicio = "dataValidadeInic", fim = "dataValidadeFinal")
 @ValidaIntervaloData(inicio = "dataEmissaoInic", fim = "dataEmissaoFinal")
 public class GfdDocumentosGetAllInputDto extends Filtro {
+
     private String usuario;
 
     private Integer codUsuario;

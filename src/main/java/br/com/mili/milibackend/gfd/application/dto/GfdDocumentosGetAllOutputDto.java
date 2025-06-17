@@ -2,21 +2,20 @@ package br.com.mili.milibackend.gfd.application.dto;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class GfdDocumentosGetAllOutputDto {
     private MyPage<GfdDocumentoDto> gfdDocumento;
     private GfdTipoDocumentoDto gfdTipoDocumento;
-
+    private Integer nextDoc;
+    private Integer previousDoc;
 
     @AllArgsConstructor
     @NoArgsConstructor
