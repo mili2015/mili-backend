@@ -200,11 +200,16 @@ public class GfdManagerService implements IGfdManagerService {
                 .map(todosTiposDocumentoFornecedor::indexOf)
                 .orElse(-1);
 
-        var lastTipoDocumentoId = getFornecedorTipoDocumentos().get(getFornecedorTipoDocumentos().size() - 1).getId();
-        var isLastTipoDocumentoId = lastTipoDocumentoId <= idDocumento;
+        var nextDoc = 0;
+        var previusDoc = 0;
 
-        var nextDoc = isLastTipoDocumentoId ? 0  : todosTiposDocumentoFornecedor.get(indexof + 1).getId();
-        var previusDoc = indexof > 0 ? todosTiposDocumentoFornecedor.get(indexof - 1).getId() : 0;
+        if (!todosTiposDocumentoFornecedor.isEmpty()) {
+            var lastTipoDocumentoId = getFornecedorTipoDocumentos().get(getFornecedorTipoDocumentos().size() - 1).getId();
+            var isLastTipoDocumentoId = lastTipoDocumentoId <= idDocumento;
+
+            nextDoc = isLastTipoDocumentoId ? 0 : todosTiposDocumentoFornecedor.get(indexof + 1).getId();
+            previusDoc = indexof > 0 ? todosTiposDocumentoFornecedor.get(indexof - 1).getId() : 0;
+        }
 
         // adiciona os tipos documento
         var gfdTipoDocumentoDto = popularTipoDocumetoDto(inputDto, gfdDocumentoDto);
