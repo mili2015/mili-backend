@@ -55,8 +55,8 @@ public class GfdDocumentoService implements IGfdDocumentoService {
     }
 
     @Override
-    public List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId) {
-        var listGfdDocumento = gfdDocumentoRepository.findLatestDocumentsGroupedByTipoAndFornecedorId(fornecedorId);
+    public List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId, Integer idFuncionario) {
+        var listGfdDocumento = gfdDocumentoRepository.findLatestDocumentsGroupedByTipoAndFornecedorId(fornecedorId, idFuncionario);
 
         return listGfdDocumento.stream()
                 .map(gfdDocumento ->
@@ -71,6 +71,10 @@ public class GfdDocumentoService implements IGfdDocumentoService {
         if (inputDto.getCtforCodigo() != null) {
             spec = spec.and(GfdDocumentoSpecification.filtroPorFornecedor(inputDto.getCtforCodigo()));
         }
+
+        //filtra por funcionario
+        spec = filtroFuncionario(inputDto, spec);
+
 
         //filtra por nome do arquivo
         if (inputDto.getNomeArquivo() != null) {
@@ -110,6 +114,28 @@ public class GfdDocumentoService implements IGfdDocumentoService {
         };
     }
 
+    private static Specification<GfdDocumento> filtroFuncionario(GfdDocumentoGetAllInputDto inputDto, Specification<GfdDocumento> spec) {
+        var funcionario = inputDto.getFuncionario();
+
+        if (funcionario != null) {
+            if (funcionario.getId() != null) {
+                spec = spec.and(GfdDocumentoSpecification.filtroFornecedorId(funcionario.getId()));
+            }
+
+            // filtra por nome
+            if (funcionario.getNome() != null) {
+                spec = spec.and(GfdDocumentoSpecification.filtroFornecedorNome(funcionario.getNome()));
+            }
+
+            // filtra por cpf
+            if (funcionario.getCpf() != null) {
+                spec = spec.and(GfdDocumentoSpecification.filtroFornecedorCpf(funcionario.getCpf()));
+            }
+        }
+
+        return spec;
+    }
+
     @Override
     public GfdDocumentoUpdateOutputDto update(GfdDocumentoUpdateInputDto inputDto) {
         var gfdDocumento = gfdDocumentoRepository.findById(inputDto.getId())
@@ -135,8 +161,8 @@ public class GfdDocumentoService implements IGfdDocumentoService {
 
         boolean isNotStatusEnviado = !gfdDocumento.getStatus().equals(GfdDocumentoStatusEnum.ENVIADO);
 
-        if( isNotStatusEnviado) {
-            throw  new NotFoundException(GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA.getMensagem(), GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA.getCode());
+        if (isNotStatusEnviado) {
+            throw new NotFoundException(GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA.getMensagem(), GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA.getCode());
         }
 
         gfdDocumentoRepository.delete(gfdDocumento);

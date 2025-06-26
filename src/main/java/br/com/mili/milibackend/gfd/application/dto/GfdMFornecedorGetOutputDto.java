@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class GfdFornecedorGetOutputDto {
+public class GfdMFornecedorGetOutputDto {
     private Integer codigo;
 
     private String cgcCpf;

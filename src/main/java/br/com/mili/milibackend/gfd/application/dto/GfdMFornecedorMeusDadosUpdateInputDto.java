@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class GfdFornecedorMeusDadosUpdateInputDto {
+public class GfdMFornecedorMeusDadosUpdateInputDto {
     private FornecedorMeusDadosUpdateInputDto fornecedor;
 
     @NoArgsConstructor

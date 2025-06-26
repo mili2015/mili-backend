@@ -18,26 +18,48 @@ public class GfdDocumentoSpecification {
 
     public static Specification<GfdDocumento> filtroStatus(GfdDocumentoStatusEnum status) {
         return (root, query, cb) -> {
-            if(status == null) return null;
+            if (status == null) return null;
             return cb.equal(root.get("status"), status);
         };
     }
 
-    public static Specification<GfdDocumento> filtroPorFornecedor(Integer ctforCodigo ) {
+    public static Specification<GfdDocumento> filtroPorFornecedor(Integer ctforCodigo) {
         return (root, query, cb) -> {
-            if(ctforCodigo == null) return null;
+            if (ctforCodigo == null) return null;
             return cb.equal(root.get("ctforCodigo"), ctforCodigo);
         };
     }
 
-    public static Specification<GfdDocumento> filtroPorTipo(Integer tipoId ) {
+    public static Specification<GfdDocumento> filtroPorTipo(Integer tipoId) {
         return (root, query, cb) -> {
-            if(tipoId == null) return null;
+            if (tipoId == null) return null;
             return cb.equal(root.get("gfdTipoDocumento").get("id"), tipoId);
         };
     }
 
-    public static Specification<GfdDocumento> filtroRangeDataCadastro(LocalDate dataInicio, LocalDate dataFim){
+    public static Specification<GfdDocumento> filtroFornecedorId(Integer id) {
+        return (root, query, cb) -> {
+            if (id == null) return null;
+            return cb.equal(root.get("gfdFuncionario").get("id"), id);
+        };
+    }
+
+    public static Specification<GfdDocumento> filtroFornecedorNome(String nome) {
+        return (root, query, cb) -> {
+            if (nome == null) return null;
+            return cb.like(cb.lower(root.get("gfdFuncionario").get("id")), "%" + nome.toLowerCase() + "%");
+        };
+    }
+
+
+    public static Specification<GfdDocumento> filtroFornecedorCpf(String cnpj) {
+        return (root, query, cb) -> {
+            if (cnpj == null) return null;
+            return cb.equal(root.get("gfdFuncionario").get("id"), cnpj);
+        };
+    }
+
+    public static Specification<GfdDocumento> filtroRangeDataCadastro(LocalDate dataInicio, LocalDate dataFim) {
         return (root, query, cb) -> {
             Path<LocalDate> dataCadastrooPath = root.get("dataCadastro");
 
@@ -57,7 +79,7 @@ public class GfdDocumentoSpecification {
         };
     }
 
-    public static Specification<GfdDocumento> filtroRangeDataValidade(LocalDate dataInicio, LocalDate dataFim){
+    public static Specification<GfdDocumento> filtroRangeDataValidade(LocalDate dataInicio, LocalDate dataFim) {
         return (root, query, cb) -> {
             Path<LocalDate> dataCadastrooPath = root.get("dataValidade");
 
@@ -77,7 +99,7 @@ public class GfdDocumentoSpecification {
         };
     }
 
-    public static Specification<GfdDocumento> filtroRangeDataEmissao(LocalDate dataInicio, LocalDate dataFim){
+    public static Specification<GfdDocumento> filtroRangeDataEmissao(LocalDate dataInicio, LocalDate dataFim) {
         return (root, query, cb) -> {
             Path<LocalDate> dataCadastrooPath = root.get("dataEmissao");
 

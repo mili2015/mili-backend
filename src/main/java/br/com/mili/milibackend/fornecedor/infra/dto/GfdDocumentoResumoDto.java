@@ -1,10 +1,8 @@
 package br.com.mili.milibackend.fornecedor.infra.dto;
 
+import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.GfdDocumentoGetAllInputDto;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -26,6 +24,7 @@ public class GfdDocumentoResumoDto {
     private String observacao;
     private GfdDocumentoStatusEnum status;
     private GfdTipoDocumentoDto gfdTipoDocumento;
+    private FuncionarioDto funcionario;
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -35,6 +34,17 @@ public class GfdDocumentoResumoDto {
         private Integer id;
         private String nome;
         private Integer diasValidade;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    public static class FuncionarioDto {
+        private Integer id;
+        private String nome;
+        private String cpf;
     }
 
 }

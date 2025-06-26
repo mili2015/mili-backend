@@ -19,7 +19,8 @@ public interface GfdDocumentoRepository extends JpaRepository<GfdDocumento, Inte
                   SELECT MAX(d2.id)
                   FROM GfdDocumento d2
                   WHERE d2.ctforCodigo = :codFornecedor
+                          AND (d2.gfdFuncionario.id = :idFuncionario or :idFuncionario is NULL )
                   GROUP BY d2.gfdTipoDocumento.id
               )""")
-    List<GfdDocumento> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer codFornecedor);
+    List<GfdDocumento> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer codFornecedor, Integer idFuncionario);
 }

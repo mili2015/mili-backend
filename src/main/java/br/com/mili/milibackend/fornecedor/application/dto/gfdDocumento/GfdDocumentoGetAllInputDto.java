@@ -29,4 +29,17 @@ public class GfdDocumentoGetAllInputDto extends Filtro {
     private String usuario;
 
     private String status;
+
+    private FuncionarioDto funcionario;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    public static class FuncionarioDto {
+        private Integer id;
+        private String nome;
+        private String cpf;
+    }
 }

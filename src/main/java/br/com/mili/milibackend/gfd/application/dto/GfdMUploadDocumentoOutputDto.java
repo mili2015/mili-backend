@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class GfdUploadDocumentoOutputDto {
+public class GfdMUploadDocumentoOutputDto {
     private List<GfdTipoDocumentoDto> GfdTipoDocumento;
 
 

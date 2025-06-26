@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GfdFornecedorGetInputDto {
+public class GfdMFornecedorGetInputDto {
     private Integer codUsuario;
     private Integer id;
 

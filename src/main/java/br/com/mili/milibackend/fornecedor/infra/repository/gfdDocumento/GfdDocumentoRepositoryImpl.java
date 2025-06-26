@@ -1,6 +1,7 @@
 package br.com.mili.milibackend.fornecedor.infra.repository.gfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumento;
+import br.com.mili.milibackend.fornecedor.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.repository.IGfdDocumentoCustomRepository;
 import br.com.mili.milibackend.fornecedor.infra.dto.GfdDocumentoResumoDto;
@@ -54,6 +55,7 @@ public class GfdDocumentoRepositoryImpl implements IGfdDocumentoCustomRepository
         CriteriaQuery<GfdDocumentoResumoDto> dtoQuery = cb.createQuery(GfdDocumentoResumoDto.class);
         Root<GfdDocumento> root = dtoQuery.from(GfdDocumento.class);
         Join<GfdDocumento, GfdTipoDocumento> tipoDocumentoJoin = root.join("gfdTipoDocumento", JoinType.LEFT);
+        Join<GfdDocumento, GfdFuncionario> funcionarioJoin = root.join("gfdFuncionario", JoinType.LEFT);
 
         dtoQuery.select(cb.construct(
                 GfdDocumentoResumoDto.class,
@@ -72,7 +74,12 @@ public class GfdDocumentoRepositoryImpl implements IGfdDocumentoCustomRepository
                 cb.construct(GfdDocumentoResumoDto.GfdTipoDocumentoDto.class,
                         tipoDocumentoJoin.get("id"),
                         tipoDocumentoJoin.get("nome"),
-                        tipoDocumentoJoin.get("diasValidade"))
+                        tipoDocumentoJoin.get("diasValidade")),
+                cb.construct(GfdDocumentoResumoDto.FuncionarioDto.class,
+                        funcionarioJoin.get("id"),
+                        funcionarioJoin.get("nome"),
+                        funcionarioJoin.get("cpf")
+                )
         ));
 
         dtoQuery.where(root.get("id").in(ids));

@@ -1,7 +1,7 @@
 package br.com.mili.milibackend.gfd.application.dto;
 
-import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
 import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
+import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class GfdUploadDocumentoInputDto {
+public class GfdMUploadDocumentoInputDto {
     private String usuario;
     private Integer codUsuario;
     private Integer id;
@@ -23,7 +23,15 @@ public class GfdUploadDocumentoInputDto {
     @Valid
     private List<GfdDocumentoDto> listGfdDocumento;
     private GfdTipoDocumentoDto gfdTipoDocumento;
+    private GfdFuncionarioDto funcionario;
 
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdFuncionarioDto {
+        private Integer id;
+    }
 
     @NoArgsConstructor
     @AllArgsConstructor

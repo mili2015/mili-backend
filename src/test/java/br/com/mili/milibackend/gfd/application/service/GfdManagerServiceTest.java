@@ -4,17 +4,16 @@ import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsua
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioOutputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByIdOutputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.GfdTipoDocumentoGetByIdOutputDto;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.GfdDocumentoCreateOutputDto;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.GfdDocumentoGetAllInputDto;
+import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.*;
+import br.com.mili.milibackend.fornecedor.application.dto.gfdFuncionario.*;
 import br.com.mili.milibackend.fornecedor.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
-import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
-import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.fornecedor.domain.entity.GfdTipoDocumentoTipoEnum;
+import br.com.mili.milibackend.fornecedor.domain.entity.*;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
+import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IGfdFuncionarioService;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IGfdTipoDocumentoService;
 import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
+import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
@@ -23,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
@@ -31,11 +31,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static br.com.mili.milibackend.gfd.adapter.exception.GfdCodeException.GFD_FORNECEDOR_NAO_ENCONTRADO;
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FORNECEDOR_NAO_ENCONTRADO;
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FUNCIONARIO_SEM_PERMISSAO;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GfdManagerServiceTest {
@@ -45,6 +46,9 @@ class GfdManagerServiceTest {
 
     @Mock
     private IFornecedorService fornecedorService;
+
+    @Mock
+    private IGfdFuncionarioService gfdFuncionarioService;
 
     @Mock
     private IGfdTipoDocumentoService gfdTipoDocumentoService;
@@ -58,10 +62,39 @@ class GfdManagerServiceTest {
     @Mock
     private Tika tika;
 
+
+    private static GfdDocumentoGetAllOutputDto buildDocumento() {
+        return GfdDocumentoGetAllOutputDto.builder()
+                .id(1)
+                .ctforCodigo(123)
+                .tipoDocumento("Nota Fiscal")
+                .nomeArquivo("nf-123456.pdf")
+                .nomeArquivoPath("/documentos/fornecedor/123/nf-123456.pdf")
+                .tamanhoArquivo(204800)
+                .dataEmissao(LocalDate.of(2025, 1, 16))
+                .dataCadastro(LocalDate.of(2025, 7, 15))
+                .dataValidade(LocalDate.of(2025, 1, 15))
+                .tipoArquivo("application/pdf")
+                .observacao("Documento emitido pela transportadora")
+                .status(GfdDocumentoStatusEnum.ENVIADO)
+                .gfdTipoDocumento(GfdDocumentoGetAllOutputDto.GfdTipoDocumentoDto.builder()
+                        .id(10)
+                        .nome("Nota Fiscal")
+                        .diasValidade(180)
+                        .build())
+                .funcionario(GfdDocumentoGetAllOutputDto.FuncionarioDto.builder()
+                        .id(1)
+                        .nome("Teste")
+                        .cpf("12345678909")
+                        .build())
+                .build();
+    }
+
+
     @Test
     void test_VerifyFornecedor__deve_retornar_dados_corretos_quando_fornecedor_encontrado_por_id() {
         // Arrange
-        GfdVerificarFornecedorInputDto inputDto = new GfdVerificarFornecedorInputDto();
+        GfdMVerificarFornecedorInputDto inputDto = new GfdMVerificarFornecedorInputDto();
         inputDto.setId(1);
 
         var fornecedor = new Fornecedor();
@@ -80,7 +113,7 @@ class GfdManagerServiceTest {
         when(modelMapper.map(any(), eq(Fornecedor.class))).thenReturn(fornecedor);
 
         // Act
-        GfdVerificarFornecedorOutputDto outputDto = gfdManagerService.verifyFornecedor(inputDto);
+        GfdMVerificarFornecedorOutputDto outputDto = gfdManagerService.verifyFornecedor(inputDto);
 
         // Assert
         assertTrue(outputDto.getRepresentanteCadastrado());
@@ -90,7 +123,7 @@ class GfdManagerServiceTest {
     @Test
     void test_VerifyFornecedor__deve_lancar_not_found_exception_quando_fornecedor_nao_encontrado() {
         // Arrange
-        GfdVerificarFornecedorInputDto inputDto = new GfdVerificarFornecedorInputDto();
+        GfdMVerificarFornecedorInputDto inputDto = new GfdMVerificarFornecedorInputDto();
         inputDto.setId(1);
 
         when(fornecedorService.getById(1)).thenReturn(null);
@@ -104,7 +137,7 @@ class GfdManagerServiceTest {
     @Test
     void test_VerifyFornecedor__deve_retornar_representante_nao_cadastrado_quando_fornecedor_encontrado_por_cod_usuario() {
         // Arrange
-        GfdVerificarFornecedorInputDto inputDto = new GfdVerificarFornecedorInputDto();
+        GfdMVerificarFornecedorInputDto inputDto = new GfdMVerificarFornecedorInputDto();
         inputDto.setCodUsuario(123);
 
         var fornecedor = new Fornecedor();
@@ -118,7 +151,7 @@ class GfdManagerServiceTest {
         when(modelMapper.map(any(), eq(Fornecedor.class))).thenReturn(fornecedor);
 
         // Act
-        GfdVerificarFornecedorOutputDto outputDto = gfdManagerService.verifyFornecedor(inputDto);
+        GfdMVerificarFornecedorOutputDto outputDto = gfdManagerService.verifyFornecedor(inputDto);
 
         // Assert
         assertFalse(outputDto.getRepresentanteCadastrado());
@@ -128,7 +161,7 @@ class GfdManagerServiceTest {
     @Test
     void test_VerifyDocumentos__deve_retornar_status_nao_enviado_e_outros_quando_sem_documentos() {
         // Arrange
-        GfdVerificarDocumentosInputDto inputDto = new GfdVerificarDocumentosInputDto();
+        GfdMVerificarDocumentosInputDto inputDto = new GfdMVerificarDocumentosInputDto();
         inputDto.setId(1);
 
         Fornecedor fornecedor = new Fornecedor();
@@ -140,14 +173,14 @@ class GfdManagerServiceTest {
         when(fornecedorService.getById(1)).thenReturn(fornecedorGetByIdOutputDto);
 
         when(modelMapper.map(any(), eq(Fornecedor.class))).thenReturn(fornecedor);
-        when(gfdDocumentoService.findLatestDocumentsGroupedByTipoAndFornecedorId(1)).thenReturn(Collections.emptyList());
+        when(gfdDocumentoService.findLatestDocumentsGroupedByTipoAndFornecedorId(1, null)).thenReturn(Collections.emptyList());
         when(gfdTipoDocumentoService.getAll(any())).thenReturn(Arrays.asList(
-                new GfdTipoDocumentoGetAllOutputDto(1, "Doc1", GfdTipoDocumentoTipoEnum.FORNECEDOR,30 ,true,true),
-                new GfdTipoDocumentoGetAllOutputDto(2, "Doc2", GfdTipoDocumentoTipoEnum.FORNECEDOR,30 ,false,true)
+                new GfdTipoDocumentoGetAllOutputDto(1, "Doc1", GfdTipoDocumentoTipoEnum.FORNECEDOR, 30, true, true),
+                new GfdTipoDocumentoGetAllOutputDto(2, "Doc2", GfdTipoDocumentoTipoEnum.FORNECEDOR, 30, false, true)
         ));
 
         // Act
-        List<GfdVerificarDocumentosOutputDto> outputDtoList = gfdManagerService.verifyDocumentos(inputDto);
+        List<GfdMVerificarDocumentosOutputDto> outputDtoList = gfdManagerService.verifyDocumentos(inputDto);
 
         // Assert
         assertEquals(2, outputDtoList.size());
@@ -158,7 +191,7 @@ class GfdManagerServiceTest {
     @Test
     void test_VerifyDocumentos__deve_retornar_status_conforme_e_outros_quando_documentos_obrigatorios_existem() {
         // Arrange
-        GfdVerificarDocumentosInputDto inputDto = new GfdVerificarDocumentosInputDto();
+        GfdMVerificarDocumentosInputDto inputDto = new GfdMVerificarDocumentosInputDto();
         inputDto.setId(1);
 
         Fornecedor fornecedor = new Fornecedor();
@@ -166,7 +199,7 @@ class GfdManagerServiceTest {
 
         FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto doc = new FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto();
         doc.setStatus(GfdDocumentoStatusEnum.CONFORME);
-        doc.setGfdTipoDocumento(new FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto.GfdTipoDocumentoDto(1, "Doc1", 30 ));
+        doc.setGfdTipoDocumento(new FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto.GfdTipoDocumentoDto(1, "Doc1", 30));
 
         var fornecedorGetByIdOutputDto = new FornecedorGetByIdOutputDto();
         fornecedor.setCodigo(1);
@@ -174,14 +207,14 @@ class GfdManagerServiceTest {
         when(fornecedorService.getById(1)).thenReturn(fornecedorGetByIdOutputDto);
 
         when(modelMapper.map(any(), eq(Fornecedor.class))).thenReturn(fornecedor);
-        when(gfdDocumentoService.findLatestDocumentsGroupedByTipoAndFornecedorId(1)).thenReturn(Arrays.asList(doc));
+        when(gfdDocumentoService.findLatestDocumentsGroupedByTipoAndFornecedorId(1, null)).thenReturn(Arrays.asList(doc));
         when(gfdTipoDocumentoService.getAll(any())).thenReturn(Arrays.asList(
-                new GfdTipoDocumentoGetAllOutputDto(1, "Doc1", GfdTipoDocumentoTipoEnum.FORNECEDOR,30 ,true,true),
-                new GfdTipoDocumentoGetAllOutputDto(2, "Doc2", GfdTipoDocumentoTipoEnum.FORNECEDOR,30 ,false,true)
+                new GfdTipoDocumentoGetAllOutputDto(1, "Doc1", GfdTipoDocumentoTipoEnum.FORNECEDOR, 30, true, true),
+                new GfdTipoDocumentoGetAllOutputDto(2, "Doc2", GfdTipoDocumentoTipoEnum.FORNECEDOR, 30, false, true)
         ));
 
         // Act
-        List<GfdVerificarDocumentosOutputDto> outputDtoList = gfdManagerService.verifyDocumentos(inputDto);
+        List<GfdMVerificarDocumentosOutputDto> outputDtoList = gfdManagerService.verifyDocumentos(inputDto);
 
         // Assert
         assertEquals(2, outputDtoList.size());
@@ -192,7 +225,7 @@ class GfdManagerServiceTest {
     @Test
     void test_GetFornecedor__deve_retornar_fornecedor_quando_encontrado_por_id() {
         // Arrange
-        GfdFornecedorGetInputDto inputDto = new GfdFornecedorGetInputDto();
+        GfdMFornecedorGetInputDto inputDto = new GfdMFornecedorGetInputDto();
         inputDto.setId(1);
 
         Fornecedor fornecedor = new Fornecedor();
@@ -204,10 +237,10 @@ class GfdManagerServiceTest {
         when(fornecedorService.getById(1)).thenReturn(fornecedorGetByIdOutputDto);
 
         when(modelMapper.map(any(), eq(Fornecedor.class))).thenReturn(fornecedor);
-        when(modelMapper.map(fornecedor, GfdFornecedorGetOutputDto.class)).thenReturn(new GfdFornecedorGetOutputDto());
+        when(modelMapper.map(fornecedor, GfdMFornecedorGetOutputDto.class)).thenReturn(new GfdMFornecedorGetOutputDto());
 
         // Act
-        GfdFornecedorGetOutputDto outputDto = gfdManagerService.getFornecedor(inputDto);
+        GfdMFornecedorGetOutputDto outputDto = gfdManagerService.getFornecedor(inputDto);
 
         // Assert
         assertNotNull(outputDto);
@@ -216,13 +249,13 @@ class GfdManagerServiceTest {
     @Test
     void test_GetFornecedor__deve_lancar_not_found_exception_quando_fornecedor_nao_encontrado() {
         // Arrange
-        GfdFornecedorGetInputDto inputDto = new GfdFornecedorGetInputDto();
+        GfdMFornecedorGetInputDto inputDto = new GfdMFornecedorGetInputDto();
         inputDto.setId(1);
 
         when(fornecedorService.getById(1)).thenReturn(null);
 
         // Act & Assert
-        NotFoundException ex = assertThrows(NotFoundException.class, () ->  gfdManagerService.getFornecedor(inputDto));
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> gfdManagerService.getFornecedor(inputDto));
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), ex.getMessage());
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getCode(), ex.getCode());
     }
@@ -230,14 +263,13 @@ class GfdManagerServiceTest {
     @Test
     void test_UploadDocumento__deve_realizar_upload_com_sucesso() {
         // Arrange
-        GfdUploadDocumentoInputDto inputDto = new GfdUploadDocumentoInputDto();
+        GfdMUploadDocumentoInputDto inputDto = new GfdMUploadDocumentoInputDto();
         inputDto.setId(1);
-        inputDto.setGfdTipoDocumento(new GfdUploadDocumentoInputDto.GfdTipoDocumentoDto(1));
-
+        inputDto.setGfdTipoDocumento(new GfdMUploadDocumentoInputDto.GfdTipoDocumentoDto(1));
 
 
         inputDto.setListGfdDocumento(Arrays.asList(
-                new GfdUploadDocumentoInputDto.GfdDocumentoDto(new AttachmentDto("file.txt", "data"), LocalDate.now(), LocalDate.now().plusDays(1))
+                new GfdMUploadDocumentoInputDto.GfdDocumentoDto(new AttachmentDto("file.txt", "data"), LocalDate.now(), LocalDate.now().plusDays(1))
         ));
 
         Fornecedor fornecedor = new Fornecedor();
@@ -256,10 +288,10 @@ class GfdManagerServiceTest {
         when(gfdTipoDocumentoService.getById(1)).thenReturn(gfdTipoDocumentoGetByIdOutputDto);
         when(tika.detect(any(byte[].class))).thenReturn("text/plain");
         when(gfdDocumentoService.create(any())).thenReturn(new GfdDocumentoCreateOutputDto());
-        when(modelMapper.map(any(), eq(GfdUploadDocumentoOutputDto.GfdTipoDocumentoDto.class))).thenReturn(new GfdUploadDocumentoOutputDto.GfdTipoDocumentoDto());
+        when(modelMapper.map(any(), eq(GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto.class))).thenReturn(new GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto());
 
         // Act
-        GfdUploadDocumentoOutputDto outputDto = gfdManagerService.uploadDocumento(inputDto);
+        GfdMUploadDocumentoOutputDto outputDto = gfdManagerService.uploadDocumento(inputDto);
 
         // Assert
         assertNotNull(outputDto);
@@ -269,7 +301,7 @@ class GfdManagerServiceTest {
     @Test
     void test_UploadDocumento__deve_lancar_not_found_exception_quando_fornecedor_nao_encontrado() {
         // Arrange
-        GfdUploadDocumentoInputDto inputDto = new GfdUploadDocumentoInputDto();
+        GfdMUploadDocumentoInputDto inputDto = new GfdMUploadDocumentoInputDto();
         inputDto.setId(1);
 
         when(fornecedorService.getById(1)).thenReturn(null);
@@ -283,7 +315,7 @@ class GfdManagerServiceTest {
     @Test
     void test_GetAllDocumentos__deve_retornar_lista_vazia_quando_sem_documentos() {
         // Arrange
-        GfdDocumentosGetAllInputDto inputDto = new GfdDocumentosGetAllInputDto();
+        GfdMDocumentosGetAllInputDto inputDto = new GfdMDocumentosGetAllInputDto();
         inputDto.setId(1);
 
         Fornecedor fornecedor = new Fornecedor();
@@ -301,7 +333,7 @@ class GfdManagerServiceTest {
         when(gfdDocumentoService.getAll(any())).thenReturn(new PageBaseImpl<>(Collections.emptyList(), 1, 10, 0));
 
         // Act
-        GfdDocumentosGetAllOutputDto outputDto = gfdManagerService.getAllDocumentos(inputDto);
+        GfdMDocumentosGetAllOutputDto outputDto = gfdManagerService.getAllDocumentos(inputDto);
 
         // Assert
         assertNotNull(outputDto);
@@ -311,7 +343,7 @@ class GfdManagerServiceTest {
     @Test
     void test_GetAllDocumentos__deve_retornar_dados_corretos_quando_tipo_documento_especificado_e_sem_documentos() {
         // Arrange
-        GfdDocumentosGetAllInputDto inputDto = new GfdDocumentosGetAllInputDto();
+        GfdMDocumentosGetAllInputDto inputDto = new GfdMDocumentosGetAllInputDto();
         inputDto.setId(1);
         inputDto.setTipoDocumentoId(1);
 
@@ -335,7 +367,7 @@ class GfdManagerServiceTest {
         when(gfdTipoDocumentoService.getById(1)).thenReturn(tipoDocumento);
 
         // Act
-        GfdDocumentosGetAllOutputDto outputDto = gfdManagerService.getAllDocumentos(inputDto);
+        GfdMDocumentosGetAllOutputDto outputDto = gfdManagerService.getAllDocumentos(inputDto);
 
         // Assert
         assertNotNull(outputDto);
@@ -344,5 +376,479 @@ class GfdManagerServiceTest {
         assertNotNull(outputDto.getGfdTipoDocumento());
         assertEquals(1, outputDto.getGfdTipoDocumento().getId(), "O ID do tipo de documento deve ser 1");
         assertEquals("Doc1", outputDto.getGfdTipoDocumento().getNome(), "O nome do tipo de documento deve ser 'Doc1'");
+    }
+
+    @Test
+    void test_GetAllDocumentos__deve_retornar_documentos_funcionario_quando_tipo_documento_especificado() {
+        // Arrange
+        GfdMDocumentosGetAllInputDto inputDto = new GfdMDocumentosGetAllInputDto();
+        inputDto.setId(1);
+        inputDto.setTipoDocumentoId(1);
+
+        var funcionario = new GfdMDocumentosGetAllInputDto.FuncionarioDto();
+        funcionario.setId(1);
+        inputDto.setFuncionario(funcionario);
+
+        var fornecedorGetByIdOutputDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdOutputDto.setCodigo(1);
+
+        var fornecedor = new Fornecedor();
+        fornecedor.setCodigo(1);
+
+        var tipoDocumento = new GfdTipoDocumentoGetByIdOutputDto();
+        tipoDocumento.setId(1);
+        tipoDocumento.setNome("Doc1");
+        tipoDocumento.setDiasValidade(180);
+
+        var documento1 = buildDocumento();
+        documento1.setId(1);
+        var documento2 = buildDocumento();
+        documento2.setId(2);
+
+        var documentos = Arrays.asList(documento1, documento2);
+
+        // Mock do fornecedor
+        when(fornecedorService.getById(1)).thenReturn(fornecedorGetByIdOutputDto);
+        when(modelMapper.map(fornecedorGetByIdOutputDto, Fornecedor.class)).thenReturn(fornecedor);
+
+        // Mock do input mapeado
+        var gfdDocumentoGetAllInputDto = new GfdDocumentoGetAllInputDto();
+        when(modelMapper.map(inputDto, GfdDocumentoGetAllInputDto.class)).thenReturn(gfdDocumentoGetAllInputDto);
+
+        // Mock do retorno de documentos
+        when(gfdDocumentoService.getAll(any())).thenReturn(new PageBaseImpl<>(documentos, 1, 10, 2));
+
+        GfdMDocumentosGetAllOutputDto.GfdDocumentoDto.GfdTipoDocumentoDto tipoDto = new GfdMDocumentosGetAllOutputDto.GfdDocumentoDto.GfdTipoDocumentoDto();
+        tipoDto.setId(1);
+        tipoDto.setNome("Doc1");
+        tipoDto.setDiasValidade(180);
+
+        var documentoDto1 = new GfdMDocumentosGetAllOutputDto.GfdDocumentoDto();
+        documentoDto1.setId(1);
+        documentoDto1.setNomeArquivo("nf-123456.pdf");
+        documentoDto1.setGfdTipoDocumento(tipoDto);
+
+        var documentoDto2 = new GfdMDocumentosGetAllOutputDto.GfdDocumentoDto();
+        documentoDto2.setId(2);
+        documentoDto2.setNomeArquivo("nf-654321.pdf");
+        documentoDto2.setGfdTipoDocumento(tipoDto);
+
+        when(modelMapper.map(eq(documento1), eq(GfdMDocumentosGetAllOutputDto.GfdDocumentoDto.class))).thenReturn(documentoDto1);
+        when(modelMapper.map(eq(documento2), eq(GfdMDocumentosGetAllOutputDto.GfdDocumentoDto.class))).thenReturn(documentoDto2);
+
+        // Act
+        var outputDto = gfdManagerService.getAllDocumentos(inputDto);
+
+        // Assert
+        assertNotNull(outputDto);
+        assertNotNull(outputDto.getGfdDocumento());
+        assertEquals(2, outputDto.getGfdDocumento().getContent().size(), "Deve retornar 2 documentos");
+
+        assertEquals(1, outputDto.getGfdDocumento().getContent().get(0).getId());
+        assertEquals(2, outputDto.getGfdDocumento().getContent().get(1).getId());
+
+        assertNotNull(outputDto.getGfdTipoDocumento());
+        assertEquals(1, outputDto.getGfdTipoDocumento().getId(), "ID do tipo de documento deve ser 1");
+        assertEquals("Doc1", outputDto.getGfdTipoDocumento().getNome(), "Nome deve ser 'Doc1'");
+        assertEquals(180, outputDto.getGfdTipoDocumento().getDiasValidade(), "Dias de validade deve ser 180");
+    }
+
+    @Test
+    void test_GetAllDocumentos__deve_calcular_navegacao_nextDoc_previousDoc_corretamente() {
+        // Arrange
+        var inputDto = new GfdMDocumentosGetAllInputDto();
+        inputDto.setId(1);
+
+        inputDto.setTipoDocumentoId(2);
+
+        // Coloca funcionario para pegar lista de tipo FUNCIONARIO
+        var funcionario = new GfdMDocumentosGetAllInputDto.FuncionarioDto();
+        funcionario.setId(1);
+        inputDto.setFuncionario(funcionario);
+
+        var fornecedorGetByIdOutputDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdOutputDto.setCodigo(1);
+
+        var fornecedor = new Fornecedor();
+        fornecedor.setCodigo(1);
+
+        var tiposDocumento = Arrays.asList(
+                new GfdTipoDocumentoGetAllOutputDto(1, "Tipo 1", GfdTipoDocumentoTipoEnum.FUNCIONARIO, 100, true, true),
+                new GfdTipoDocumentoGetAllOutputDto(2, "Tipo 2", GfdTipoDocumentoTipoEnum.FUNCIONARIO, 100, true, true),
+                new GfdTipoDocumentoGetAllOutputDto(3, "Tipo 3", GfdTipoDocumentoTipoEnum.FUNCIONARIO, 100, true, true)
+        );
+
+        // Mocks
+        when(fornecedorService.getById(1)).thenReturn(fornecedorGetByIdOutputDto);
+        when(modelMapper.map(fornecedorGetByIdOutputDto, Fornecedor.class)).thenReturn(fornecedor);
+
+        var gfdDocumentoGetAllInputDto = new GfdDocumentoGetAllInputDto();
+        when(modelMapper.map(inputDto, GfdDocumentoGetAllInputDto.class)).thenReturn(gfdDocumentoGetAllInputDto);
+
+        when(gfdDocumentoService.getAll(any())).thenReturn(new PageBaseImpl<>(Collections.emptyList(), 1, 10, 0));
+
+        var tipoDocumentoAtual = new GfdTipoDocumentoGetByIdOutputDto();
+        tipoDocumentoAtual.setId(2);
+        tipoDocumentoAtual.setNome("Tipo 2");
+        tipoDocumentoAtual.setDiasValidade(120);
+        when(gfdTipoDocumentoService.getById(2)).thenReturn(tipoDocumentoAtual);
+
+
+        var serviceSpy = Mockito.spy(gfdManagerService);
+        doReturn(tiposDocumento).when(serviceSpy).getFornecedorTipoDocumentos(true);
+
+        // Act
+        var outputDto = serviceSpy.getAllDocumentos(inputDto);
+
+        // Assert
+        assertNotNull(outputDto);
+
+        // Espera que previousDoc seja o id anterior (1) e nextDoc seja o próximo (3)
+        assertEquals(3, outputDto.getNextDoc(), "nextDoc deve ser 3");
+        assertEquals(1, outputDto.getPreviousDoc(), "previousDoc deve ser 1");
+    }
+
+    @Test
+    void test_CreateFuncionario__deve_criar_funcionario_corretamente_quando_dados_validos() {
+        // Arrange
+        Integer codUsuario = 10;
+        Integer codFornecedor = 20;
+
+        // DTO de entrada com dados básicos
+        GfdMFuncionarioCreateInputDto.GfdFuncionarioDto.FornecedorDto fornecedorInputDto =
+                new GfdMFuncionarioCreateInputDto.GfdFuncionarioDto.FornecedorDto(codFornecedor);
+
+        GfdMFuncionarioCreateInputDto.GfdFuncionarioDto funcionarioInputDto =
+                new GfdMFuncionarioCreateInputDto.GfdFuncionarioDto();
+        funcionarioInputDto.setNome("João");
+        funcionarioInputDto.setFornecedor(fornecedorInputDto);
+
+        GfdMFuncionarioCreateInputDto inputDto = new GfdMFuncionarioCreateInputDto();
+        inputDto.setCodUsuario(codUsuario);
+        inputDto.setFuncionario(funcionarioInputDto);
+
+        // Fornecedor mapeado
+        FornecedorGetByIdOutputDto fornecedorDto = new FornecedorGetByIdOutputDto();
+        fornecedorDto.setCodigo(codFornecedor);
+        fornecedorDto.setCodUsuario(codUsuario);
+
+        Fornecedor fornecedor = new Fornecedor();
+        fornecedor.setCodigo(codFornecedor);
+        fornecedor.setCodUsuario(codUsuario);
+
+        // Funcionário de entrada para o service de domínio
+        GfdFuncionarioCreateInputDto funcionarioCreateInputDto = new GfdFuncionarioCreateInputDto();
+        funcionarioCreateInputDto.setFornecedor(new GfdFuncionarioCreateInputDto.FornecedorDto(codFornecedor));
+        funcionarioCreateInputDto.setNome("João");
+
+        // Funcionário criado pelo service
+        GfdFuncionarioCreateOutputDto funcionarioCriado = new GfdFuncionarioCreateOutputDto();
+        funcionarioCriado.setId(1);
+        funcionarioCriado.setNome("João");
+
+        // DTO mapeado de saída
+        GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto funcionarioOutputDto =
+                new GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto();
+        funcionarioOutputDto.setId(1);
+        funcionarioOutputDto.setNome("João");
+
+        // Mocks
+        when(fornecedorService.getById(codFornecedor)).thenReturn(fornecedorDto);
+        when(modelMapper.map(fornecedorDto, Fornecedor.class)).thenReturn(fornecedor);
+        when(modelMapper.map(funcionarioInputDto, GfdFuncionarioCreateInputDto.class)).thenReturn(new GfdFuncionarioCreateInputDto());
+        when(gfdFuncionarioService.create(any())).thenReturn(funcionarioCriado);
+        when(modelMapper.map(funcionarioCriado, GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto.class)).thenReturn(funcionarioOutputDto);
+
+        // Act
+        var output = gfdManagerService.createFuncionario(inputDto);
+
+        // Assert
+        assertNotNull(output);
+        assertNotNull(output.getFuncionario());
+        assertEquals(1, output.getFuncionario().getId());
+        assertEquals("João", output.getFuncionario().getNome());
+    }
+    @Test
+    void test_CreateFuncionario_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
+        // Arrange
+        Integer codUsuario = 100;
+        Integer codFornecedor = 200;
+
+        var fornecedorInputDto = new GfdMFuncionarioCreateInputDto.GfdFuncionarioDto.FornecedorDto(codFornecedor);
+        var funcDto = new GfdMFuncionarioCreateInputDto.GfdFuncionarioDto();
+        funcDto.setFornecedor(fornecedorInputDto);
+        funcDto.setNome("Maria");
+
+        var inputDto = new GfdMFuncionarioCreateInputDto();
+        inputDto.setCodUsuario(codUsuario);
+        inputDto.setFuncionario(funcDto);
+
+        var fornecedorGetByIdDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdDto.setCodigo(codFornecedor);
+        fornecedorGetByIdDto.setCodUsuario(333);
+        when(fornecedorService.getById(codFornecedor)).thenReturn(fornecedorGetByIdDto);
+
+        var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setCodigo(codFornecedor);
+        fornecedorEntity.setCodUsuario(333);
+        when(modelMapper.map(fornecedorGetByIdDto, Fornecedor.class))
+                .thenReturn(fornecedorEntity);
+
+        // Act
+        var ex = assertThrows(ForbiddenException.class, () -> gfdManagerService.createFuncionario(inputDto));
+        assertEquals(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), ex.getMessage());
+        assertEquals(GFD_FUNCIONARIO_SEM_PERMISSAO.getCode(), ex.getCode());
+    }
+
+    @Test
+    void test_UpdateFuncionario__deve_atualizar_funcionario_corretamente_quando_dados_validos() {
+        // Arrange
+        Integer codUsuario = 100;
+        Integer codFornecedor = 200;
+        Integer idFuncionario = 5;
+
+        var fornecedorInputDto = new GfdMFuncionarioUpdateInputDto.GfdFuncionarioDto.FornecedorDto(codFornecedor);
+        var funcDto = new GfdMFuncionarioUpdateInputDto.GfdFuncionarioDto();
+        funcDto.setId(idFuncionario);
+        funcDto.setFornecedor(fornecedorInputDto);
+        funcDto.setNome("Maria");
+
+        var inputDto = new GfdMFuncionarioUpdateInputDto();
+        inputDto.setCodUsuario(codUsuario);
+        inputDto.setFuncionario(funcDto);
+
+        var fornecedorGetByIdDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdDto.setCodigo(codFornecedor);
+        fornecedorGetByIdDto.setCodUsuario(codUsuario);
+        when(fornecedorService.getById(codFornecedor)).thenReturn(fornecedorGetByIdDto);
+
+        var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setCodigo(codFornecedor);
+        fornecedorEntity.setCodUsuario(codUsuario);
+        when(modelMapper.map(fornecedorGetByIdDto, Fornecedor.class))
+                .thenReturn(fornecedorEntity);
+
+        var domainUpdateInput = new GfdFuncionarioUpdateInputDto();
+        domainUpdateInput.setId(idFuncionario);
+        domainUpdateInput.setNome("Maria");
+        when(modelMapper.map(funcDto, GfdFuncionarioUpdateInputDto.class))
+                .thenReturn(domainUpdateInput);
+
+        var domainOutputDto = new GfdFuncionarioUpdateOutputDto();
+        domainOutputDto.setId(idFuncionario);
+        domainOutputDto.setNome("Maria Atualizada");
+        when(gfdFuncionarioService.update(domainUpdateInput))
+                .thenReturn(domainOutputDto);
+
+        var outFuncDto = new GfdMFuncionarioUpdateOutputDto.GfdFuncionarioDto();
+        outFuncDto.setId(idFuncionario);
+        outFuncDto.setNome("Maria Atualizada");
+        when(modelMapper.map(domainOutputDto, GfdMFuncionarioUpdateOutputDto.GfdFuncionarioDto.class))
+                .thenReturn(outFuncDto);
+
+        // Act
+        var result = gfdManagerService.updateFuncionario(inputDto);
+
+        // Assert
+        assertNotNull(result);
+        assertNotNull(result.getFuncionario());
+        assertEquals(idFuncionario, result.getFuncionario().getId());
+        assertEquals("Maria Atualizada", result.getFuncionario().getNome());
+    }
+
+    @Test
+    void test_UpdateFuncionario_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
+        // Arrange
+        Integer codUsuario = 100;
+        Integer codFornecedor = 200;
+        Integer idFuncionario = 5;
+
+        var fornecedorInputDto = new GfdMFuncionarioUpdateInputDto.GfdFuncionarioDto.FornecedorDto(codFornecedor);
+        var funcDto = new GfdMFuncionarioUpdateInputDto.GfdFuncionarioDto();
+        funcDto.setId(idFuncionario);
+        funcDto.setFornecedor(fornecedorInputDto);
+        funcDto.setNome("Maria");
+
+        var inputDto = new GfdMFuncionarioUpdateInputDto();
+        inputDto.setCodUsuario(codUsuario);
+        inputDto.setFuncionario(funcDto);
+
+        var fornecedorGetByIdDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdDto.setCodigo(codFornecedor);
+        fornecedorGetByIdDto.setCodUsuario(333);
+        when(fornecedorService.getById(codFornecedor)).thenReturn(fornecedorGetByIdDto);
+
+        var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setCodigo(codFornecedor);
+        fornecedorEntity.setCodUsuario(333);
+        when(modelMapper.map(fornecedorGetByIdDto, Fornecedor.class))
+                .thenReturn(fornecedorEntity);
+
+        // Act
+        var ex = assertThrows(ForbiddenException.class, () -> gfdManagerService.updateFuncionario(inputDto));
+        assertEquals(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), ex.getMessage());
+        assertEquals(GFD_FUNCIONARIO_SEM_PERMISSAO.getCode(), ex.getCode());
+    }
+
+    @Test
+    void test_getFuncionario_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
+        // Arrange
+        Integer codUsuario = 100;
+        Integer codFornecedor = 200;
+        Integer idFuncionario = 5;
+
+        var fornecedorInputDto = new GfdMFuncionarioGetInputDto.GfdFuncionarioDto.FornecedorDto(codFornecedor);
+        var funcDto = new GfdMFuncionarioGetInputDto.GfdFuncionarioDto();
+        funcDto.setId(idFuncionario);
+        funcDto.setFornecedor(fornecedorInputDto);
+        funcDto.setNome("Maria");
+
+        var inputDto = new GfdMFuncionarioGetInputDto();
+        inputDto.setCodUsuario(codUsuario);
+        inputDto.setFuncionario(funcDto);
+
+        var fornecedorGetByIdDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdDto.setCodigo(codFornecedor);
+        fornecedorGetByIdDto.setCodUsuario(333);
+        when(fornecedorService.getById(codFornecedor)).thenReturn(fornecedorGetByIdDto);
+
+        var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setCodigo(codFornecedor);
+        fornecedorEntity.setCodUsuario(333);
+        when(modelMapper.map(fornecedorGetByIdDto, Fornecedor.class))
+                .thenReturn(fornecedorEntity);
+
+        // Act
+        var ex = assertThrows(ForbiddenException.class, () -> gfdManagerService.getFuncionario(inputDto));
+        assertEquals(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), ex.getMessage());
+        assertEquals(GFD_FUNCIONARIO_SEM_PERMISSAO.getCode(), ex.getCode());
+    }
+
+    @Test
+    void test_getFuncionario_deve_retornar_funcionario_quando_input_valido() {
+        // Arrange
+        Integer codUsuario    = 100;
+        Integer codFornecedor = 200;
+        Integer idFuncionario = 5;
+
+        var fornecedorInputDto = new GfdMFuncionarioGetInputDto.GfdFuncionarioDto.FornecedorDto(codFornecedor);
+        var funcDto = new GfdMFuncionarioGetInputDto.GfdFuncionarioDto();
+        funcDto.setId(idFuncionario);
+        funcDto.setFornecedor(fornecedorInputDto);
+        funcDto.setNome("Maria");
+
+        var inputDto = new GfdMFuncionarioGetInputDto();
+        inputDto.setCodUsuario(codUsuario);
+        inputDto.setFuncionario(funcDto);
+
+        var fornecedorGetByIdDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdDto.setCodigo(codFornecedor);
+        fornecedorGetByIdDto.setCodUsuario(codUsuario);
+
+        when(fornecedorService.getById(codFornecedor)).thenReturn(fornecedorGetByIdDto);
+
+        var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setCodigo(codFornecedor);
+        fornecedorEntity.setCodUsuario(codUsuario);
+
+        when(modelMapper.map(fornecedorGetByIdDto, Fornecedor.class))
+                .thenReturn(fornecedorEntity);
+
+        var funcionarioEntity = new GfdFuncionarioGetByIdOutputDto();
+        funcionarioEntity.setId(idFuncionario);
+        funcionarioEntity.setNome("Maria");
+        when(gfdFuncionarioService.getById(idFuncionario))
+                .thenReturn(funcionarioEntity);
+
+        var funcionarioDto = new GfdMFuncionarioGetOutputDto.GfdFuncionarioDto();
+        funcionarioDto.setId(idFuncionario);
+        funcionarioDto.setNome("Maria");
+        when(modelMapper.map(funcionarioEntity, GfdMFuncionarioGetOutputDto.GfdFuncionarioDto.class))
+                .thenReturn(funcionarioDto);
+
+        // Act
+        var result = gfdManagerService.getFuncionario(inputDto);
+
+        // Assert
+        assertNotNull(result, "O retorno não deve ser nulo");
+        assertNotNull(result.getFuncionario(), "O campo 'funcionario' não deve ser nulo");
+        assertEquals(idFuncionario, result.getFuncionario().getId(), "O ID deve bater com o esperado");
+        assertEquals("Maria",       result.getFuncionario().getNome(), "O nome deve bater com o esperado");
+    }
+
+    @Test
+    void test_deleteFuncionario_deve_deletar_funcionario_quando_input_valido() {
+        // Arrange
+        Integer codUsuario    = 100;
+        Integer codFornecedor = 200;
+        Integer idFuncionario = 5;
+
+        var fornecedorInputDto = new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto.FornecedorDto(codFornecedor);
+        var funcDto = new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto();
+        funcDto.setId(idFuncionario);
+        funcDto.setFornecedor(fornecedorInputDto);
+
+        var inputDto = new GfdMFuncionarioDeleteInputDto();
+        inputDto.setCodUsuario(codUsuario);
+        inputDto.setFuncionario(funcDto);
+
+        var fornecedorGetByIdDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdDto.setCodigo(codFornecedor);
+        fornecedorGetByIdDto.setCodUsuario(codUsuario);
+        when(fornecedorService.getById(codFornecedor)).thenReturn(fornecedorGetByIdDto);
+
+        var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setCodigo(codFornecedor);
+        fornecedorEntity.setCodUsuario(codUsuario);
+        when(modelMapper.map(fornecedorGetByIdDto, Fornecedor.class))
+                .thenReturn(fornecedorEntity);
+
+        var domainDeleteDto = new GfdFuncionarioDeleteInputDto();
+        domainDeleteDto.setId(idFuncionario);
+        when(modelMapper.map(funcDto, GfdFuncionarioDeleteInputDto.class))
+                .thenReturn(domainDeleteDto);
+
+        // Act
+        gfdManagerService.deleteFuncionario(inputDto);
+
+        // Assert
+        verify(gfdFuncionarioService, times(1)).delete(domainDeleteDto);
+    }
+
+    @Test
+    void test_deleteFuncionario_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
+        // Arrange
+        Integer codUsuario    = 100;
+        Integer codFornecedor = 200;
+        Integer idFuncionario = 5;
+
+        var fornecedorInputDto = new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto.FornecedorDto(codFornecedor);
+        var funcDto = new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto();
+        funcDto.setId(idFuncionario);
+        funcDto.setFornecedor(fornecedorInputDto);
+
+        var inputDto = new GfdMFuncionarioDeleteInputDto();
+        inputDto.setCodUsuario(codUsuario);
+        inputDto.setFuncionario(funcDto);
+
+        var fornecedorGetByIdDto = new FornecedorGetByIdOutputDto();
+        fornecedorGetByIdDto.setCodigo(codFornecedor);
+        fornecedorGetByIdDto.setCodUsuario(999); // diferente
+        when(fornecedorService.getById(codFornecedor)).thenReturn(fornecedorGetByIdDto);
+
+        var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setCodigo(codFornecedor);
+        fornecedorEntity.setCodUsuario(999);
+        when(modelMapper.map(fornecedorGetByIdDto, Fornecedor.class))
+                .thenReturn(fornecedorEntity);
+
+        // Act & Assert
+        var ex = assertThrows(ForbiddenException.class, () ->
+                gfdManagerService.deleteFuncionario(inputDto)
+        );
+        assertEquals(
+                GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(),
+                ex.getMessage()
+        );
     }
 }

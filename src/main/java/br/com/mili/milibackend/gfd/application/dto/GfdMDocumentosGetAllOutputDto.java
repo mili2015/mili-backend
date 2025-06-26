@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-public class GfdDocumentosGetAllOutputDto {
+public class GfdMDocumentosGetAllOutputDto {
     private MyPage<GfdDocumentoDto> gfdDocumento;
     private GfdTipoDocumentoDto gfdTipoDocumento;
     private Integer nextDoc;

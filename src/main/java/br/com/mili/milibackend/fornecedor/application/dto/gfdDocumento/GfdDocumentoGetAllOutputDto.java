@@ -24,15 +24,28 @@ public class GfdDocumentoGetAllOutputDto {
     private String observacao;
     private GfdDocumentoStatusEnum status;
     private GfdTipoDocumentoDto gfdTipoDocumento;
+    private FuncionarioDto funcionario;
 
 
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
     @Setter
+    @Builder
     public static class GfdTipoDocumentoDto {
         private Integer id;
         private String nome;
         private Integer diasValidade;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    public static class FuncionarioDto {
+        private Integer id;
+        private String nome;
+        private String cpf;
     }
 }
