@@ -198,7 +198,7 @@ class GfdDocumentoServiceTest {
             target.setDataEmissao(source.getDataEmissao());
             target.setDataValidade(source.getDataValidade());
             target.setObservacao(source.getObservacao());
-            return null; // método void
+            return null;
         }).when(modelMapper).map(inputDto, gfdDocumento);
 
         when(gfdDocumentoRepository.save(gfdDocumento)).thenReturn(gfdDocumento);

@@ -122,8 +122,6 @@ public class GfdMController {
     }
 
 
-    //todo: teste fluxo analista
-    //todo: teste fluxo fornecedor
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @PostMapping("funcionarios")
     @Transactional
@@ -140,8 +138,6 @@ public class GfdMController {
         return ResponseEntity.ok(gfdManagerService.createFuncionario(inputDto));
     }
 
-    //todo: teste fluxo analista
-    //todo: teste fluxo fornecedor
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @PutMapping("funcionarios/{id}")
     @Transactional
@@ -161,8 +157,6 @@ public class GfdMController {
         return ResponseEntity.ok(gfdManagerService.updateFuncionario(inputDto));
     }
 
-    //todo: teste fluxo analista
-    //todo: teste fluxo fornecedor
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @GetMapping("funcionarios/{id}")
     @Transactional
@@ -182,8 +176,6 @@ public class GfdMController {
         return ResponseEntity.ok(gfdManagerService.getFuncionario(inputDto));
     }
 
-    //todo: teste fluxo analista
-    //todo: teste fluxo fornecedor
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @DeleteMapping("funcionarios/{id}")
     @Transactional
