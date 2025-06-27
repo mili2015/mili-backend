@@ -41,6 +41,16 @@ public class GfdDocumentoCreateInputDto {
 
         private GfdTipoDocumentoDto gfdTipoDocumento;
 
+        private GfdFuncionarioDto gfdFuncionario;
+
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @Getter
+        @Setter
+        public static class GfdFuncionarioDto {
+            private Integer id;
+        }
+
         @NoArgsConstructor
         @AllArgsConstructor
         @Getter

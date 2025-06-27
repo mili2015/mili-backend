@@ -11,5 +11,5 @@ public interface IGfdDocumentoService {
     GfdDocumentoUpdateOutputDto update (GfdDocumentoUpdateInputDto inputDto);
     void delete (GfdDocumentoDeleteInputDto inputDto);
     GfdDocumentoDownloadOutputDto download(GfdDocumentoDownloadInputDto inputDto);
-    List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId);
+    List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId, Integer idFuncionario);
 }

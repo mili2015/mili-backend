@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GfdVerificarFornecedorInputDto {
+public class GfdMVerificarFornecedorInputDto {
     private Integer id;
     private Integer codUsuario;
 }

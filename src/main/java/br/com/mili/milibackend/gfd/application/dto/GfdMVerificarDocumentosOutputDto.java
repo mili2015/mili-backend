@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class GfdVerificarDocumentosOutputDto {
+public class GfdMVerificarDocumentosOutputDto {
         private Integer idTipoDocumento;
         private String nome;
         private String status;

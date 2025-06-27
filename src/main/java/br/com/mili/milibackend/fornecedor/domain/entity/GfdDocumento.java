@@ -69,4 +69,8 @@ public class GfdDocumento {
     @ManyToOne
     @JoinColumn(name = "ID_TIPO_DOCUMENTO")
     private GfdTipoDocumento gfdTipoDocumento;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_FUNCIONARIO")
+    private GfdFuncionario gfdFuncionario;
 }

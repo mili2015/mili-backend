@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-public class GfdFornecedorMeusDadosUpdateOutputDto {
+public class GfdMFornecedorMeusDadosUpdateOutputDto {
     private String codigo;
 
     private String cgcCpf;

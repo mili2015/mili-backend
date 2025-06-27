@@ -42,7 +42,7 @@ public class FornecedorController {
         return roles.contains(ROLE_ANALISTA);
     }
 
-//   @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+   @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @PutMapping
     public ResponseEntity<FornecedorMeusDadosUpdateOutputDto> updateMeusDados(
             @AuthenticationPrincipal CustomUserPrincipal user,

@@ -1,17 +1,28 @@
 package br.com.mili.milibackend.gfd.domain.interfaces;
 
 import br.com.mili.milibackend.gfd.application.dto.*;
+import br.com.mili.milibackend.shared.page.pagination.MyPage;
 
 import java.util.List;
 
 public interface IGfdManagerService {
-    GfdVerificarFornecedorOutputDto verifyFornecedor(GfdVerificarFornecedorInputDto inputDto);
+    GfdMVerificarFornecedorOutputDto verifyFornecedor(GfdMVerificarFornecedorInputDto inputDto);
 
-    List<GfdVerificarDocumentosOutputDto> verifyDocumentos(GfdVerificarDocumentosInputDto inputDto);
+    List<GfdMVerificarDocumentosOutputDto> verifyDocumentos(GfdMVerificarDocumentosInputDto inputDto);
 
-    GfdFornecedorGetOutputDto getFornecedor(GfdFornecedorGetInputDto inputDto);
+    GfdMFornecedorGetOutputDto getFornecedor(GfdMFornecedorGetInputDto inputDto);
 
-    GfdUploadDocumentoOutputDto uploadDocumento(GfdUploadDocumentoInputDto inputDto);
+    GfdMUploadDocumentoOutputDto uploadDocumento(GfdMUploadDocumentoInputDto inputDto);
 
-    GfdDocumentosGetAllOutputDto getAllDocumentos(GfdDocumentosGetAllInputDto inputDto);
+    GfdMDocumentosGetAllOutputDto getAllDocumentos(GfdMDocumentosGetAllInputDto inputDto);
+
+    GfdMFuncionarioGetAllOutputDto getAllFuncionarios(GfdMFuncionarioGetAllInputDto inputDto);
+
+    GfdMFuncionarioCreateOutputDto createFuncionario(GfdMFuncionarioCreateInputDto inputDto);
+
+    GfdMFuncionarioUpdateOutputDto updateFuncionario(GfdMFuncionarioUpdateInputDto inputDto);
+
+    GfdMFuncionarioGetOutputDto getFuncionario(GfdMFuncionarioGetInputDto inputDto);
+
+    void deleteFuncionario(GfdMFuncionarioDeleteInputDto inputDto);
 }

@@ -90,13 +90,13 @@ class GfdDocumentoServiceTest {
 
         var outputDto = new FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto();
 
-        when(gfdDocumentoRepository.findLatestDocumentsGroupedByTipoAndFornecedorId(10))
+        when(gfdDocumentoRepository.findLatestDocumentsGroupedByTipoAndFornecedorId(10, null))
                 .thenReturn(List.of(gfdDocumento));
 
         when(modelMapper.map(gfdDocumento, FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto.class))
                 .thenReturn(outputDto);
 
-        var result = gfdDocumentoService.findLatestDocumentsGroupedByTipoAndFornecedorId(10);
+        var result = gfdDocumentoService.findLatestDocumentsGroupedByTipoAndFornecedorId(10, null);
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -198,7 +198,7 @@ class GfdDocumentoServiceTest {
             target.setDataEmissao(source.getDataEmissao());
             target.setDataValidade(source.getDataValidade());
             target.setObservacao(source.getObservacao());
-            return null; // método void
+            return null;
         }).when(modelMapper).map(inputDto, gfdDocumento);
 
         when(gfdDocumentoRepository.save(gfdDocumento)).thenReturn(gfdDocumento);

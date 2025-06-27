@@ -5,11 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class GfdVerificarFornecedorOutputDto {
-    private Boolean representanteCadastrado;
-    private String razaoSocial;
+public class GfdMVerificarDocumentosInputDto {
+    private Integer codUsuario;
+    private Integer idFuncionario;
+    private Integer id;
 }
