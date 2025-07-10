@@ -76,6 +76,7 @@ public class GfdFuncionarioService implements IGfdFuncionarioService {
     @Override
     public GfdFuncionarioCreateOutputDto create(GfdFuncionarioCreateInputDto inputDto) {
         var gfdFuncionario = modelMapper.map(inputDto, GfdFuncionario.class);
+
         gfdFuncionario.setAtivo(1);
 
         return modelMapper.map(gfdFuncionarioRepository.save(gfdFuncionario), GfdFuncionarioCreateOutputDto.class);

@@ -407,9 +407,17 @@ class GfdManagerServiceTest {
 
         var documentos = Arrays.asList(documento1, documento2);
 
+        // Mock do funcionario
+        var funcionarioDto = new GfdFuncionarioGetByIdOutputDto();
+        funcionarioDto.setId(funcionario.getId());
+        funcionarioDto.setTipoContratacao(GfdFuncionarioTipoContratacaoEnum.CLT.getDescricao());
+
+        when(gfdFuncionarioService.getById(any())).thenReturn(funcionarioDto);
+
         // Mock do fornecedor
         when(fornecedorService.getById(1)).thenReturn(fornecedorGetByIdOutputDto);
         when(modelMapper.map(fornecedorGetByIdOutputDto, Fornecedor.class)).thenReturn(fornecedor);
+
 
         // Mock do input mapeado
         var gfdDocumentoGetAllInputDto = new GfdDocumentoGetAllInputDto();
@@ -473,9 +481,9 @@ class GfdManagerServiceTest {
         fornecedor.setCodigo(1);
 
         var tiposDocumento = Arrays.asList(
-                new GfdTipoDocumentoGetAllOutputDto(1, "Tipo 1", GfdTipoDocumentoTipoEnum.FUNCIONARIO, 100, true, true),
-                new GfdTipoDocumentoGetAllOutputDto(2, "Tipo 2", GfdTipoDocumentoTipoEnum.FUNCIONARIO, 100, true, true),
-                new GfdTipoDocumentoGetAllOutputDto(3, "Tipo 3", GfdTipoDocumentoTipoEnum.FUNCIONARIO, 100, true, true)
+                new GfdTipoDocumentoGetAllOutputDto(1, "Tipo 1", GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT, 100, true, true),
+                new GfdTipoDocumentoGetAllOutputDto(2, "Tipo 2", GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT, 100, true, true),
+                new GfdTipoDocumentoGetAllOutputDto(3, "Tipo 3", GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT, 100, true, true)
         );
 
         // Mocks
@@ -495,7 +503,7 @@ class GfdManagerServiceTest {
 
 
         var serviceSpy = Mockito.spy(gfdManagerService);
-        doReturn(tiposDocumento).when(serviceSpy).getFornecedorTipoDocumentos(true);
+        doReturn(tiposDocumento).when(serviceSpy).getFornecedorTipoDocumentos(funcionario.getId());
 
         // Act
         var outputDto = serviceSpy.getAllDocumentos(inputDto);
