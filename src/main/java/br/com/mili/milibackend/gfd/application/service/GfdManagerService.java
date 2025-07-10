@@ -14,6 +14,7 @@ import br.com.mili.milibackend.fornecedor.application.dto.gfdTipoDocumento.GfdTi
 import br.com.mili.milibackend.fornecedor.application.service.GfdFuncionarioService;
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
+import br.com.mili.milibackend.fornecedor.domain.entity.GfdFuncionarioTipoContratacaoEnum;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IGfdFuncionarioService;
@@ -37,6 +38,7 @@ import org.springframework.util.MimeType;
 import java.time.LocalDate;
 import java.util.*;
 
+import static br.com.mili.milibackend.fornecedor.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.*;
 
 @Service
@@ -79,7 +81,7 @@ public class GfdManagerService implements IGfdManagerService {
 
         var latestDocuments = gfdDocumentoService.findLatestDocumentsGroupedByTipoAndFornecedorId(fornecedor.getCodigo(), inputDto.getIdFuncionario());
 
-        var fornecedorTipoDocumentos = getFornecedorTipoDocumentos(inputDto.getIdFuncionario() != null);
+        var fornecedorTipoDocumentos = getFornecedorTipoDocumentos(inputDto.getIdFuncionario());
 
         addNonMandatoryDocuments(listVerificarDocumentosOutputDto, latestDocuments, fornecedorTipoDocumentos);
         addMandatoryDocuments(listVerificarDocumentosOutputDto, latestDocuments, fornecedorTipoDocumentos);
@@ -118,7 +120,9 @@ public class GfdManagerService implements IGfdManagerService {
         }
 
         //verifica se o tipo é de funcionario
-        if (inputDto.getFuncionario() != null && tipoDocumento.getTipo() == GfdTipoDocumentoTipoEnum.FORNECEDOR) {
+        if (inputDto.getFuncionario() != null &&
+            tipoDocumento.getTipo() == GfdTipoDocumentoTipoEnum.FORNECEDOR
+        ) {
             throw new BadRequestException(GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getMensagem(), GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getCode());
         }
 
@@ -193,8 +197,7 @@ public class GfdManagerService implements IGfdManagerService {
         var pageGfdDocumentoDto = new PageBaseImpl<>(gfdDocumentoDto, pageGfdDocumentoService.getPage(), pageGfdDocumentoService.getSize(), pageGfdDocumentoService.getTotalElements()) {
         };
 
-
-        var recuperarTiposDocumentoFornecedor = getFornecedorTipoDocumentos(inputDto.getFuncionario() != null);
+        var recuperarTiposDocumentoFornecedor = getFornecedorTipoDocumentos(inputDto.getFuncionario() != null ? inputDto.getFuncionario().getId() : null);
 
         // mostra doc anterior e doc proximo
         Integer idDocumento = inputDto.getTipoDocumentoId();
@@ -423,11 +426,22 @@ public class GfdManagerService implements IGfdManagerService {
         return outputDto;
     }
 
-    List<GfdTipoDocumentoGetAllOutputDto> getFornecedorTipoDocumentos(Boolean funcionario) {
+    List<GfdTipoDocumentoGetAllOutputDto> getFornecedorTipoDocumentos(Integer funcionarioId) {
         var tipoDocumentoInputDto = new GfdTipoDocumentoGetAllInputDto(GfdTipoDocumentoTipoEnum.FORNECEDOR);
 
-        if (funcionario) {
-            tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO);
+        if (funcionarioId != null) {
+            // pega as informacoes de funcionario
+            var funcionario = gfdFuncionarioService.getById(funcionarioId);
+
+            if (funcionario == null) {
+                throw new NotFoundException(GFD_FUNCIONARIO_NAO_ENCONTRADO.getMensagem(), GFD_FUNCIONARIO_NAO_ENCONTRADO.getCode());
+            }
+
+            if (funcionario.getTipoContratacao().equals(GfdFuncionarioTipoContratacaoEnum.CLT.getDescricao())) {
+                tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT);
+            } else {
+                tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_MEI);
+            }
         }
 
         return GfdTipoDocumentoService.getAll(tipoDocumentoInputDto);

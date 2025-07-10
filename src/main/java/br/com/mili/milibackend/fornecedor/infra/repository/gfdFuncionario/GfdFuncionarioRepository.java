@@ -40,8 +40,12 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                                 ON C.CTFOR_CODIGO = A.CTFOR_CODIGO
                                AND C.ID_TIPO_DOCUMENTO = B.ID
                                AND C.ID_FUNCIONARIO= A.ID_FUNCIONARIO
-                            WHERE
-                                B.TIPO = 'FUNCIONARIO'
+                                             
+                             WHERE B.TIPO = CASE
+                                 WHEN A.TIPO_CONTRATACAO = 'PJ' THEN 'FUNCIONARIO_MEI'
+                                 ELSE 'FUNCIONARIO_CLT'
+                             END
+                                                
                         )
                    
                         SELECT
@@ -142,8 +146,11 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                                 ON C.CTFOR_CODIGO = A.CTFOR_CODIGO
                                AND C.ID_TIPO_DOCUMENTO = B.ID
                                AND C.ID_FUNCIONARIO= A.ID_FUNCIONARIO
-                            WHERE
-                                B.TIPO = 'FUNCIONARIO'
+                                              
+                               WHERE B.TIPO = CASE
+                                     WHEN A.TIPO_CONTRATACAO = 'PJ' THEN 'FUNCIONARIO_MEI'
+                                     ELSE 'FUNCIONARIO_CLT'
+                                 END
                         )
                     
                    SELECT COUNT(*) FROM (
