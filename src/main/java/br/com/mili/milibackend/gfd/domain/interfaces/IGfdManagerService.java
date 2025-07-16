@@ -8,7 +8,7 @@ import java.util.List;
 public interface IGfdManagerService {
     GfdMVerificarFornecedorOutputDto verifyFornecedor(GfdMVerificarFornecedorInputDto inputDto);
 
-    List<GfdMVerificarDocumentosOutputDto> verifyDocumentos(GfdMVerificarDocumentosInputDto inputDto);
+    GfdMVerificarDocumentosOutputDto verifyDocumentos(GfdMVerificarDocumentosInputDto inputDto);
 
     GfdMFornecedorGetOutputDto getFornecedor(GfdMFornecedorGetInputDto inputDto);
 

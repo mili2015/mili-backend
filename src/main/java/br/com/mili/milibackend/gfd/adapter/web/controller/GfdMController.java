@@ -64,7 +64,7 @@ public class GfdMController {
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @GetMapping("verificar-docs")
-    public ResponseEntity<List<GfdMVerificarDocumentosOutputDto>> verificarDocumentos(
+    public ResponseEntity<GfdMVerificarDocumentosOutputDto> verificarDocumentos(
             @AuthenticationPrincipal CustomUserPrincipal user,
             @RequestParam(value = "id", required = false) Integer fornecedorId,
             @RequestParam(value = "idFuncionario", required = false) Integer idFuncionario

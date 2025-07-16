@@ -180,12 +180,12 @@ class GfdManagerServiceTest {
         ));
 
         // Act
-        List<GfdMVerificarDocumentosOutputDto> outputDtoList = gfdManagerService.verifyDocumentos(inputDto);
+        GfdMVerificarDocumentosOutputDto outputDtoList = gfdManagerService.verifyDocumentos(inputDto);
 
         // Assert
-        assertEquals(2, outputDtoList.size());
-        assertEquals("NÃO ENVIADO", outputDtoList.get(1).getStatus());
-        assertEquals("OUTROS", outputDtoList.get(0).getStatus());
+        assertEquals(2, outputDtoList.getDocumentos().size());
+        assertEquals("NÃO ENVIADO", outputDtoList.getDocumentos().get(1).getStatus());
+        assertEquals("OUTROS", outputDtoList.getDocumentos().get(0).getStatus());
     }
 
     @Test
@@ -214,12 +214,12 @@ class GfdManagerServiceTest {
         ));
 
         // Act
-        List<GfdMVerificarDocumentosOutputDto> outputDtoList = gfdManagerService.verifyDocumentos(inputDto);
+        GfdMVerificarDocumentosOutputDto outputDtoList = gfdManagerService.verifyDocumentos(inputDto);
 
         // Assert
-        assertEquals(2, outputDtoList.size());
-        assertEquals("CONFORME", outputDtoList.get(1).getStatus());
-        assertEquals("OUTROS", outputDtoList.get(0).getStatus());
+        assertEquals(2, outputDtoList.getDocumentos().size());
+        assertEquals("CONFORME", outputDtoList.getDocumentos().get(1).getStatus());
+        assertEquals("OUTROS", outputDtoList.getDocumentos().get(0).getStatus());
     }
 
     @Test
