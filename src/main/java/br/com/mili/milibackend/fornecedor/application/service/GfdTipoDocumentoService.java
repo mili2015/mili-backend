@@ -5,7 +5,7 @@ import br.com.mili.milibackend.fornecedor.application.dto.gfdTipoDocumento.GfdTi
 import br.com.mili.milibackend.fornecedor.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IGfdTipoDocumentoService;
-import br.com.mili.milibackend.fornecedor.domain.specification.GfdTipoDocumentoSpecification;
+import br.com.mili.milibackend.fornecedor.infra.specification.GfdTipoDocumentoSpecification;
 import br.com.mili.milibackend.fornecedor.infra.repository.GfdTipoDocumentoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;

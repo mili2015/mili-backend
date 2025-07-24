@@ -4,7 +4,7 @@ package br.com.mili.milibackend.fornecedor.application.service;
 import br.com.mili.milibackend.fornecedor.application.dto.*;
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
-import br.com.mili.milibackend.fornecedor.domain.specification.FornecedorSpecification;
+import br.com.mili.milibackend.fornecedor.infra.specification.FornecedorSpecification;
 import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;

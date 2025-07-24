@@ -1,4 +1,4 @@
-package br.com.mili.milibackend.fornecedor.domain.specification;
+package br.com.mili.milibackend.fornecedor.infra.specification;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumento;

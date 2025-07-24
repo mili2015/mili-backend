@@ -3,7 +3,7 @@ package br.com.mili.milibackend.fornecedor.application.service;
 import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.fornecedor.domain.specification.GfdDocumentoSpecification;
+import br.com.mili.milibackend.fornecedor.infra.specification.GfdDocumentoSpecification;
 import br.com.mili.milibackend.fornecedor.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
