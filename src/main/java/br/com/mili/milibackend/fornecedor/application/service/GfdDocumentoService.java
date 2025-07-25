@@ -1,8 +1,12 @@
 package br.com.mili.milibackend.fornecedor.application.service;
 
+import br.com.mili.milibackend.envioEmail.domain.entity.EnvioEmail;
+import br.com.mili.milibackend.envioEmail.domain.interfaces.IEnvioEmailService;
+import br.com.mili.milibackend.envioEmail.shared.RemetenteEnum;
 import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
+import br.com.mili.milibackend.fornecedor.infra.email.GfdDocumentoEmailTemplate;
 import br.com.mili.milibackend.fornecedor.infra.specification.GfdDocumentoSpecification;
 import br.com.mili.milibackend.fornecedor.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
@@ -38,6 +42,7 @@ public class GfdDocumentoService implements IGfdDocumentoService {
         this.s3Service = s3Service;
         this.gson = gson;
     }
+
 
     @Override
     @Transactional
@@ -138,7 +143,7 @@ public class GfdDocumentoService implements IGfdDocumentoService {
 
     @Override
     public GfdDocumentoUpdateOutputDto update(GfdDocumentoUpdateInputDto inputDto) {
-        var gfdDocumento = gfdDocumentoRepository.findById(inputDto.getId())
+        GfdDocumento gfdDocumento = gfdDocumentoRepository.findById(inputDto.getId())
                 .orElseThrow(() ->
                         new NotFoundException(GFD_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), GFD_DOCUMENTO_NAO_ENCONTRADO.getCode())
                 );
@@ -148,6 +153,8 @@ public class GfdDocumentoService implements IGfdDocumentoService {
         gfdDocumento.setStatus(GfdDocumentoStatusEnum.valueOf(inputDto.getStatus()));
 
         gfdDocumentoRepository.save(gfdDocumento);
+
+
 
         return modelMapper.map(gfdDocumento, GfdDocumentoUpdateOutputDto.class);
     }
@@ -181,5 +188,7 @@ public class GfdDocumentoService implements IGfdDocumentoService {
 
         return new GfdDocumentoDownloadOutputDto(fornecedor.getId(), url);
     }
+
+
 
 }

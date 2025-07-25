@@ -23,4 +23,7 @@ public interface GfdDocumentoRepository extends JpaRepository<GfdDocumento, Inte
                   GROUP BY d2.gfdTipoDocumento.id
               )""")
     List<GfdDocumento> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer codFornecedor, Integer idFuncionario);
+
+
+
 }

@@ -1,9 +1,12 @@
 package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 
+import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.*;
+import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.gfd.application.dto.GfdMDocumentosGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
+import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import jakarta.transaction.Transactional;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static br.com.mili.milibackend.fornecedor.adapter.exception.GfdDocumentoCodeException.GFD_DOCUMENTO_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_ANALISTA;
 import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_FORNECEDOR;
 
@@ -229,5 +233,61 @@ public class GfdMController {
         return ResponseEntity.ok(gfdManagerService.getAllDocumentos(inputDto));
     }
 
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PutMapping("documentos")
+    public ResponseEntity<GfdMDocumentoUpdateOutputDto> updateDocumento(
+            @RequestBody @Valid GfdMDocumentoUpdateInputDto inputDto,
+            @AuthenticationPrincipal CustomUserPrincipal user
+    ) {
+        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
+        inputDto.setCodUsuario(user.getIdUser());
+
+        if (isAnalista(user)) {
+            inputDto.setCodUsuario(null);
+        }
+
+        return ResponseEntity.ok(gfdManagerService.updateDocumento(inputDto));
+    }
+
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @DeleteMapping("documentos/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Integer id,
+            @ParameterObject @ModelAttribute @Valid GfdMDocumentoDeleteInputDto inputDto,
+            @AuthenticationPrincipal CustomUserPrincipal user
+    ) {
+        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+
+        inputDto.setId(id);
+        inputDto.setCodUsuario(user.getIdUser());
+
+        if (isAnalista(user)) {
+            inputDto.setCodUsuario(null);
+        }
+
+        gfdManagerService.deleteDocumento(inputDto);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @GetMapping("documentos/{id}/download")
+    public ResponseEntity<GfdMDocumentoDownloadOutputDto> download(
+            @PathVariable Integer id,
+            @ParameterObject @ModelAttribute @Valid GfdMDocumentoDownloadInputDto inputDto,
+            @AuthenticationPrincipal CustomUserPrincipal user
+    ) {
+        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+
+        inputDto.setId(id);
+        inputDto.setCodUsuario(user.getIdUser());
+
+        if (isAnalista(user)) {
+            inputDto.setCodUsuario(null);
+        }
+
+        return ResponseEntity.ok(gfdManagerService.downloadDocumento(inputDto));
+    }
 }

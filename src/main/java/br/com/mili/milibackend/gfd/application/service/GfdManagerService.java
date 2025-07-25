@@ -1,10 +1,11 @@
 package br.com.mili.milibackend.gfd.application.service;
 
+import br.com.mili.milibackend.envioEmail.domain.entity.EnvioEmail;
+import br.com.mili.milibackend.envioEmail.domain.interfaces.IEnvioEmailService;
+import br.com.mili.milibackend.envioEmail.shared.RemetenteEnum;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioInputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.GfdTipoDocumentoGetByIdOutputDto;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.GfdDocumentoCreateInputDto;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.GfdDocumentoGetAllInputDto;
+import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.fornecedor.application.dto.gfdFuncionario.*;
 import br.com.mili.milibackend.fornecedor.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllInputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
@@ -15,6 +16,7 @@ import br.com.mili.milibackend.fornecedor.domain.entity.GfdTipoDocumentoTipoEnum
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IGfdFuncionarioService;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IGfdTipoDocumentoService;
+import br.com.mili.milibackend.fornecedor.infra.email.GfdDocumentoEmailTemplate;
 import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
@@ -41,19 +43,21 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.*;
 public class GfdManagerService implements IGfdManagerService {
 
     private final IFornecedorService fornecedorService;
-    private final IGfdTipoDocumentoService GfdTipoDocumentoService;
+    private final IGfdTipoDocumentoService gfdTipoDocumentoService;
     private final IGfdDocumentoService gfdDocumentoService;
     private final ModelMapper modelMapper;
     private final Tika tika;
     private final IGfdFuncionarioService gfdFuncionarioService;
+    private final IEnvioEmailService envioEmailService;
 
-    public GfdManagerService(IFornecedorService fornecedorService, IGfdTipoDocumentoService GfdTipoDocumentoService, IGfdDocumentoService gfdDocumentoService, ModelMapper modelMapper, Tika tika, IGfdFuncionarioService gfdFuncionarioService) {
+    public GfdManagerService(IFornecedorService fornecedorService, IGfdTipoDocumentoService GfdTipoDocumentoService, IGfdDocumentoService gfdDocumentoService, ModelMapper modelMapper, Tika tika, IGfdFuncionarioService gfdFuncionarioService, IEnvioEmailService envioEmailService) {
         this.fornecedorService = fornecedorService;
-        this.GfdTipoDocumentoService = GfdTipoDocumentoService;
+        this.gfdTipoDocumentoService = GfdTipoDocumentoService;
         this.gfdDocumentoService = gfdDocumentoService;
         this.modelMapper = modelMapper;
         this.tika = tika;
         this.gfdFuncionarioService = gfdFuncionarioService;
+        this.envioEmailService = envioEmailService;
     }
 
     @Override
@@ -88,7 +92,7 @@ public class GfdManagerService implements IGfdManagerService {
             var funcionario = getGfdFuncionarioGetByIdOutputDto(inputDto.getIdFuncionario());
 
             // adiciona no title o nome do funcionario
-            output.setTitle(fornecedor.getRazaoSocial() + " - " +funcionario.getNome());
+            output.setTitle(fornecedor.getRazaoSocial() + " - " + funcionario.getNome());
 
             if (funcionario.getTipoContratacao().equals(GfdFuncionarioTipoContratacaoEnum.CLT.getDescricao())) {
                 tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT);
@@ -97,7 +101,7 @@ public class GfdManagerService implements IGfdManagerService {
             }
         }
 
-        var tipoDocumentos = GfdTipoDocumentoService.getAll(tipoDocumentoInputDto);
+        var tipoDocumentos = gfdTipoDocumentoService.getAll(tipoDocumentoInputDto);
 
         addNonMandatoryDocuments(documentos, latestDocuments, tipoDocumentos);
         addMandatoryDocuments(documentos, latestDocuments, tipoDocumentos);
@@ -140,7 +144,7 @@ public class GfdManagerService implements IGfdManagerService {
         var fornecedor = recuperarForncedor(inputDto.getCodUsuario(), inputDto.getId());
 
         // recupera o tipo do documento
-        GfdTipoDocumentoGetByIdOutputDto tipoDocumento = GfdTipoDocumentoService.getById(inputDto.getGfdTipoDocumento().getId());
+        GfdTipoDocumentoGetByIdOutputDto tipoDocumento = gfdTipoDocumentoService.getById(inputDto.getGfdTipoDocumento().getId());
 
         if (tipoDocumento == null) {
             throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
@@ -352,8 +356,63 @@ public class GfdManagerService implements IGfdManagerService {
         gfdFuncionarioService.delete(gfdFuncionarioDeleteInputDto);
     }
 
-    private void validarPermissaoCriacaoFuncionario(Integer codUsuario, Integer fornecedorCodUsuario) {
 
+    @Override
+    public GfdMDocumentoUpdateOutputDto updateDocumento(GfdMDocumentoUpdateInputDto inputDto) {
+        var fornecedorId = inputDto.getFornecedor() != null ? inputDto.getFornecedor().getId() : null;
+
+        // busca o fornecedor
+        var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), fornecedorId);
+
+        // quando o usuario vier significa que o utilizador é um fornecedor
+        validarPermissaoCriacaoFuncionario(inputDto.getCodUsuario(), fornecedor.getCodUsuario());
+
+        // atualiza o documento
+        var dto = modelMapper.map(inputDto.getDocumento(), GfdDocumentoUpdateInputDto.class);
+        var updatedDto = gfdDocumentoService.update(dto);
+
+        // envia o email caso o documento seja nao conforme ou expirado
+        if (GfdDocumentoStatusEnum.NAO_CONFORME.name().equals(updatedDto.getStatus().getDescricao()) ||
+            GfdDocumentoStatusEnum.EXPIRADO.name().equals(updatedDto.getStatus().getDescricao())) {
+
+            enviarEmail(updatedDto.getId(), fornecedor.getEmail(), updatedDto.getStatus().getDescricao());
+        }
+
+        var gfdDocumentoOutDto = modelMapper.map(updatedDto, GfdMDocumentoUpdateOutputDto.GfdDocumentoUpdateOutputDto.class);
+        return new GfdMDocumentoUpdateOutputDto(gfdDocumentoOutDto);
+    }
+
+    @Override
+    public GfdMDocumentoDownloadOutputDto downloadDocumento(GfdMDocumentoDownloadInputDto inputDto) {
+        var fornecedorId = inputDto.getFornecedorId();
+
+        // busca o fornecedor
+        var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), fornecedorId);
+
+        // quando o usuario vier significa que o utilizador é um fornecedor
+        validarPermissaoCriacaoFuncionario(inputDto.getCodUsuario(), fornecedor.getCodUsuario());
+
+        var dto = modelMapper.map(inputDto, GfdDocumentoDownloadInputDto.class);
+        var linkDto = gfdDocumentoService.download(dto);
+
+        return modelMapper.map(linkDto, GfdMDocumentoDownloadOutputDto.class);
+    }
+
+    @Override
+    public void deleteDocumento(GfdMDocumentoDeleteInputDto inputDto) {
+        var fornecedorId = inputDto.getFornecedorId();
+
+        // busca o fornecedor
+        var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), fornecedorId);
+
+        // quando o usuario vier significa que o utilizador é um fornecedor
+        validarPermissaoCriacaoFuncionario(inputDto.getCodUsuario(), fornecedor.getCodUsuario());
+
+        var dto = modelMapper.map(inputDto, GfdDocumentoDeleteInputDto.class);
+        gfdDocumentoService.delete(dto);
+    }
+
+    private void validarPermissaoCriacaoFuncionario(Integer codUsuario, Integer fornecedorCodUsuario) {
         // Se for nulo, assume-se que é um analista
         if (codUsuario == null) return;
 
@@ -387,34 +446,59 @@ public class GfdManagerService implements IGfdManagerService {
                 });
     }
 
-    private Fornecedor recuperarFornecedor(Integer codUsuario, Integer id) {
-        Fornecedor fornecedor = null;
+    private Fornecedor getById(Integer id) {
+        var fornecedorGetByIdOutputDto = fornecedorService.getById(id);
 
-        if (id != null) {
-            var fornecedorGetByIdOutputDto = fornecedorService.getById(id);
-
-            if (fornecedorGetByIdOutputDto == null) {
-                throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
-            }
-
-            fornecedor = modelMapper.map(fornecedorGetByIdOutputDto, Fornecedor.class);
-
-        } else if (codUsuario != null) {
-            var fornecedorGetByCodUsuarioInputDto = new FornecedorGetByCodUsuarioInputDto(codUsuario);
-            var fornecedorGetByCodUsuarioOutputDto = fornecedorService.getByCodUsuario(fornecedorGetByCodUsuarioInputDto);
-
-            if (fornecedorGetByCodUsuarioOutputDto == null) {
-                throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
-            }
-
-            fornecedor = modelMapper.map(fornecedorGetByCodUsuarioOutputDto, Fornecedor.class);
+        if (fornecedorGetByIdOutputDto == null) {
+            throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
         }
 
-        if (fornecedor == null) {
+        return modelMapper.map(fornecedorGetByIdOutputDto, Fornecedor.class);
+    }
+
+    private Fornecedor getByCodUsuario(Integer codUsuario) {
+        var fornecedorGetByCodUsuarioInputDto = new FornecedorGetByCodUsuarioInputDto(codUsuario);
+        var fornecedorGetByCodUsuarioOutputDto = fornecedorService.getByCodUsuario(fornecedorGetByCodUsuarioInputDto);
+
+        if (fornecedorGetByCodUsuarioOutputDto == null) {
+            throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
+        }
+
+        return modelMapper.map(fornecedorGetByCodUsuarioOutputDto, Fornecedor.class);
+    }
+
+    private Fornecedor recuperarFornecedor(Integer codUsuario, Integer id) {
+        Fornecedor fornecedor;
+
+        if (id != null) {
+            fornecedor = getById(id);
+        } else if (codUsuario != null) {
+            fornecedor = getByCodUsuario(codUsuario);
+        } else {
             throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
         }
 
         return fornecedor;
+    }
+
+    private void enviarEmail(Integer documentoId, String email, String status) {
+        var template = GfdDocumentoEmailTemplate.template(
+                status,
+                "https://web2.mili.com.br/mili/sisav/timeline/" + documentoId);
+
+        var titulo = "Mili - Documento: " + documentoId + " - " + status;
+
+        var assunto = "Documento: " + documentoId + " - " + status;
+
+        var envioEmail = EnvioEmail.builder()
+                .remetente(RemetenteEnum.MILI.getEndereco())
+                .destinatario(email)
+                .assunto(assunto)
+                .titulo(titulo)
+                .texto(template)
+                .build();
+
+        envioEmailService.enviarFila(envioEmail);
     }
 
 
@@ -467,7 +551,7 @@ public class GfdManagerService implements IGfdManagerService {
             }
         }
 
-        return GfdTipoDocumentoService.getAll(tipoDocumentoInputDto);
+        return gfdTipoDocumentoService.getAll(tipoDocumentoInputDto);
     }
 
     private GfdMDocumentosGetAllOutputDto.GfdTipoDocumentoDto criarDtoTipoDocumentoParaResposta(GfdMDocumentosGetAllInputDto inputDto, List<GfdMDocumentosGetAllOutputDto.GfdDocumentoDto> gfdDocumentoDto) {
@@ -478,7 +562,7 @@ public class GfdManagerService implements IGfdManagerService {
             gfdTipoDocumentoDto.setNome(gfdDocumentoDto.get(0).getGfdTipoDocumento().getNome());
             gfdTipoDocumentoDto.setDiasValidade(gfdDocumentoDto.get(0).getGfdTipoDocumento().getDiasValidade());
         } else if (inputDto.getTipoDocumentoId() != null) {
-            var tipoDocumento = GfdTipoDocumentoService.getById(inputDto.getTipoDocumentoId());
+            var tipoDocumento = gfdTipoDocumentoService.getById(inputDto.getTipoDocumentoId());
             gfdTipoDocumentoDto.setId(tipoDocumento.getId());
             gfdTipoDocumentoDto.setNome(tipoDocumento.getNome());
             gfdTipoDocumentoDto.setDiasValidade(tipoDocumento.getDiasValidade());

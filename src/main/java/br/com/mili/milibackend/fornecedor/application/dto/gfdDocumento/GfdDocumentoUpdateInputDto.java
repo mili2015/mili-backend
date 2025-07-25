@@ -1,5 +1,6 @@
 package br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento;
 
+import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @Setter
 @EqualsAndHashCode
 public class GfdDocumentoUpdateInputDto {
+
     @NotNull
     private Integer id;
 
@@ -23,4 +25,5 @@ public class GfdDocumentoUpdateInputDto {
     private String status;
 
     private String observacao;
+
 }
