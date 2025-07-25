@@ -1,8 +1,6 @@
-package br.com.mili.milibackend.gfd.application.dto;
+package br.com.mili.milibackend.gfd.application.dto.gfdDocumento;
 
-import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.shared.page.Filtro;
-import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -11,16 +9,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-@ValidaIntervaloData(inicio = "dataCadastroInic", fim = "dataCadastroFinal")
-@ValidaIntervaloData(inicio = "dataValidadeInic", fim = "dataValidadeFinal")
-@ValidaIntervaloData(inicio = "dataEmissaoInic", fim = "dataEmissaoFinal")
-public class GfdMDocumentosGetAllInputDto extends Filtro {
-
-    private String usuario;
-
-    private Integer codUsuario;
-
-    private Integer id;
+@Builder
+public class GfdDocumentoGetAllInputDto extends Filtro {
+    private Integer ctforCodigo;
 
     private String nomeArquivo;
 
@@ -34,6 +25,11 @@ public class GfdMDocumentosGetAllInputDto extends Filtro {
     private LocalDate dataEmissaoFinal;
 
     private Integer tipoDocumentoId;
+
+    private String usuario;
+
+    private String status;
+
     private FuncionarioDto funcionario;
 
     @AllArgsConstructor
@@ -46,6 +42,4 @@ public class GfdMDocumentosGetAllInputDto extends Filtro {
         private String nome;
         private String cpf;
     }
-
-    private GfdDocumentoStatusEnum status;
 }

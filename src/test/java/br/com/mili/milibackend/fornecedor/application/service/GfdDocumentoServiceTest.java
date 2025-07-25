@@ -1,11 +1,12 @@
 package br.com.mili.milibackend.fornecedor.application.service;
 
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.*;
-import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumento;
-import br.com.mili.milibackend.fornecedor.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.fornecedor.domain.entity.GfdTipoDocumento;
-import br.com.mili.milibackend.fornecedor.infra.dto.GfdDocumentoResumoDto;
-import br.com.mili.milibackend.fornecedor.infra.repository.gfdDocumento.GfdDocumentoRepository;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.*;
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
+import br.com.mili.milibackend.gfd.infra.dto.GfdDocumentoResumoDto;
+import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
+import br.com.mili.milibackend.gfd.application.service.GfdDocumentoService;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.infra.aws.S3ServiceImpl;
 import br.com.mili.milibackend.shared.infra.aws.StorageFolderEnum;

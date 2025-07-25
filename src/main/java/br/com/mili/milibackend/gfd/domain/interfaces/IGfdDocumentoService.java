@@ -1,6 +1,6 @@
 package br.com.mili.milibackend.gfd.domain.interfaces;
 
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.*;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 
 import java.util.List;
