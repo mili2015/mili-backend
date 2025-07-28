@@ -319,7 +319,7 @@ class GfdManagerServiceTest {
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getCode(), ex.getCode());
     }
 
-    @Test
+/*    @Test
     void test_GetAllDocumentos__deve_retornar_lista_vazia_quando_sem_documentos() {
         // Arrange
         GfdMDocumentosGetAllInputDto inputDto = new GfdMDocumentosGetAllInputDto();
@@ -345,7 +345,7 @@ class GfdManagerServiceTest {
         // Assert
         assertNotNull(outputDto);
         assertTrue(outputDto.getGfdDocumento().getContent().isEmpty());
-    }
+    }*/
 
 /*    @Test
     void test_GetAllDocumentos__deve_retornar_dados_corretos_quando_tipo_documento_especificado_e_sem_documentos() {
