@@ -1,5 +1,6 @@
 package br.com.mili.milibackend.fornecedor.domain.entity;
 
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
 import jakarta.persistence.*;
 import lombok.*;
 

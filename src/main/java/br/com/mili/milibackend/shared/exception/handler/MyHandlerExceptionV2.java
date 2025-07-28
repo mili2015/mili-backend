@@ -1,7 +1,10 @@
 package br.com.mili.milibackend.shared.exception.handler;
 
 import br.com.mili.milibackend.shared.MyResponse;
+import br.com.mili.milibackend.shared.exception.MyHandlerException;
 import br.com.mili.milibackend.shared.exception.types.CustomException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +15,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Order(1)
 public class MyHandlerExceptionV2 {
 
+    protected Logger logger;
+
+    public MyHandlerExceptionV2() {
+        this.logger = LoggerFactory.getLogger(MyHandlerExceptionV2.class);
+    }
+
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<MyResponse> handleCustomException(CustomException ex) {
-        MyResponse errorResponse = new MyResponse(ex.getStatus(), ex.getMessage(), ex.getCode());
+        logger.error("handleMethodArgumentNotValidException", ex);
 
+        MyResponse errorResponse = new MyResponse(ex.getStatus(), ex.getMessage(), ex.getCode());
         return new ResponseEntity<MyResponse>(errorResponse, HttpStatus.valueOf(ex.getStatus()));
     }
 

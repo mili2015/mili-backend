@@ -1,9 +1,10 @@
 package br.com.mili.milibackend.fornecedor.application.service;
 
-import br.com.mili.milibackend.fornecedor.application.dto.gfdFuncionario.*;
-import br.com.mili.milibackend.fornecedor.domain.entity.GfdFuncionario;
-import br.com.mili.milibackend.fornecedor.infra.projections.GfdFuncionarioStatusProjection;
-import br.com.mili.milibackend.fornecedor.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
+import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
+import br.com.mili.milibackend.gfd.infra.projections.GfdFuncionarioStatusProjection;
+import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
+import br.com.mili.milibackend.gfd.application.service.GfdFuncionarioService;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

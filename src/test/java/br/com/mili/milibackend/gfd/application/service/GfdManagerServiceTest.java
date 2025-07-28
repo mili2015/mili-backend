@@ -1,17 +1,22 @@
 package br.com.mili.milibackend.gfd.application.service;
 
+import br.com.mili.milibackend.envioEmail.domain.entity.EnvioEmail;
+import br.com.mili.milibackend.envioEmail.domain.interfaces.IEnvioEmailService;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioInputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioOutputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByIdOutputDto;
-import br.com.mili.milibackend.fornecedor.application.dto.GfdTipoDocumentoGetByIdOutputDto;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdDocumento.*;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdFuncionario.*;
-import br.com.mili.milibackend.fornecedor.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.GfdTipoDocumentoGetByIdOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.*;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
+import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
 import br.com.mili.milibackend.fornecedor.domain.entity.*;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
-import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IGfdFuncionarioService;
-import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IGfdTipoDocumentoService;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
 import br.com.mili.milibackend.gfd.application.dto.*;
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
+import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioTipoContratacaoEnum;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
@@ -29,7 +34,6 @@ import org.modelmapper.ModelMapper;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FORNECEDOR_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FUNCIONARIO_SEM_PERMISSAO;
@@ -46,6 +50,9 @@ class GfdManagerServiceTest {
 
     @Mock
     private IFornecedorService fornecedorService;
+
+    @Mock
+    private IEnvioEmailService envioEmailService;
 
     @Mock
     private IGfdFuncionarioService gfdFuncionarioService;
@@ -858,5 +865,176 @@ class GfdManagerServiceTest {
                 GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(),
                 ex.getMessage()
         );
+    }
+
+
+    @Test
+    void test_updateDocumento_deve_enviar_email_quando_status_nao_conforme() {
+        // arrange
+        final Integer usuarioLogadoId = 123;
+        final Integer fornecedorExistenteId = 77;
+        final Integer documentoId = 10;
+        final String statusNaoConforme = "NÃO CONFORME";
+        final String emailFornecedor = "fornecedor@mili.com";
+
+        Fornecedor fornecedor;
+        fornecedor = new Fornecedor();
+        fornecedor.setCodigo(fornecedorExistenteId);
+        fornecedor.setCodUsuario(usuarioLogadoId);
+        fornecedor.setEmail(emailFornecedor);
+
+        var input = new GfdMDocumentoUpdateInputDto();
+        input.setCodUsuario(usuarioLogadoId);
+        input.setFornecedor(new GfdMDocumentoUpdateInputDto.FornecedorDto(fornecedorExistenteId));
+
+        var docInput = new GfdMDocumentoUpdateInputDto.GfdDocumentoUpdateInputDto(documentoId, LocalDate.now(), null, statusNaoConforme, "obs");
+        input.setDocumento(docInput);
+
+        var docMapped = new GfdDocumentoUpdateInputDto();
+        var updated = new GfdDocumentoUpdateOutputDto();
+        updated.setId(documentoId);
+        updated.setStatus(GfdDocumentoStatusEnum.NAO_CONFORME);
+        updated.setGfdTipoDocumento(new GfdDocumentoUpdateOutputDto.GfdTipoDocumentoDto(5, "Contrato", 30));
+
+        var outputDto = new GfdMDocumentoUpdateOutputDto.GfdDocumentoUpdateOutputDto();
+
+        when(fornecedorService.getById(fornecedorExistenteId)).thenReturn(mock(FornecedorGetByIdOutputDto.class));
+        when(modelMapper.map(any(FornecedorGetByIdOutputDto.class), eq(Fornecedor.class))).thenReturn(fornecedor);
+        when(modelMapper.map(docInput, GfdDocumentoUpdateInputDto.class)).thenReturn(docMapped);
+        when(gfdDocumentoService.update(docMapped)).thenReturn(updated);
+        when(modelMapper.map(any(GfdDocumentoUpdateOutputDto.class), eq(GfdMDocumentoUpdateOutputDto.GfdDocumentoUpdateOutputDto.class))).thenReturn(outputDto);
+
+        //act
+        var result = gfdManagerService.updateDocumento(input);
+
+        //assert
+        assertNotNull(result);
+        verify(envioEmailService).enviarFila(any(EnvioEmail.class));
+    }
+
+
+    @Test
+    void test_updateDocumento_deve_lancar_NotFoundException_quando_id_e_codUsuario_null() {
+        var input = new GfdMDocumentoUpdateInputDto();
+        input.setCodUsuario(null);
+        input.setFornecedor(null);
+
+        assertThrows(NotFoundException.class, () -> gfdManagerService.updateDocumento(input));
+    }
+
+    @Test
+    void test_updateDocumento_deve_lancar_NotFoundException_quando_getById_retorna_null() {
+        final Integer fornecedorExistenteId = 77;
+
+        var input = new GfdMDocumentoUpdateInputDto();
+        input.setCodUsuario(null);
+        input.setFornecedor(new GfdMDocumentoUpdateInputDto.FornecedorDto(fornecedorExistenteId));
+
+        when(fornecedorService.getById(fornecedorExistenteId)).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> gfdManagerService.updateDocumento(input));
+    }
+
+    @Test
+    void test_updateDocumento_deve_lancar_NotFoundException_quando_getByCodUsuario_retorna_null() {
+        final Integer usuarioLogadoId = 123;
+
+        var input = new GfdMDocumentoUpdateInputDto();
+        input.setCodUsuario(usuarioLogadoId);
+        input.setFornecedor(null);
+
+        when(fornecedorService.getByCodUsuario(any())).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> gfdManagerService.updateDocumento(input));
+    }
+
+    @Test
+    void test_updateDocumento_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
+        final Integer fornecedorExistenteId = 77;
+        final Integer usuarioLogadoId = 123;
+        final String emailFornecedor = "fornecedor@mili.com";
+
+        Fornecedor fornecedor;
+        fornecedor = new Fornecedor();
+        fornecedor.setCodigo(fornecedorExistenteId);
+        fornecedor.setCodUsuario(usuarioLogadoId);
+        fornecedor.setEmail(emailFornecedor);
+
+        var input = new GfdMDocumentoUpdateInputDto();
+        input.setCodUsuario(999); // diferente do fornecedor.getCodUsuario()
+        input.setFornecedor(new GfdMDocumentoUpdateInputDto.FornecedorDto(fornecedorExistenteId));
+
+        when(fornecedorService.getById(fornecedorExistenteId)).thenReturn(mock(FornecedorGetByIdOutputDto.class));
+        when(modelMapper.map(any(FornecedorGetByIdOutputDto.class), eq(Fornecedor.class))).thenReturn(fornecedor);
+
+        assertThrows(ForbiddenException.class, () -> gfdManagerService.updateDocumento(input));
+    }
+
+    @Test
+    void test_downloadDocumento_deve_retornar_outputDto_quando_usuario_tem_permissao() {
+        // Arrange
+        final Integer idDocumento = 10;
+        final Integer idFornecedor = 77;
+        final Integer idUsuarioLogado = 123;
+        final String emailFornecedor = "fornecedor@mili.com";
+
+        var inputDto = new GfdMDocumentoDownloadInputDto(idDocumento, idUsuarioLogado, idFornecedor);
+        var downloadInputDto = new GfdDocumentoDownloadInputDto(idDocumento);
+        var downloadOutputDto = new GfdDocumentoDownloadOutputDto(idDocumento, "s3/path/file.pdf");
+        var expectedOutputDto = new GfdMDocumentoDownloadOutputDto(idDocumento, "s3/path/file.pdf");
+
+        var fornecedorOutputDto = new FornecedorGetByIdOutputDto();
+        fornecedorOutputDto.setCodigo(idFornecedor);
+        fornecedorOutputDto.setCodUsuario(idUsuarioLogado);
+        fornecedorOutputDto.setEmail(emailFornecedor);
+
+        var fornecedor = new Fornecedor();
+        fornecedor.setCodigo(idFornecedor);
+        fornecedor.setCodUsuario(idUsuarioLogado);
+        fornecedor.setEmail(emailFornecedor);
+
+        when(fornecedorService.getById(idFornecedor)).thenReturn(fornecedorOutputDto);
+        when(modelMapper.map(fornecedorOutputDto, Fornecedor.class)).thenReturn(fornecedor);
+        when(modelMapper.map(inputDto, GfdDocumentoDownloadInputDto.class)).thenReturn(downloadInputDto);
+        when(gfdDocumentoService.download(downloadInputDto)).thenReturn(downloadOutputDto);
+        when(modelMapper.map(downloadOutputDto, GfdMDocumentoDownloadOutputDto.class)).thenReturn(expectedOutputDto);
+
+        // Act
+        var resultado = gfdManagerService.downloadDocumento(inputDto);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(expectedOutputDto, resultado);
+    }
+
+
+    @Test
+    void test_deleteDocumento_deve_chamar_servico_delete_quando_permissao_valida() {
+        // Arrange
+        final Integer idDocumento = 10;
+        final Integer idFornecedor = 77;
+        final Integer idUsuarioLogado = 123;
+        final String emailFornecedor = "fornecedor@mili.com";
+
+        var fornecedorOutputDto = new FornecedorGetByIdOutputDto();
+        fornecedorOutputDto.setCodigo(idFornecedor);
+        fornecedorOutputDto.setCodUsuario(idUsuarioLogado);
+        fornecedorOutputDto.setEmail(emailFornecedor);
+
+        var fornecedor = new Fornecedor();
+        fornecedor.setCodigo(idFornecedor);
+        fornecedor.setCodUsuario(idUsuarioLogado);
+        fornecedor.setEmail(emailFornecedor);
+
+        var input = new GfdMDocumentoDeleteInputDto(idDocumento, idUsuarioLogado, idFornecedor);
+        var deleteDto = new GfdDocumentoDeleteInputDto();
+
+        when(fornecedorService.getById(idFornecedor)).thenReturn(mock(FornecedorGetByIdOutputDto.class));
+        when(modelMapper.map(any(FornecedorGetByIdOutputDto.class), eq(Fornecedor.class))).thenReturn(fornecedor);
+        when(modelMapper.map(input, GfdDocumentoDeleteInputDto.class)).thenReturn(deleteDto);
+
+        gfdManagerService.deleteDocumento(input);
+
+        verify(gfdDocumentoService).delete(deleteDto);
     }
 }

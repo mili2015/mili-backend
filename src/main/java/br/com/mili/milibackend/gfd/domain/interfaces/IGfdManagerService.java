@@ -25,4 +25,10 @@ public interface IGfdManagerService {
     GfdMFuncionarioGetOutputDto getFuncionario(GfdMFuncionarioGetInputDto inputDto);
 
     void deleteFuncionario(GfdMFuncionarioDeleteInputDto inputDto);
+
+    GfdMDocumentoUpdateOutputDto updateDocumento(GfdMDocumentoUpdateInputDto inputDto);
+
+    GfdMDocumentoDownloadOutputDto downloadDocumento(GfdMDocumentoDownloadInputDto inputDto);
+
+    void deleteDocumento(GfdMDocumentoDeleteInputDto inputDto);
 }
