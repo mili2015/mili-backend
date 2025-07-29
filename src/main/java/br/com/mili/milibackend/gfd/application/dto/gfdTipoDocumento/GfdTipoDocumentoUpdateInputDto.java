@@ -1,27 +1,24 @@
 package br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento;
 
-
-import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
-import br.com.mili.milibackend.shared.page.Filtro;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@AllArgsConstructor
-@Setter
 @NoArgsConstructor
-public class GfdTipoDocumentoGetAllInputDto {
+@AllArgsConstructor
+@Getter
+@Setter
+public class GfdTipoDocumentoUpdateInputDto {
+    @NotNull
     private Integer id;
-
+    @NotNull
     private String nome;
-
-    private GfdTipoDocumentoTipoEnum tipo;
+    @NotNull
+    private String tipo;
 
     private Integer diasValidade;
-
+    @NotNull
     private Boolean obrigatoriedade;
-
-    private Boolean ativo;
 }

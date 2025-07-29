@@ -5,19 +5,18 @@ import br.com.mili.milibackend.envioEmail.domain.interfaces.IEnvioEmailService;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioInputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioOutputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByIdOutputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdTipoDocumentoGetByIdOutputDto;
+import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
+import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
+import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
-import br.com.mili.milibackend.fornecedor.domain.entity.*;
-import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
-import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
-import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
-import br.com.mili.milibackend.gfd.application.dto.*;
+import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetByIdOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioTipoContratacaoEnum;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
@@ -508,6 +507,7 @@ class GfdManagerServiceTest {
         tipoDocumentoAtual.setId(2);
         tipoDocumentoAtual.setNome("Tipo 2");
         tipoDocumentoAtual.setDiasValidade(120);
+
         when(gfdTipoDocumentoService.getById(2)).thenReturn(tipoDocumentoAtual);
 
 
@@ -585,6 +585,7 @@ class GfdManagerServiceTest {
         assertEquals(1, output.getFuncionario().getId());
         assertEquals("João", output.getFuncionario().getNome());
     }
+
     @Test
     void test_CreateFuncionario_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
         // Arrange
@@ -744,7 +745,7 @@ class GfdManagerServiceTest {
     @Test
     void test_getFuncionario_deve_retornar_funcionario_quando_input_valido() {
         // Arrange
-        Integer codUsuario    = 100;
+        Integer codUsuario = 100;
         Integer codFornecedor = 200;
         Integer idFuncionario = 5;
 
@@ -790,13 +791,13 @@ class GfdManagerServiceTest {
         assertNotNull(result, "O retorno não deve ser nulo");
         assertNotNull(result.getFuncionario(), "O campo 'funcionario' não deve ser nulo");
         assertEquals(idFuncionario, result.getFuncionario().getId(), "O ID deve bater com o esperado");
-        assertEquals("Maria",       result.getFuncionario().getNome(), "O nome deve bater com o esperado");
+        assertEquals("Maria", result.getFuncionario().getNome(), "O nome deve bater com o esperado");
     }
 
     @Test
     void test_deleteFuncionario_deve_deletar_funcionario_quando_input_valido() {
         // Arrange
-        Integer codUsuario    = 100;
+        Integer codUsuario = 100;
         Integer codFornecedor = 200;
         Integer idFuncionario = 5;
 
@@ -835,7 +836,7 @@ class GfdManagerServiceTest {
     @Test
     void test_deleteFuncionario_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
         // Arrange
-        Integer codUsuario    = 100;
+        Integer codUsuario = 100;
         Integer codFornecedor = 200;
         Integer idFuncionario = 5;
 

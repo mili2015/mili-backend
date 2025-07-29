@@ -1,9 +1,7 @@
 package br.com.mili.milibackend.gfd.domain.interfaces;
 
 import br.com.mili.milibackend.gfd.application.dto.*;
-import br.com.mili.milibackend.shared.page.pagination.MyPage;
-
-import java.util.List;
+import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
 
 public interface IGfdManagerService {
     GfdMVerificarFornecedorOutputDto verifyFornecedor(GfdMVerificarFornecedorInputDto inputDto);
@@ -31,4 +29,5 @@ public interface IGfdManagerService {
     GfdMDocumentoDownloadOutputDto downloadDocumento(GfdMDocumentoDownloadInputDto inputDto);
 
     void deleteDocumento(GfdMDocumentoDeleteInputDto inputDto);
+
 }
