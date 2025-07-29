@@ -49,40 +49,7 @@ class GfdDocumentoServiceTest {
     @InjectMocks
     private GfdDocumentoService gfdDocumentoService;
 
-    @Test
-    void test_Create__deve_criar_fornecedor_documento_e_enviar_s3() {
-        var inputDto = new GfdDocumentoCreateInputDto();
-        var gfdDocumentoDto = new GfdDocumentoCreateInputDto.GfdDocumentoDto();
-        gfdDocumentoDto.setNomeArquivo("arquivo.pdf");
-        inputDto.setGfdDocumentoDto(gfdDocumentoDto);
-        inputDto.setBase64File("base64content");
 
-        var gfdDocumentoEntity = new GfdDocumento();
-        gfdDocumentoEntity.setNomeArquivo("arquivo.pdf");
-
-        var gfdDocumentoSaved = new GfdDocumento();
-        gfdDocumentoSaved.setId(1);
-        gfdDocumentoSaved.setNomeArquivo("arquivo.pdf");
-
-        var outputDto = new GfdDocumentoCreateOutputDto();
-        outputDto.setId(1);
-
-        when(modelMapper.map(gfdDocumentoDto, GfdDocumento.class)).thenReturn(gfdDocumentoEntity);
-        when(gfdDocumentoRepository.save(gfdDocumentoEntity)).thenReturn(gfdDocumentoSaved);
-
-        // mock gson.toJson para o upload S3
-        when(gson.toJson(any(AttachmentDto.class))).thenReturn("{json}");
-
-        when(modelMapper.map(gfdDocumentoSaved, GfdDocumentoCreateOutputDto.class)).thenReturn(outputDto);
-
-        var result = gfdDocumentoService.create(inputDto);
-
-        assertNotNull(result);
-        assertEquals(1, result.getId());
-
-        verify(gfdDocumentoRepository).save(gfdDocumentoEntity);
-        verify(s3Service).upload(eq(StorageFolderEnum.GFD), eq("{json}"));
-    }
 
     @Test
     void test_FindLatestDocumentsGroupedByTipoAndFornecedorId__deve_retornar_lista_mapeada() {

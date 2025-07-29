@@ -266,57 +266,6 @@ class GfdManagerServiceTest {
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getCode(), ex.getCode());
     }
 
-    @Test
-    void test_UploadDocumento__deve_realizar_upload_com_sucesso() {
-        // Arrange
-        GfdMUploadDocumentoInputDto inputDto = new GfdMUploadDocumentoInputDto();
-        inputDto.setId(1);
-        inputDto.setGfdTipoDocumento(new GfdMUploadDocumentoInputDto.GfdTipoDocumentoDto(1));
-
-
-        inputDto.setListGfdDocumento(Arrays.asList(
-                new GfdMUploadDocumentoInputDto.GfdDocumentoDto(new AttachmentDto("file.txt", "data"), LocalDate.now(), LocalDate.now().plusDays(1))
-        ));
-
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setCodigo(1);
-
-        var fornecedorGetByIdOutputDto = new FornecedorGetByIdOutputDto();
-        fornecedor.setCodigo(1);
-
-        when(fornecedorService.getById(1)).thenReturn(fornecedorGetByIdOutputDto);
-
-        when(modelMapper.map(any(), eq(Fornecedor.class))).thenReturn(fornecedor);
-
-        var gfdTipoDocumentoGetByIdOutputDto = new GfdTipoDocumentoGetByIdOutputDto();
-        gfdTipoDocumentoGetByIdOutputDto.setId(1);
-
-        when(gfdTipoDocumentoService.getById(1)).thenReturn(gfdTipoDocumentoGetByIdOutputDto);
-        when(tika.detect(any(byte[].class))).thenReturn("text/plain");
-        when(gfdDocumentoService.create(any())).thenReturn(new GfdDocumentoCreateOutputDto());
-        when(modelMapper.map(any(), eq(GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto.class))).thenReturn(new GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto());
-
-        // Act
-        GfdMUploadDocumentoOutputDto outputDto = gfdManagerService.uploadDocumento(inputDto);
-
-        // Assert
-        assertNotNull(outputDto);
-        assertEquals(1, outputDto.getGfdTipoDocumento().size());
-    }
-
-    @Test
-    void test_UploadDocumento__deve_lancar_not_found_exception_quando_fornecedor_nao_encontrado() {
-        // Arrange
-        GfdMUploadDocumentoInputDto inputDto = new GfdMUploadDocumentoInputDto();
-        inputDto.setId(1);
-
-        when(fornecedorService.getById(1)).thenReturn(null);
-
-        // Act & Assert
-        NotFoundException ex = assertThrows(NotFoundException.class, () -> gfdManagerService.uploadDocumento(inputDto));
-        assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), ex.getMessage());
-        assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getCode(), ex.getCode());
-    }
 
 /*    @Test
     void test_GetAllDocumentos__deve_retornar_lista_vazia_quando_sem_documentos() {

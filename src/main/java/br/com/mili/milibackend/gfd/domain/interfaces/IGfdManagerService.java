@@ -10,8 +10,6 @@ public interface IGfdManagerService {
 
     GfdMFornecedorGetOutputDto getFornecedor(GfdMFornecedorGetInputDto inputDto);
 
-    GfdMUploadDocumentoOutputDto uploadDocumento(GfdMUploadDocumentoInputDto inputDto);
-
     GfdMDocumentosGetAllOutputDto getAllDocumentos(GfdMDocumentosGetAllInputDto inputDto);
 
     GfdMFuncionarioGetAllOutputDto getAllFuncionarios(GfdMFuncionarioGetAllInputDto inputDto);
@@ -29,5 +27,6 @@ public interface IGfdManagerService {
     GfdMDocumentoDownloadOutputDto downloadDocumento(GfdMDocumentoDownloadInputDto inputDto);
 
     void deleteDocumento(GfdMDocumentoDeleteInputDto inputDto);
+
 
 }

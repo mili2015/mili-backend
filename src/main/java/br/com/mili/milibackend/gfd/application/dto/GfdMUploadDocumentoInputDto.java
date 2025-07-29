@@ -47,8 +47,8 @@ public class GfdMUploadDocumentoInputDto {
     @Setter
     @ValidaIntervaloData(inicio = "dataEmissao", fim = "dataValidade", message = "A data de validade não pode ser menor que a data de emissão")
     public static class GfdDocumentoDto {
-        AttachmentDto base64File;
-        LocalDate dataEmissao;
-        LocalDate dataValidade;
+        private AttachmentDto base64File;
+        private LocalDate dataEmissao;
+        private LocalDate dataValidade;
     }
 }

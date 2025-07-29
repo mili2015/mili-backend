@@ -125,56 +125,6 @@ public class GfdManagerService implements IGfdManagerService {
         return modelMapper.map(fornecedor, GfdMFornecedorGetOutputDto.class);
     }
 
-    @Override
-    public GfdMUploadDocumentoOutputDto uploadDocumento(GfdMUploadDocumentoInputDto inputDto) {
-        var listGfdDocumentoOutputDto = new ArrayList<GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto>();
-
-        var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), inputDto.getId());
-
-        // recupera o tipo do documento
-        GfdTipoDocumentoGetByIdOutputDto tipoDocumento = gfdTipoDocumentoService.getById(inputDto.getGfdTipoDocumento().getId());
-
-        if (tipoDocumento == null) {
-            throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
-        }
-
-        //verifica se o tipo é de funcionario
-        if (inputDto.getFuncionario() != null && tipoDocumento.getTipo() == GfdTipoDocumentoTipoEnum.FORNECEDOR) {
-            throw new BadRequestException(GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getMensagem(), GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getCode());
-        }
-
-        //salva o arquivo no banco
-        var listGfdDocumentoDto = inputDto.getListGfdDocumento();
-
-        for (GfdMUploadDocumentoInputDto.GfdDocumentoDto gfdDocumentoDto : listGfdDocumentoDto) {
-            var base64File = gfdDocumentoDto.getBase64File().file();
-
-            byte[] fileData = Base64.decodeBase64(base64File);
-            String mimeTypeStr = tika.detect(fileData);
-
-            MimeType mimeType = MimeType.valueOf(mimeTypeStr);
-
-            var nomeArquivo = UUID.randomUUID() + "-" + gfdDocumentoDto.getBase64File().fileName();
-
-            //salva no banco
-            var gfdTipoDocumentoDto = new GfdDocumentoCreateInputDto.GfdDocumentoDto.GfdTipoDocumentoDto(tipoDocumento.getId());
-
-            var gfdDocumentoInputDto = GfdDocumentoCreateInputDto.GfdDocumentoDto.builder().ctforCodigo(fornecedor.getCodigo()).nomeArquivo(nomeArquivo).nomeArquivoPath("gfd/" + nomeArquivo).tamanhoArquivo(fileData.length).dataCadastro(LocalDate.now()).tipoArquivo(mimeType.toString()).dataEmissao(gfdDocumentoDto.getDataEmissao()).dataValidade(gfdDocumentoDto.getDataValidade()).usuario(inputDto.getUsuario()).status(GfdDocumentoStatusEnum.ENVIADO).gfdTipoDocumento(gfdTipoDocumentoDto);
-
-            // adiciona o funcionario
-            if (inputDto.getFuncionario() != null) {
-                gfdDocumentoInputDto.gfdFuncionario(new GfdDocumentoCreateInputDto.GfdDocumentoDto.GfdFuncionarioDto(inputDto.getFuncionario().getId()));
-            }
-
-            var gfdDocumentoCreateInputDto = GfdDocumentoCreateInputDto.builder().gfdDocumentoDto(gfdDocumentoInputDto.build()).base64File(base64File).build();
-
-            var gfdDocumentoCreateOutputDto = gfdDocumentoService.create(gfdDocumentoCreateInputDto);
-
-            listGfdDocumentoOutputDto.add(modelMapper.map(gfdDocumentoCreateOutputDto, GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto.class));
-        }
-
-        return new GfdMUploadDocumentoOutputDto(listGfdDocumentoOutputDto);
-    }
 
     @Override
     public GfdMDocumentosGetAllOutputDto getAllDocumentos(GfdMDocumentosGetAllInputDto inputDto) {
