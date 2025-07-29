@@ -47,9 +47,12 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
                         new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode())
                 );
 
-        //verifica se o tipo é de funcionario
+        //valida se caso o usuario realmente enviou corretamente o tipo de documento
         if (inputDto.getFuncionario() != null && tipoDocumento.getTipo() == GfdTipoDocumentoTipoEnum.FORNECEDOR) {
-            throw new BadRequestException(GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getMensagem(), GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getCode());
+            throw new BadRequestException(
+                    GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getMensagem(),
+                    GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getCode()
+            );
         }
 
         //salva o arquivo no banco

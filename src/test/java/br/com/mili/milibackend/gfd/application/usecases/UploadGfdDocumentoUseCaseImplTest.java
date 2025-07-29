@@ -27,7 +27,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FORNECEDOR_NAO_ENCONTRADO;
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,7 +86,10 @@ class UploadGfdDocumentoUseCaseImplTest {
 
     @Test
     void teste_deve_realizar_upload_documento_com_sucesso() {
-        when(fornecedorRepository.findByCodUsuario(1)).thenReturn(Optional.of(fornecedor));
+        inputDto.setId(1);
+        tipoDocumento.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT);
+
+        when(fornecedorRepository.findById(1)).thenReturn(Optional.of(fornecedor));
         when(gfdTipoDocumentoRepository.findById(10)).thenReturn(Optional.of(tipoDocumento));
 
         var documentoFileData = new DocumentoFileData("bytes".getBytes(), "application/pdf", "documento.pdf", 1234);
@@ -105,9 +112,11 @@ class UploadGfdDocumentoUseCaseImplTest {
     void teste_deve_lancar_excecao_quando_forncedor_nao_encontrado() {
         when(fornecedorRepository.findByCodUsuario(1)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.execute(inputDto))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("Fornecedor não encontrado");
+
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> useCase.execute(inputDto));
+        assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), ex.getMessage());
+        assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getCode(), ex.getCode());
+
     }
 
     @Test
@@ -116,8 +125,9 @@ class UploadGfdDocumentoUseCaseImplTest {
         when(fornecedorRepository.findByCodUsuario(1)).thenReturn(Optional.of(fornecedor));
         when(gfdTipoDocumentoRepository.findById(10)).thenReturn(Optional.of(tipoDocumento));
 
-        assertThatThrownBy(() -> useCase.execute(inputDto))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("tipo de documento não é permitido para funcionário");
+        BadRequestException ex = assertThrows(BadRequestException.class, () -> useCase.execute(inputDto));
+        assertEquals(GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getMensagem(), ex.getMessage());
+        assertEquals(GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getCode(), ex.getCode());
+
     }
 }
