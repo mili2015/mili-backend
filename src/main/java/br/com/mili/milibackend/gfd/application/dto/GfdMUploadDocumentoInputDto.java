@@ -21,7 +21,7 @@ public class GfdMUploadDocumentoInputDto {
     private Integer id;
 
     @Valid
-    private List<GfdDocumentoDto> listGfdDocumento;
+    private GfdDocumentoDto gfdDocumento;
     private GfdTipoDocumentoDto gfdTipoDocumento;
     private GfdFuncionarioDto funcionario;
 

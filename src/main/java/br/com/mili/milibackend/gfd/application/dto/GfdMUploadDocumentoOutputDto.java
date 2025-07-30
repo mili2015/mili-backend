@@ -14,24 +14,15 @@ import java.util.List;
 @Getter
 @Setter
 public class GfdMUploadDocumentoOutputDto {
-    private List<GfdTipoDocumentoDto> GfdTipoDocumento;
+    private Integer id;
 
+    private String nome;
 
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    public static class GfdTipoDocumentoDto {
-        private Integer id;
+    private String tipo;
 
-        private String nome;
+    private Integer diasValidade;
 
-        private String tipo;
+    private Boolean obrigatoriedade;
 
-        private Integer diasValidade;
-
-        private Boolean obrigatoriedade;
-
-        private Boolean ativo;
-    }
+    private Boolean ativo;
 }

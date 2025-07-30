@@ -341,7 +341,7 @@ public class GfdManagerService implements IGfdManagerService {
 
     private void addNonMandatoryDocuments(Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> listDocumento, List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos) {
         tipoDocumentos.stream().filter(tipoDoc -> !tipoDoc.getObrigatoriedade()).forEach(tipoDoc -> {
-            var outputDto = buildGfdMVerificarDocumentoOutpDto("OUTROS", tipoDoc.getNome(), tipoDoc.getId());
+            var outputDto = buildGfdMVerificarDocumentoOutpDto("OPCIONAL", tipoDoc.getNome(), tipoDoc.getId());
             outputDtoList.add(outputDto);
         });
     }

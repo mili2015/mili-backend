@@ -14,7 +14,10 @@ import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
+import br.com.mili.milibackend.shared.infra.aws.IS3Service;
+import br.com.mili.milibackend.shared.infra.aws.StorageFolderEnum;
 import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
+import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +55,12 @@ class UploadGfdDocumentoUseCaseImplTest {
     @Mock
     private ModelMapper modelMapper;
 
+    @Mock
+    private Gson gson;
+
+    @Mock
+    private IS3Service s3Service;
+
     @InjectMocks
     private UploadGfdDocumentoUseCaseImpl useCase;
 
@@ -68,7 +77,7 @@ class UploadGfdDocumentoUseCaseImplTest {
 
         var file = new AttachmentDto("base64encoded", "documento.pdf");
         var docDto = new GfdMUploadDocumentoInputDto.GfdDocumentoDto(file, LocalDate.now(), LocalDate.now().plusDays(10));
-        inputDto.setListGfdDocumento(List.of(docDto));
+        inputDto.setGfdDocumento(docDto);
 
         var tipoDocDto = new GfdMUploadDocumentoInputDto.GfdTipoDocumentoDto(10);
         inputDto.setGfdTipoDocumento(tipoDocDto);
@@ -92,20 +101,21 @@ class UploadGfdDocumentoUseCaseImplTest {
         when(fornecedorRepository.findById(1)).thenReturn(Optional.of(fornecedor));
         when(gfdTipoDocumentoRepository.findById(10)).thenReturn(Optional.of(tipoDocumento));
 
-        var documentoFileData = new DocumentoFileData("bytes".getBytes(), "application/pdf", "documento.pdf", 1234);
+        var documentoFileData = new DocumentoFileData("bytes" .getBytes(), "application/pdf", "documento.pdf", 1234);
         when(fileProcessingService.processFile(anyString(), anyString())).thenReturn(documentoFileData);
 
         var createOutputDto = new GfdDocumentoCreateOutputDto();
         when(createDocumentoUseCase.execute(any())).thenReturn(createOutputDto);
 
-        var outputDtoMock = new GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto(10, "Nome", "FUNCIONARIO", 30, true, true);
-        when(modelMapper.map(eq(createOutputDto), eq(GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto.class))).thenReturn(outputDtoMock);
+        var outputDtoMock = new GfdMUploadDocumentoOutputDto(10, "Nome", "FUNCIONARIO", 30, true, true);
+        when(modelMapper.map(eq(createOutputDto), eq(GfdMUploadDocumentoOutputDto.class))).thenReturn(outputDtoMock);
+
+        when(gson.toJson(any(AttachmentDto.class))).thenReturn("{json}");
 
         GfdMUploadDocumentoOutputDto result = useCase.execute(inputDto);
+        verify(s3Service).upload(eq(StorageFolderEnum.GFD), eq("{json}"));
 
         assertThat(result).isNotNull();
-        assertThat(result.getGfdTipoDocumento()).hasSize(1);
-        assertThat(result.getGfdTipoDocumento().get(0).getId()).isEqualTo(10);
     }
 
     @Test

@@ -6,6 +6,7 @@ import br.com.mili.milibackend.gfd.application.dto.GfdMUploadDocumentoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.GfdMUploadDocumentoOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.fileprocess.DocumentoFileData;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateInputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
@@ -15,13 +16,15 @@ import br.com.mili.milibackend.gfd.domain.usecases.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
+import br.com.mili.milibackend.shared.infra.aws.IS3Service;
+import br.com.mili.milibackend.shared.infra.aws.StorageFolderEnum;
+import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FORNECEDOR_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST;
@@ -34,62 +37,64 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
     private final CreateDocumentoUseCase createDocumentoUseCase;
     private final FileProcessingService fileProcessingService;
     private final ModelMapper modelMapper;
+    private final Gson gson;
+    private final IS3Service s3Service;
 
     @Override
     public GfdMUploadDocumentoOutputDto execute(GfdMUploadDocumentoInputDto inputDto) {
-        var listGfdDocumentoOutputDto = new ArrayList<GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto>();
+        var gfdDocumentoDto = inputDto.getGfdDocumento();
+        var base64File = gfdDocumentoDto.getBase64File().file();
+        var base64FileName = gfdDocumentoDto.getBase64File().fileName();
 
         var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), inputDto.getId());
 
-        // recupera o tipo do documento
-        var tipoDocumento = gfdTipoDocumentoRepository.findById(inputDto.getGfdTipoDocumento().getId())
-                .orElseThrow(() ->
-                        new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode())
-                );
+        var tipoDocumento = recuperarTipoDocumento(inputDto);
 
-        //valida se caso o usuario realmente enviou corretamente o tipo de documento
-        if (inputDto.getFuncionario() != null && tipoDocumento.getTipo() == GfdTipoDocumentoTipoEnum.FORNECEDOR) {
-            throw new BadRequestException(
-                    GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getMensagem(),
-                    GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getCode()
-            );
-        }
+        validarCompatibilidadeTipoDocumento(inputDto, tipoDocumento);
 
-        //salva o arquivo no banco
-        var listGfdDocumentoDto = inputDto.getListGfdDocumento();
+        DocumentoFileData documentoFileData = fileProcessingService.processFile(base64File, base64FileName);
 
-        salvarListaDocumento(inputDto, listGfdDocumentoDto, tipoDocumento, fornecedor, listGfdDocumentoOutputDto);
+        var gfdDocumentoCreateOutputDto = createGfdDocumento(inputDto, tipoDocumento, fornecedor, documentoFileData, gfdDocumentoDto, base64File);
 
-        return new GfdMUploadDocumentoOutputDto(listGfdDocumentoOutputDto);
+        uploadFile(base64File, documentoFileData);
+
+        return modelMapper.map(gfdDocumentoCreateOutputDto, GfdMUploadDocumentoOutputDto.class);
     }
 
-    private void salvarListaDocumento(GfdMUploadDocumentoInputDto inputDto, List<GfdMUploadDocumentoInputDto.GfdDocumentoDto> listGfdDocumentoDto, GfdTipoDocumento tipoDocumento, Fornecedor fornecedor, ArrayList<GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto> listGfdDocumentoOutputDto) {
-        for (GfdMUploadDocumentoInputDto.GfdDocumentoDto gfdDocumentoDto : listGfdDocumentoDto) {
-            var base64File = gfdDocumentoDto.getBase64File().file();
-            var base64FileName = gfdDocumentoDto.getBase64File().fileName();
+    private void uploadFile(String base64File, DocumentoFileData documentoFileData) {
+        var attachmentDtoModified = new AttachmentDto(base64File, documentoFileData.getNomeArquivo());
+        var json = gson.toJson(attachmentDtoModified);
 
-            DocumentoFileData documentoFileData = fileProcessingService.processFile(base64File, base64FileName);
-
-            //salva no banco
-            var gfdDocumentoInputDto = buildDocumentoInput(inputDto, gfdDocumentoDto, tipoDocumento, fornecedor, documentoFileData);
-
-            // adiciona o funcionario
-            if (inputDto.getFuncionario() != null) {
-                gfdDocumentoInputDto.gfdFuncionario(new GfdDocumentoCreateInputDto.GfdDocumentoDto.GfdFuncionarioDto(inputDto.getFuncionario().getId()));
-            }
-
-            var gfdDocumentoCreateInputDto = GfdDocumentoCreateInputDto.builder().gfdDocumentoDto(gfdDocumentoInputDto.build()).base64File(base64File).build();
-
-            var gfdDocumentoCreateOutputDto = createDocumentoUseCase.execute(gfdDocumentoCreateInputDto);
-
-            listGfdDocumentoOutputDto.add(modelMapper.map(gfdDocumentoCreateOutputDto, GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto.class));
-        }
+        s3Service.upload(StorageFolderEnum.GFD, json);
     }
 
-    private GfdDocumentoCreateInputDto.GfdDocumentoDto.GfdDocumentoDtoBuilder buildDocumentoInput(GfdMUploadDocumentoInputDto inputDto, GfdMUploadDocumentoInputDto.GfdDocumentoDto gfdDocumentoDto, GfdTipoDocumento tipoDocumento, Fornecedor fornecedor, DocumentoFileData documentoFileData) {
+    private GfdDocumentoCreateOutputDto createGfdDocumento(
+            GfdMUploadDocumentoInputDto inputDto,
+            GfdTipoDocumento tipoDocumento,
+            Fornecedor fornecedor,
+            DocumentoFileData documentoFileData,
+            GfdMUploadDocumentoInputDto.GfdDocumentoDto gfdDocumentoDto,
+            String base64File
+    ) {
+        var createDocumentoInputDto = buildCreateDocumentoInputDto(inputDto, tipoDocumento, fornecedor, documentoFileData, gfdDocumentoDto);
+
+        var gfdDocumentoCreateInputDto = GfdDocumentoCreateInputDto.builder()
+                .gfdDocumentoDto(createDocumentoInputDto)
+                .base64File(base64File).build();
+
+        return createDocumentoUseCase.execute(gfdDocumentoCreateInputDto);
+    }
+
+    private GfdDocumentoCreateInputDto.GfdDocumentoDto buildCreateDocumentoInputDto(
+            GfdMUploadDocumentoInputDto inputDto,
+            GfdTipoDocumento tipoDocumento,
+            Fornecedor fornecedor,
+            DocumentoFileData documentoFileData,
+            GfdMUploadDocumentoInputDto.GfdDocumentoDto gfdDocumentoDto
+    ) {
         var gfdTipoDocumentoDto = new GfdDocumentoCreateInputDto.GfdDocumentoDto.GfdTipoDocumentoDto(tipoDocumento.getId());
 
-        return GfdDocumentoCreateInputDto.GfdDocumentoDto.builder()
+        var gfdDocumentoInputDto = GfdDocumentoCreateInputDto.GfdDocumentoDto.builder()
                 .ctforCodigo(fornecedor.getCodigo())
                 .nomeArquivo(documentoFileData.getNomeArquivo()).nomeArquivoPath("gfd/" + documentoFileData.getNomeArquivo())
                 .tamanhoArquivo(documentoFileData.getTamanho())
@@ -100,6 +105,28 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
                 .usuario(inputDto.getUsuario())
                 .status(GfdDocumentoStatusEnum.ENVIADO)
                 .gfdTipoDocumento(gfdTipoDocumentoDto);
+
+        if (inputDto.getFuncionario() != null) {
+            gfdDocumentoInputDto.gfdFuncionario(new GfdDocumentoCreateInputDto.GfdDocumentoDto.GfdFuncionarioDto(inputDto.getFuncionario().getId()));
+        }
+
+        return gfdDocumentoInputDto.build();
+    }
+
+    private void validarCompatibilidadeTipoDocumento(GfdMUploadDocumentoInputDto inputDto, GfdTipoDocumento tipoDocumento) {
+        if (inputDto.getFuncionario() != null && tipoDocumento.getTipo() == GfdTipoDocumentoTipoEnum.FORNECEDOR) {
+            throw new BadRequestException(
+                    GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getMensagem(),
+                    GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST.getCode()
+            );
+        }
+    }
+
+    private GfdTipoDocumento recuperarTipoDocumento(GfdMUploadDocumentoInputDto inputDto) {
+        return gfdTipoDocumentoRepository.findById(inputDto.getGfdTipoDocumento().getId())
+                .orElseThrow(() ->
+                        new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode())
+                );
     }
 
     private Fornecedor recuperarFornecedor(Integer codUsuario, Integer id) {

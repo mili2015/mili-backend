@@ -35,11 +35,6 @@ class CreateDocumentoUseCaseImplTest {
     @Mock
     private ModelMapper modelMapper;
 
-    @Mock
-    private Gson gson;
-
-    @Mock
-    private IS3Service s3Service;
 
     @InjectMocks
     private CreateDocumentoUseCaseImpl useCase;
@@ -67,7 +62,6 @@ class CreateDocumentoUseCaseImplTest {
         when(gfdDocumentoRepository.save(gfdDocumentoEntity)).thenReturn(gfdDocumentoSaved);
 
         // mock gson.toJson para o upload S3
-        when(gson.toJson(any(AttachmentDto.class))).thenReturn("{json}");
 
         when(modelMapper.map(gfdDocumentoSaved, GfdDocumentoCreateOutputDto.class)).thenReturn(outputDto);
 
@@ -77,6 +71,5 @@ class CreateDocumentoUseCaseImplTest {
         assertEquals(1, result.getId());
 
         verify(gfdDocumentoRepository).save(gfdDocumentoEntity);
-        verify(s3Service).upload(eq(StorageFolderEnum.GFD), eq("{json}"));
     }
 }

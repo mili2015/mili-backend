@@ -6,7 +6,6 @@ import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import br.com.mili.milibackend.shared.infra.aws.IS3Service;
-import br.com.mili.milibackend.shared.infra.aws.S3ServiceImpl;
 import br.com.mili.milibackend.shared.infra.aws.StorageFolderEnum;
 import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
 import com.google.gson.Gson;
@@ -31,10 +30,7 @@ public class CreateDocumentoUseCaseImpl implements CreateDocumentoUseCase {
 
         var gfdDocumentoCreated = gfdDocumentoRepository.save(gfdDocumento);
 
-        var attachmentDtoModified = new AttachmentDto(inputDto.getBase64File(), gfdDocumento.getNomeArquivo());
-        var json = gson.toJson(attachmentDtoModified);
 
-        s3Service.upload(StorageFolderEnum.GFD, json);
 
         return modelMapper.map(gfdDocumentoCreated, GfdDocumentoCreateOutputDto.class);
     }
