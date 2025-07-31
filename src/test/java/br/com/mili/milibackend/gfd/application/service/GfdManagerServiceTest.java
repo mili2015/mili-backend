@@ -191,7 +191,7 @@ class GfdManagerServiceTest {
         // Assert
         assertEquals(2, outputDtoList.getDocumentos().size());
         assertEquals("NÃO ENVIADO", outputDtoList.getDocumentos().get(1).getStatus());
-        assertEquals("OUTROS", outputDtoList.getDocumentos().get(0).getStatus());
+        assertEquals("OPCIONAL", outputDtoList.getDocumentos().get(0).getStatus());
     }
 
     @Test
@@ -225,7 +225,7 @@ class GfdManagerServiceTest {
         // Assert
         assertEquals(2, outputDtoList.getDocumentos().size());
         assertEquals("CONFORME", outputDtoList.getDocumentos().get(1).getStatus());
-        assertEquals("OUTROS", outputDtoList.getDocumentos().get(0).getStatus());
+        assertEquals("OPCIONAL", outputDtoList.getDocumentos().get(0).getStatus());
     }
 
     @Test
