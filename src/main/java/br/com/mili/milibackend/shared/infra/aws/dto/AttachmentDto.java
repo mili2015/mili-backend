@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record AttachmentDto(
-        @Size(max = 7 * 1024 * 1024, message = "Imagem excede o tamanho máximo permitido de 5 MB.")
+        @Size(max = 15 * 1024 * 1024, message = "Arquivo excede o tamanho máximo permitido de 15 MB.")
         @NotNull(message = "Arquivo é obrigatório")
         String file,
 

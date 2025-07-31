@@ -5,19 +5,18 @@ import br.com.mili.milibackend.envioEmail.domain.interfaces.IEnvioEmailService;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioInputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioOutputDto;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByIdOutputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdTipoDocumentoGetByIdOutputDto;
+import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
+import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
+import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
-import br.com.mili.milibackend.fornecedor.domain.entity.*;
-import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
-import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
-import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
-import br.com.mili.milibackend.gfd.application.dto.*;
+import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetByIdOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioTipoContratacaoEnum;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
@@ -267,57 +266,6 @@ class GfdManagerServiceTest {
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getCode(), ex.getCode());
     }
 
-    @Test
-    void test_UploadDocumento__deve_realizar_upload_com_sucesso() {
-        // Arrange
-        GfdMUploadDocumentoInputDto inputDto = new GfdMUploadDocumentoInputDto();
-        inputDto.setId(1);
-        inputDto.setGfdTipoDocumento(new GfdMUploadDocumentoInputDto.GfdTipoDocumentoDto(1));
-
-
-        inputDto.setListGfdDocumento(Arrays.asList(
-                new GfdMUploadDocumentoInputDto.GfdDocumentoDto(new AttachmentDto("file.txt", "data"), LocalDate.now(), LocalDate.now().plusDays(1))
-        ));
-
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setCodigo(1);
-
-        var fornecedorGetByIdOutputDto = new FornecedorGetByIdOutputDto();
-        fornecedor.setCodigo(1);
-
-        when(fornecedorService.getById(1)).thenReturn(fornecedorGetByIdOutputDto);
-
-        when(modelMapper.map(any(), eq(Fornecedor.class))).thenReturn(fornecedor);
-
-        var gfdTipoDocumentoGetByIdOutputDto = new GfdTipoDocumentoGetByIdOutputDto();
-        gfdTipoDocumentoGetByIdOutputDto.setId(1);
-
-        when(gfdTipoDocumentoService.getById(1)).thenReturn(gfdTipoDocumentoGetByIdOutputDto);
-        when(tika.detect(any(byte[].class))).thenReturn("text/plain");
-        when(gfdDocumentoService.create(any())).thenReturn(new GfdDocumentoCreateOutputDto());
-        when(modelMapper.map(any(), eq(GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto.class))).thenReturn(new GfdMUploadDocumentoOutputDto.GfdTipoDocumentoDto());
-
-        // Act
-        GfdMUploadDocumentoOutputDto outputDto = gfdManagerService.uploadDocumento(inputDto);
-
-        // Assert
-        assertNotNull(outputDto);
-        assertEquals(1, outputDto.getGfdTipoDocumento().size());
-    }
-
-    @Test
-    void test_UploadDocumento__deve_lancar_not_found_exception_quando_fornecedor_nao_encontrado() {
-        // Arrange
-        GfdMUploadDocumentoInputDto inputDto = new GfdMUploadDocumentoInputDto();
-        inputDto.setId(1);
-
-        when(fornecedorService.getById(1)).thenReturn(null);
-
-        // Act & Assert
-        NotFoundException ex = assertThrows(NotFoundException.class, () -> gfdManagerService.uploadDocumento(inputDto));
-        assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), ex.getMessage());
-        assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getCode(), ex.getCode());
-    }
 
 /*    @Test
     void test_GetAllDocumentos__deve_retornar_lista_vazia_quando_sem_documentos() {
@@ -508,6 +456,7 @@ class GfdManagerServiceTest {
         tipoDocumentoAtual.setId(2);
         tipoDocumentoAtual.setNome("Tipo 2");
         tipoDocumentoAtual.setDiasValidade(120);
+
         when(gfdTipoDocumentoService.getById(2)).thenReturn(tipoDocumentoAtual);
 
 
@@ -585,6 +534,7 @@ class GfdManagerServiceTest {
         assertEquals(1, output.getFuncionario().getId());
         assertEquals("João", output.getFuncionario().getNome());
     }
+
     @Test
     void test_CreateFuncionario_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
         // Arrange
@@ -744,7 +694,7 @@ class GfdManagerServiceTest {
     @Test
     void test_getFuncionario_deve_retornar_funcionario_quando_input_valido() {
         // Arrange
-        Integer codUsuario    = 100;
+        Integer codUsuario = 100;
         Integer codFornecedor = 200;
         Integer idFuncionario = 5;
 
@@ -790,13 +740,13 @@ class GfdManagerServiceTest {
         assertNotNull(result, "O retorno não deve ser nulo");
         assertNotNull(result.getFuncionario(), "O campo 'funcionario' não deve ser nulo");
         assertEquals(idFuncionario, result.getFuncionario().getId(), "O ID deve bater com o esperado");
-        assertEquals("Maria",       result.getFuncionario().getNome(), "O nome deve bater com o esperado");
+        assertEquals("Maria", result.getFuncionario().getNome(), "O nome deve bater com o esperado");
     }
 
     @Test
     void test_deleteFuncionario_deve_deletar_funcionario_quando_input_valido() {
         // Arrange
-        Integer codUsuario    = 100;
+        Integer codUsuario = 100;
         Integer codFornecedor = 200;
         Integer idFuncionario = 5;
 
@@ -835,7 +785,7 @@ class GfdManagerServiceTest {
     @Test
     void test_deleteFuncionario_deve_lancar_ForbiddenException_quando_usuario_sem_permissao() {
         // Arrange
-        Integer codUsuario    = 100;
+        Integer codUsuario = 100;
         Integer codFornecedor = 200;
         Integer idFuncionario = 5;
 

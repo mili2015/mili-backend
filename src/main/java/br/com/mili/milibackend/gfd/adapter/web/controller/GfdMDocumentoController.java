@@ -3,10 +3,12 @@ package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
+import br.com.mili.milibackend.gfd.application.usecases.UploadGfdDocumentoUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +27,13 @@ import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_FORNEC
 @Slf4j
 @RestController
 @RequestMapping(GfdMDocumentoController.ENDPOINT)
+@RequiredArgsConstructor
 public class GfdMDocumentoController {
     protected static final String ENDPOINT = "/mili-backend/v1/gfd";
 
     private final IGfdManagerService gfdManagerService;
+    private final UploadGfdDocumentoUseCaseImpl uploadGfdDocumentoUseCase;
     private final IGfdPolicy gfdPolicy;
-
-    public GfdMDocumentoController(IGfdManagerService gfdManagerService, IGfdPolicy gfdPolicy) {
-        this.gfdManagerService = gfdManagerService;
-        this.gfdPolicy = gfdPolicy;
-    }
 
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
@@ -73,7 +72,7 @@ public class GfdMDocumentoController {
         inputDto.setUsuario(user.getUsername());
         inputDto.setCodUsuario(user.getIdUser());
 
-        return ResponseEntity.ok(gfdManagerService.uploadDocumento(inputDto));
+        return ResponseEntity.ok(uploadGfdDocumentoUseCase.execute(inputDto));
     }
 
 

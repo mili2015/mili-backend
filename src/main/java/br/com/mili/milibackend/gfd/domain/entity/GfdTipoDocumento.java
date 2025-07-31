@@ -15,6 +15,8 @@ import lombok.Setter;
 public class GfdTipoDocumento {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GFD_TIPO_DOCUMENTO")
+    @SequenceGenerator(name="SEQ_GFD_TIPO_DOCUMENTO", sequenceName="SEQ_GFD_TIPO_DOCUMENTO", allocationSize = 1)
     @Column(name = "ID")
     private Integer id;
 

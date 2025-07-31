@@ -14,6 +14,7 @@ import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import com.google.gson.Gson;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,35 +26,12 @@ import java.util.List;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdDocumentoCodeException.GFD_DOCUMENTO_DELETE_PERMISSAO_INVALIDA;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdDocumentoCodeException.GFD_DOCUMENTO_NAO_ENCONTRADO;
 
+@RequiredArgsConstructor
 @Service
 public class GfdDocumentoService implements IGfdDocumentoService {
     private final GfdDocumentoRepository gfdDocumentoRepository;
     private final ModelMapper modelMapper;
     private final S3ServiceImpl s3Service;
-    private final Gson gson;
-
-    public GfdDocumentoService(GfdDocumentoRepository gfdDocumentoRepository, ModelMapper modelMapper, S3ServiceImpl s3Service, Gson gson) {
-        this.gfdDocumentoRepository = gfdDocumentoRepository;
-        this.modelMapper = modelMapper;
-        this.s3Service = s3Service;
-        this.gson = gson;
-    }
-
-
-    @Override
-    @Transactional
-    public GfdDocumentoCreateOutputDto create(GfdDocumentoCreateInputDto inputDto) {
-        var gfdDocumento = modelMapper.map(inputDto.getGfdDocumentoDto(), GfdDocumento.class);
-
-        var gfdDocumentoCreated = gfdDocumentoRepository.save(gfdDocumento);
-
-        var attachmentDtoModified = new AttachmentDto(inputDto.getBase64File(), gfdDocumento.getNomeArquivo());
-        var json = gson.toJson(attachmentDtoModified);
-
-        s3Service.upload(StorageFolderEnum.GFD, json);
-
-        return modelMapper.map(gfdDocumentoCreated, GfdDocumentoCreateOutputDto.class);
-    }
 
     @Override
     public List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId, Integer idFuncionario) {

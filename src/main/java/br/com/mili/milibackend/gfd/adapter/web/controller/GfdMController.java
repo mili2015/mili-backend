@@ -37,8 +37,6 @@ public class GfdMController {
         this.gfdPolicy = gfdPolicy;
     }
 
-
-
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @GetMapping("verificar-fornecedor")
     public ResponseEntity<GfdMVerificarFornecedorOutputDto> verificarFornecedor(
