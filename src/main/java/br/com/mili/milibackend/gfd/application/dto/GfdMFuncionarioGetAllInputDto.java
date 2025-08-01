@@ -17,7 +17,6 @@ public class GfdMFuncionarioGetAllInputDto  {
     @Getter
     @AllArgsConstructor
     @Setter
-    @EqualsAndHashCode
     @NoArgsConstructor
     public static class GfdMFuncionarioDto extends Filtro{
         private Integer id;
@@ -27,6 +26,7 @@ public class GfdMFuncionarioGetAllInputDto  {
         private LocalDate periodoInicio;
         private LocalDate periodoFim;
         private Integer ativo;
+        private Integer liberado;
 
         private FornecedorDto fornecedor;
 

@@ -20,7 +20,7 @@ public class GfdFuncionario {
     @Id
     @Column(name = "ID_FUNCIONARIO")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GFD_FORNECEDOR_FUNCIONARIO")
-    @SequenceGenerator(name="SEQ_GFD_FORNECEDOR_FUNCIONARIO", sequenceName="SEQ_GFD_FORNECEDOR_FUNCIONARIO", allocationSize = 1)
+    @SequenceGenerator(name = "SEQ_GFD_FORNECEDOR_FUNCIONARIO", sequenceName = "SEQ_GFD_FORNECEDOR_FUNCIONARIO", allocationSize = 1)
     private Integer id;
 
     @ManyToOne
@@ -56,6 +56,9 @@ public class GfdFuncionario {
 
     @Column(name = "ATIVO")
     private Integer ativo;
+
+    @Column(name = "LIBERADO")
+    private Integer liberado;
 
     @OneToMany(mappedBy = "id")
     private List<GfdDocumento> documentos;

@@ -29,7 +29,6 @@ public class GfdFuncionarioService implements IGfdFuncionarioService {
         var pageNumber = inputDto.getPageable().getPage() > 0 ? inputDto.getPageable().getPage() - 1 : 0;
         var pageSize = inputDto.getPageable().getSize() > 0 ? inputDto.getPageable().getSize() : 20;
 
-
         var nome = inputDto.getNome() != null ? "%" + inputDto.getNome() + "%" : null;
         var funcao = inputDto.getFuncao() != null ? "%" + inputDto.getFuncao() + "%" : null;
 

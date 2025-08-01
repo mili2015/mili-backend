@@ -23,4 +23,5 @@ public class GfdFuncionarioUpdateOutputDto {
     private LocalDate periodoFinal;
     private String observacao;
     private String ativo;
+    private Integer liberado;
 }
