@@ -16,7 +16,20 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
     String QUERY_GFD_FUNCIONARIO = """
             WITH documento_funcionarios AS (
                         SELECT
-                            A.*,
+                            A.ID_FUNCIONARIO,
+                            A.NOME,
+                            A.CPF,
+                            A.DATA_NASCIMENTO,
+                            A.PAIS_NACIONALIDADE,
+                            A.FUNCAO,
+                            A.TIPO_CONTRATACAO,
+                            A.PERIODO_INICIAL,
+                            A.PERIODO_FINAL,
+                            A.OBSERVACAO,
+                            A.ATIVO,
+                            A.LIBERADO,
+                            A.CTFOR_CODIGO,
+            
                             C.ID AS CT_FORNECEDOR_DOCUMENTOS_ID,
                             C.STATUS
                         FROM
