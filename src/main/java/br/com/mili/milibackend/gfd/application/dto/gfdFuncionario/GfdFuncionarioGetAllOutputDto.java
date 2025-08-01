@@ -21,7 +21,8 @@ public class GfdFuncionarioGetAllOutputDto {
     private LocalDate periodoInicial;
     private LocalDate periodoFinal;
     private String observacao;
-    private Integer ativo;
+    private Character ativo;
+    private Character liberado;
     private FornecedorDto fornecedor;
 
     private Integer totalEnviado;

@@ -23,6 +23,7 @@ public class GfdFuncionarioCreateOutputDto {
     private LocalDate periodoFinal;
     private String observacao;
     private String ativo;
+    private Integer liberado;
 
     @AllArgsConstructor
     @NoArgsConstructor

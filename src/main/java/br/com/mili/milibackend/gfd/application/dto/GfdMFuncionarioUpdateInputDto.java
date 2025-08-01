@@ -30,6 +30,8 @@ public class GfdMFuncionarioUpdateInputDto {
         private LocalDate periodoInicial;
         private LocalDate periodoFinal;
         private String observacao;
+        private Integer liberado;
+
 
         @AllArgsConstructor
         @NoArgsConstructor

@@ -18,7 +18,7 @@ import java.util.List;
 
 @Repository
 public class GfdFuncionarioRepositoryImpl implements IGfdFuncionarioCustomRepository {
-
+/*
     @PersistenceContext
     private EntityManager em;
 
@@ -92,5 +92,5 @@ public class GfdFuncionarioRepositoryImpl implements IGfdFuncionarioCustomReposi
         }
 
         return em.createQuery(countQuery).getSingleResult();
-    }
+    }*/
 }

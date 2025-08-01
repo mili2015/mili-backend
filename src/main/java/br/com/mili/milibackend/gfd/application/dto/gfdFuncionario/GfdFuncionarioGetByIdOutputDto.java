@@ -21,6 +21,7 @@ public class GfdFuncionarioGetByIdOutputDto {
     private LocalDate periodoFinal;
     private String observacao;
     private Integer ativo;
+    private Integer liberado;
     private FornecedorDto fornecedor;
 
     @AllArgsConstructor
