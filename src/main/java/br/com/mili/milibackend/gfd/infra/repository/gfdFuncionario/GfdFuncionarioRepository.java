@@ -26,6 +26,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             A.PERIODO_INICIAL,
             A.PERIODO_FINAL,
             A.OBSERVACAO,
+            A.LIBERADO,
 
             SUM(CASE WHEN C.STATUS = 'ENVIADO'       THEN 1 ELSE 0 END) AS total_enviado,
             SUM(CASE WHEN C.STATUS = 'CONFORME'      THEN 1 ELSE 0 END) AS total_conforme,
@@ -82,6 +83,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             A.TIPO_CONTRATACAO,
             A.PERIODO_INICIAL,
             A.PERIODO_FINAL,
+            A.LIBERADO,
             A.OBSERVACAO
 
         ORDER BY A.ID_FUNCIONARIO
