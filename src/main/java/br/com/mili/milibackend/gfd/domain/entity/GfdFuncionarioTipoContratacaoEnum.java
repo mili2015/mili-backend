@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum GfdFuncionarioTipoContratacaoEnum {
     PJ("PJ"),
-    CLT("CLT");
+    CLT("CLT"),
+    CLT_SEGURANCA("CLT_SEGURANCA");
 
     private String descricao;
 
