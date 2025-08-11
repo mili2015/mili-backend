@@ -93,6 +93,8 @@ public class GfdManagerService implements IGfdManagerService {
 
             if (funcionario.getTipoContratacao().equals(GfdFuncionarioTipoContratacaoEnum.CLT.getDescricao())) {
                 tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT);
+            } else if (funcionario.getTipoContratacao().equals(GfdFuncionarioTipoContratacaoEnum.CLT_SEGURANCA.getDescricao())) {
+                tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT_SEGURANCA);
             } else {
                 tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_MEI);
             }
@@ -339,7 +341,8 @@ public class GfdManagerService implements IGfdManagerService {
         }
     }
 
-    private void addNonMandatoryDocuments(Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> listDocumento, List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos) {
+    private void addNonMandatoryDocuments
+            (Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> listDocumento, List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos) {
         tipoDocumentos.stream().filter(tipoDoc -> !tipoDoc.getObrigatoriedade()).forEach(tipoDoc -> {
             var outputDto = buildGfdMVerificarDocumentoOutpDto("OPCIONAL", tipoDoc.getNome(), tipoDoc.getId());
             outputDtoList.add(outputDto);
@@ -399,7 +402,8 @@ public class GfdManagerService implements IGfdManagerService {
     }
 
 
-    private void addMandatoryDocuments(Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> documentos, List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos) {
+    private void addMandatoryDocuments
+            (Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> documentos, List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos) {
         tipoDocumentos.stream().filter(GfdTipoDocumentoGetAllOutputDto::getObrigatoriedade).forEach(tipoDoc -> {
             if (fornecedorHasDocument(documentos, tipoDoc)) {
                 addExistingDocument(outputDtoList, documentos, tipoDoc);
@@ -410,18 +414,23 @@ public class GfdManagerService implements IGfdManagerService {
         });
     }
 
-    private void addExistingDocument(Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> documentos, GfdTipoDocumentoGetAllOutputDto tipoDoc) {
+    private void addExistingDocument
+            (Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> documentos, GfdTipoDocumentoGetAllOutputDto
+                    tipoDoc) {
         documentos.stream().filter(doc -> doc.getGfdTipoDocumento().getId().equals(tipoDoc.getId())).forEach(doc -> {
             var outputDto = buildGfdMVerificarDocumentoOutpDto(doc.getStatus().getDescricao(), tipoDoc.getNome(), tipoDoc.getId());
             outputDtoList.add(outputDto);
         });
     }
 
-    private boolean fornecedorHasDocument(List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> documentos, GfdTipoDocumentoGetAllOutputDto tipoDoc) {
+    private boolean fornecedorHasDocument
+            (List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> documentos, GfdTipoDocumentoGetAllOutputDto
+                    tipoDoc) {
         return documentos.stream().anyMatch(doc -> doc.getGfdTipoDocumento().getId().equals(tipoDoc.getId()));
     }
 
-    private GfdMVerificarDocumentosOutputDto.DocumentoDto buildGfdMVerificarDocumentoOutpDto(String status, String nome, Integer idTipoDocumento) {
+    private GfdMVerificarDocumentosOutputDto.DocumentoDto buildGfdMVerificarDocumentoOutpDto(String status, String
+            nome, Integer idTipoDocumento) {
         var outputDto = new GfdMVerificarDocumentosOutputDto.DocumentoDto();
         outputDto.setStatus(status);
         outputDto.setNome(nome);
@@ -447,7 +456,8 @@ public class GfdManagerService implements IGfdManagerService {
         return gfdTipoDocumentoService.getAll(tipoDocumentoInputDto);
     }
 
-    private GfdMDocumentosGetAllOutputDto.GfdTipoDocumentoDto criarDtoTipoDocumentoParaResposta(GfdTipoDocumentoGetByIdOutputDto tipoDocumento) {
+    private GfdMDocumentosGetAllOutputDto.GfdTipoDocumentoDto criarDtoTipoDocumentoParaResposta
+            (GfdTipoDocumentoGetByIdOutputDto tipoDocumento) {
         var gfdTipoDocumentoDto = new GfdMDocumentosGetAllOutputDto.GfdTipoDocumentoDto();
 
         gfdTipoDocumentoDto.setId(tipoDocumento.getId());
