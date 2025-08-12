@@ -60,9 +60,6 @@ public class GfdMFuncionarioController {
         return ResponseEntity.ok(gfdManagerService.createFuncionario(inputDto));
     }
 
-    //todo criar controller de atualizar apenas observação
-
-
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @PutMapping("funcionarios/{id}")
