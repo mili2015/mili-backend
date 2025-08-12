@@ -9,18 +9,16 @@ import java.time.LocalDate;
 @Setter
 @EqualsAndHashCode
 @NoArgsConstructor
-public class GfdFuncionarioUpdateInputDto {
+public class GfdFuncionarioLiberarOutputDto {
     private Integer id;
-    private FornecedorDto fornecedor;
     private String nome;
-    private String cpf;
-    private LocalDate dataNascimento;
-    private String paisNacionalidade;
     private String funcao;
     private String tipoContratacao;
-    private LocalDate periodoInicial;
-    private LocalDate periodoFinal;
-    private String observacao;
+    private LocalDate periodoInicio;
+    private LocalDate periodoFim;
+    private Integer ativo;
+
+    private GfdFuncionarioGetAllInputDto.FornecedorDto fornecedor;
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -28,5 +26,6 @@ public class GfdFuncionarioUpdateInputDto {
     @Setter
     public static class FornecedorDto {
         private Integer codigo;
+
     }
 }

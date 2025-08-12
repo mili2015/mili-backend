@@ -4,36 +4,36 @@ import br.com.mili.milibackend.envioEmail.domain.entity.EnvioEmail;
 import br.com.mili.milibackend.envioEmail.domain.interfaces.IEnvioEmailService;
 import br.com.mili.milibackend.envioEmail.shared.RemetenteEnum;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByCodUsuarioInputDto;
+import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
+import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
+import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
-import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
-import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
+import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllInputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetByIdOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioTipoContratacaoEnum;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
-import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
-import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
-import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
-import br.com.mili.milibackend.gfd.infra.email.GfdDocumentoEmailTemplate;
-import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
-import br.com.mili.milibackend.shared.exception.types.BadRequestException;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
+import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.infra.email.GfdDocumentoEmailTemplate;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import br.com.mili.milibackend.shared.util.CleanFileName;
 import jakarta.validation.Valid;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.tika.Tika;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeType;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.*;
@@ -45,20 +45,20 @@ public class GfdManagerService implements IGfdManagerService {
     private final IGfdTipoDocumentoService gfdTipoDocumentoService;
     private final IGfdDocumentoService gfdDocumentoService;
     private final ModelMapper modelMapper;
-    private final Tika tika;
     private final IGfdFuncionarioService gfdFuncionarioService;
     private final IEnvioEmailService envioEmailService;
     private final String baseUrl;
+    private final GetAllGfdFuncionarioUseCase getAllGfdFuncionarioUseCase;
 
-    public GfdManagerService(IFornecedorService fornecedorService, IGfdTipoDocumentoService GfdTipoDocumentoService, IGfdDocumentoService gfdDocumentoService, ModelMapper modelMapper, Tika tika, IGfdFuncionarioService gfdFuncionarioService, IEnvioEmailService envioEmailService, @Value("${frontend.url.origin}") String baseUrl) {
+    public GfdManagerService(IFornecedorService fornecedorService, IGfdTipoDocumentoService GfdTipoDocumentoService, IGfdDocumentoService gfdDocumentoService, ModelMapper modelMapper, IGfdFuncionarioService gfdFuncionarioService, IEnvioEmailService envioEmailService, @Value("${frontend.url.origin}") String baseUrl, GetAllGfdFuncionarioUseCase getAllGfdFuncionarioUseCase) {
         this.fornecedorService = fornecedorService;
         this.gfdTipoDocumentoService = GfdTipoDocumentoService;
         this.gfdDocumentoService = gfdDocumentoService;
         this.modelMapper = modelMapper;
-        this.tika = tika;
         this.gfdFuncionarioService = gfdFuncionarioService;
         this.envioEmailService = envioEmailService;
         this.baseUrl = baseUrl;
+        this.getAllGfdFuncionarioUseCase = getAllGfdFuncionarioUseCase;
     }
 
     @Override
@@ -191,7 +191,7 @@ public class GfdManagerService implements IGfdManagerService {
         var filtro = modelMapper.map(funcionarioInput, GfdFuncionarioGetAllInputDto.class);
         filtro.setFornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(fornecedor.getCodigo()));
 
-        var pageFuncionario = gfdFuncionarioService.getAll(filtro);
+        var pageFuncionario = getAllGfdFuncionarioUseCase.execute(filtro);
 
         var content = pageFuncionario.getContent().stream().map(funcionario -> modelMapper.map(funcionario, GfdMFuncionarioGetAllOutputDto.GfdFuncionarioDto.class)).toList();
 
@@ -247,7 +247,16 @@ public class GfdManagerService implements IGfdManagerService {
         // quando o usuario vier significa que o utilizador é um fornecedor
         validarPermissaoCriacaoFuncionario(inputDto.getCodUsuario(), fornecedor.getCodUsuario());
 
-        var functionarioDto = modelMapper.map(gfdFuncionarioService.getById(inputDto.getFuncionario().getId()), GfdMFuncionarioGetOutputDto.GfdFuncionarioDto.class);
+        var getAllInputDto = new GfdFuncionarioGetAllInputDto();
+        getAllInputDto.setId(inputDto.getFuncionario().getId());
+
+        var funcionario = getAllGfdFuncionarioUseCase.execute(getAllInputDto).getContent();
+
+        if(funcionario.isEmpty()) {
+            throw new NotFoundException(GFD_FUNCIONARIO_NAO_ENCONTRADO.getMensagem(), GFD_FUNCIONARIO_NAO_ENCONTRADO.getCode());
+        }
+
+        var functionarioDto = modelMapper.map(funcionario.get(0), GfdMFuncionarioGetOutputDto.GfdFuncionarioDto.class);
 
         return new GfdMFuncionarioGetOutputDto(functionarioDto);
     }

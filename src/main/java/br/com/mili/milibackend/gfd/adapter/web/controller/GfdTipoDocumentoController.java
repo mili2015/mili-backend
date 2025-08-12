@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_ANALISTA;
+import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.*;
 
 
 @Slf4j
@@ -27,7 +27,11 @@ public class GfdTipoDocumentoController {
 
     private final IGfdTipoDocumentoService gfdTipoDocumentoService;
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "')")
+       @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
     @GetMapping()
     public ResponseEntity<List<GfdTipoDocumentoGetAllOutputDto>> getAll(
             @AuthenticationPrincipal CustomUserPrincipal user,
@@ -38,7 +42,11 @@ public class GfdTipoDocumentoController {
         return ResponseEntity.ok(gfdTipoDocumentoService.getAll(inputDto));
     }
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "')")
+       @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
     @GetMapping("{id}")
     public ResponseEntity<GfdTipoDocumentoGetByIdOutputDto> getById(
             @AuthenticationPrincipal CustomUserPrincipal user,
