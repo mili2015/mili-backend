@@ -95,6 +95,9 @@ public class Fornecedor {
     @Column(name = "INSCRICAO_MUNICIPAL")
     private String inscricaoMunicipal;
 
+    @Column(name = "ACEITE_LGPD")
+    private Integer aceiteLgpd;
+
     @Column(name = "BLOQUEADO")
     private String bloqueado;
 

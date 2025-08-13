@@ -65,4 +65,6 @@ public class GfdMFornecedorGetOutputDto {
     private String bloqueado;
 
     private Integer codUsuario;
+
+    private Integer aceiteLgpd;
 }
