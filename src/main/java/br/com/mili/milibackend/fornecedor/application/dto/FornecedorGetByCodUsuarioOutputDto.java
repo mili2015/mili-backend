@@ -66,4 +66,6 @@ public class FornecedorGetByCodUsuarioOutputDto {
 
     private Integer codUsuario;
 
+    private Integer aceiteLgpd;
+
 }

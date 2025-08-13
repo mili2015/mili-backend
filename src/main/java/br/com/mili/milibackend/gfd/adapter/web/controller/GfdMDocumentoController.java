@@ -2,9 +2,12 @@ package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 
 import br.com.mili.milibackend.gfd.application.dto.*;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoInputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoOutputDto;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
-import br.com.mili.milibackend.gfd.application.usecases.UploadGfdDocumentoUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
+import br.com.mili.milibackend.gfd.domain.usecases.UpdateStatusObservacaoDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -13,15 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_ANALISTA;
-import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_FORNECEDOR;
+import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.*;
 
 
 @Slf4j
@@ -32,11 +30,16 @@ public class GfdMDocumentoController {
     protected static final String ENDPOINT = "/mili-backend/v1/gfd";
 
     private final IGfdManagerService gfdManagerService;
-    private final UploadGfdDocumentoUseCaseImpl uploadGfdDocumentoUseCase;
+    private final UploadGfdDocumentoUseCase uploadGfdDocumentoUseCase;
+    private final UpdateStatusObservacaoDocumentoUseCase updateStatusObservacaoDocumentoUseCase;
     private final IGfdPolicy gfdPolicy;
 
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
     @GetMapping("verificar-docs")
     public ResponseEntity<GfdMVerificarDocumentosOutputDto> verificarDocumentos(
             @AuthenticationPrincipal CustomUserPrincipal user,
@@ -75,9 +78,11 @@ public class GfdMDocumentoController {
         return ResponseEntity.ok(uploadGfdDocumentoUseCase.execute(inputDto));
     }
 
-
-
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
     @GetMapping("documentos")
     public ResponseEntity<GfdMDocumentosGetAllOutputDto> getAllDocumentos(
             @AuthenticationPrincipal CustomUserPrincipal user,
@@ -94,13 +99,26 @@ public class GfdMDocumentoController {
         return ResponseEntity.ok(gfdManagerService.getAllDocumentos(inputDto));
     }
 
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
+    @PutMapping("documentos/status-observacao")
+    public ResponseEntity<GfdDocumentoUpdateStatusObservacaoOutputDto> updateStatusObservacaoDocumento(
+            @RequestBody @Valid GfdDocumentoUpdateStatusObservacaoInputDto inputDto,
+            @AuthenticationPrincipal CustomUserPrincipal user
+    ) {
+        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+
+        return ResponseEntity.ok(updateStatusObservacaoDocumentoUseCase.execute(inputDto));
+    }
+
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "')")
     @PutMapping("documentos")
     public ResponseEntity<GfdMDocumentoUpdateOutputDto> updateDocumento(
             @RequestBody @Valid GfdMDocumentoUpdateInputDto inputDto,
             @AuthenticationPrincipal CustomUserPrincipal user
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
 
@@ -133,7 +151,10 @@ public class GfdMDocumentoController {
     }
 
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
     @GetMapping("documentos/{id}/download")
     public ResponseEntity<GfdMDocumentoDownloadOutputDto> download(
             @PathVariable Integer id,

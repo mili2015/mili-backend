@@ -16,4 +16,6 @@ public class FornecedorGetAllOutputDto {
     private String celular;
     private String contato;
     private String email;
+    private Integer aceiteLgpd;
+
 }

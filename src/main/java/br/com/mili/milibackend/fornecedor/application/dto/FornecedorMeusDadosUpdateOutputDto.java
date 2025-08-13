@@ -67,4 +67,5 @@ public class FornecedorMeusDadosUpdateOutputDto {
 
     private Integer codUsuario;
 
+    private Integer aceiteLgpd;
 }

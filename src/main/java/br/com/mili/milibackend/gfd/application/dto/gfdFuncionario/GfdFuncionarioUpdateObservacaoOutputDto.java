@@ -1,15 +1,17 @@
 package br.com.mili.milibackend.gfd.application.dto.gfdFuncionario;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter
 @AllArgsConstructor
-@Setter
-@EqualsAndHashCode
 @NoArgsConstructor
-public class GfdFuncionarioUpdateInputDto {
+@Getter
+@Setter
+public class GfdFuncionarioUpdateObservacaoOutputDto {
     private Integer id;
     private FornecedorDto fornecedor;
     private String nome;

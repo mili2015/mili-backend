@@ -1,18 +1,9 @@
 package br.com.mili.milibackend.gfd.application.usecases;
 
-import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
-import br.com.mili.milibackend.gfd.domain.interfaces.FileProcessingService;
-import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoUseCase;
-import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
-import br.com.mili.milibackend.shared.infra.aws.IS3Service;
-import br.com.mili.milibackend.shared.infra.aws.S3ServiceImpl;
-import br.com.mili.milibackend.shared.infra.aws.StorageFolderEnum;
-import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
-import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,9 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +24,6 @@ class CreateDocumentoUseCaseImplTest {
 
     @Mock
     private ModelMapper modelMapper;
-
 
     @InjectMocks
     private CreateDocumentoUseCaseImpl useCase;

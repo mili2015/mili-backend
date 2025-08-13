@@ -73,7 +73,6 @@ public class FornecedorService implements IFornecedorService {
 
         typeMap.map(inputDto, fornecedorFound);
 
-
         fornecedorRepository.save(fornecedorFound);
 
         return modelMapper.map(fornecedorFound, FornecedorMeusDadosUpdateOutputDto.class);

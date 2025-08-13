@@ -32,6 +32,12 @@ public class GfdMFuncionarioGetOutputDto {
         private Integer liberado;
         private FornecedorDto fornecedor;
 
+        private Integer totalEnviado;
+        private Integer totalConforme;
+        private Integer totalNaoConforme;
+        private Integer totalEmAnalise;
+        private Integer naoEnviado;
+
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter

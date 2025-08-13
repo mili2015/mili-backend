@@ -36,7 +36,8 @@ public class FornecedorRepositoryImpl implements IFornecedorCustomRepository {
                 root.get("nomeFantasia"),
                 root.get("celular"),
                 root.get("contato"),
-                root.get("email")
+                root.get("email"),
+                root.get("aceiteLgpd")
         ));
 
         // aplica a Specification (predicados)

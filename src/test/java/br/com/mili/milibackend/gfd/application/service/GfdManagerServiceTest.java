@@ -17,9 +17,9 @@ import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
+import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioUseCase;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
-import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import org.apache.tika.Tika;
 import org.junit.jupiter.api.Test;
@@ -33,6 +33,7 @@ import org.modelmapper.ModelMapper;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FORNECEDOR_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FUNCIONARIO_SEM_PERMISSAO;
@@ -64,6 +65,9 @@ class GfdManagerServiceTest {
 
     @Mock
     private ModelMapper modelMapper;
+
+    @Mock
+    private GetAllGfdFuncionarioUseCase getAllGfdFuncionarioUseCase;
 
     @Mock
     private Tika tika;
@@ -721,17 +725,19 @@ class GfdManagerServiceTest {
         when(modelMapper.map(fornecedorGetByIdDto, Fornecedor.class))
                 .thenReturn(fornecedorEntity);
 
-        var funcionarioEntity = new GfdFuncionarioGetByIdOutputDto();
+        var funcionarioEntity = new GfdFuncionarioGetAllOutputDto();
         funcionarioEntity.setId(idFuncionario);
         funcionarioEntity.setNome("Maria");
-        when(gfdFuncionarioService.getById(idFuncionario))
-                .thenReturn(funcionarioEntity);
+
+
+        when(getAllGfdFuncionarioUseCase.execute(any(GfdFuncionarioGetAllInputDto.class))).thenReturn(new PageBaseImpl<GfdFuncionarioGetAllOutputDto>(List.of(funcionarioEntity), 1, 20, 0));
 
         var funcionarioDto = new GfdMFuncionarioGetOutputDto.GfdFuncionarioDto();
         funcionarioDto.setId(idFuncionario);
         funcionarioDto.setNome("Maria");
         when(modelMapper.map(funcionarioEntity, GfdMFuncionarioGetOutputDto.GfdFuncionarioDto.class))
                 .thenReturn(funcionarioDto);
+
 
         // Act
         var result = gfdManagerService.getFuncionario(inputDto);
