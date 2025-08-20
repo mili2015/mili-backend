@@ -2,6 +2,7 @@ package br.com.mili.milibackend.gfd.application.usecases;
 
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioGetAllOutputDto;
+import br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario.GetAllGfdFuncionarioUseCaseImpl;
 import br.com.mili.milibackend.gfd.infra.projections.GfdFuncionarioStatusProjection;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
 import org.junit.jupiter.api.Test;

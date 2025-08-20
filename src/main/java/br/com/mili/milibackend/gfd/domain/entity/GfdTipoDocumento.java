@@ -35,4 +35,7 @@ public class GfdTipoDocumento {
 
     @Column(name = "ATIVO")
     private Boolean ativo;
+
+    @Column(name = "CLASSIFICACAO")
+    private String classificacao;
 }

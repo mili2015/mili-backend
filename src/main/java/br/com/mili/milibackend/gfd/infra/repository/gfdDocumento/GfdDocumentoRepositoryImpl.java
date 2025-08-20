@@ -1,6 +1,7 @@
 package br.com.mili.milibackend.gfd.infra.repository.gfdDocumento;
 
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoPeriodo;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoCustomRepository;

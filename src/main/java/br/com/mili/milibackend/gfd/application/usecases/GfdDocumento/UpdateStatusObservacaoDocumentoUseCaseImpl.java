@@ -1,4 +1,4 @@
-package br.com.mili.milibackend.gfd.application.usecases;
+package br.com.mili.milibackend.gfd.application.usecases.GfdDocumento;
 
 import br.com.mili.milibackend.gfd.adapter.exception.GfdDocumentoCodeException;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoInputDto;

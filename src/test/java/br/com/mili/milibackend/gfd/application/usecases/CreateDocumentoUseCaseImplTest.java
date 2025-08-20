@@ -2,6 +2,7 @@ package br.com.mili.milibackend.gfd.application.usecases;
 
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateOutputDto;
+import br.com.mili.milibackend.gfd.application.usecases.GfdDocumento.CreateGfdDocumentoUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class CreateDocumentoUseCaseImplTest {
     private ModelMapper modelMapper;
 
     @InjectMocks
-    private CreateDocumentoUseCaseImpl useCase;
+    private CreateGfdDocumentoUseCaseImpl useCase;
 
 
     @Test

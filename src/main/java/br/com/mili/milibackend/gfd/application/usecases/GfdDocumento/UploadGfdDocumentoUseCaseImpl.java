@@ -1,16 +1,18 @@
-package br.com.mili.milibackend.gfd.application.usecases;
+package br.com.mili.milibackend.gfd.application.usecases.GfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
-import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
+import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
 import br.com.mili.milibackend.gfd.application.dto.GfdMUploadDocumentoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.GfdMUploadDocumentoOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.fileprocess.DocumentoFileData;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumentoPeriodo.GfdDocumentoPeriodoCreateInputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.FileProcessingService;
+import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoPeriodoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
@@ -32,13 +34,15 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GF
 @Service
 @RequiredArgsConstructor
 public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase {
-    private final FornecedorRepository fornecedorRepository;
     private final GfdTipoDocumentoRepository gfdTipoDocumentoRepository;
     private final CreateDocumentoUseCase createDocumentoUseCase;
     private final FileProcessingService fileProcessingService;
     private final ModelMapper modelMapper;
     private final Gson gson;
     private final IS3Service s3Service;
+    private final GetFornecedorByCodOrIdUseCase getFornecedorByCodOrIdUseCase;
+    private final CreateDocumentoPeriodoUseCase createDocumentoPeriodoUseCase;
+
 
     @Override
     public GfdMUploadDocumentoOutputDto execute(GfdMUploadDocumentoInputDto inputDto) {
@@ -46,7 +50,7 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
         var base64File = gfdDocumentoDto.getBase64File().file();
         var base64FileName = gfdDocumentoDto.getBase64File().fileName();
 
-        var fornecedor = recuperarFornecedor(inputDto.getCodUsuario(), inputDto.getId());
+        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId());
 
         var tipoDocumento = recuperarTipoDocumento(inputDto);
 
@@ -58,7 +62,19 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
 
         uploadFile(base64File, documentoFileData);
 
+        createPeriodos(inputDto, gfdDocumentoCreateOutputDto.getId(), tipoDocumento);
+
         return modelMapper.map(gfdDocumentoCreateOutputDto, GfdMUploadDocumentoOutputDto.class);
+    }
+
+    private void createPeriodos(GfdMUploadDocumentoInputDto inputDto, Integer id, GfdTipoDocumento tipoDocumento) {
+        var periodoCreateDto = GfdDocumentoPeriodoCreateInputDto.builder()
+                .periodo(inputDto.getGfdDocumentoPeriodo() != null ? inputDto.getGfdDocumentoPeriodo().getPeriodo() : null)
+                .documento(id, inputDto.getGfdDocumento().getDataEmissao(),  inputDto.getGfdDocumento().getDataValidade())
+                .tipoDocumento(tipoDocumento.getId(), tipoDocumento.getClassificacao(), tipoDocumento.getDiasValidade())
+                .build();
+
+        createDocumentoPeriodoUseCase.execute(periodoCreateDto);
     }
 
     private void uploadFile(String base64File, DocumentoFileData documentoFileData) {
@@ -127,21 +143,5 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
                 .orElseThrow(() ->
                         new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode())
                 );
-    }
-
-    private Fornecedor recuperarFornecedor(Integer codUsuario, Integer id) {
-        Fornecedor fornecedor = null;
-
-        if (id != null) {
-            fornecedor = fornecedorRepository.findById(id).orElse(null);
-        } else if (codUsuario != null) {
-            fornecedor = fornecedorRepository.findByCodUsuario(codUsuario).orElse(null);
-        }
-
-        if (fornecedor == null) {
-            throw new NotFoundException(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_FORNECEDOR_NAO_ENCONTRADO.getCode());
-        }
-
-        return fornecedor;
     }
 }

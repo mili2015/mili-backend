@@ -16,6 +16,7 @@ public class GfdMDocumentoUpdateInputDto {
     private GfdDocumentoUpdateInputDto documento;
     private FornecedorDto fornecedor;
     private Integer codUsuario;
+    private GfdDocumentoPeriodoDto gfdDocumentoPeriodo;
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -45,6 +46,14 @@ public class GfdMDocumentoUpdateInputDto {
     public static class FornecedorDto {
         private Integer id;
 
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdDocumentoPeriodoDto {
+        private LocalDate periodo;
     }
 
 }

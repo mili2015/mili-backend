@@ -1,4 +1,4 @@
-package br.com.mili.milibackend.gfd.application.usecases;
+package br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario;
 
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioGetAllOutputDto;

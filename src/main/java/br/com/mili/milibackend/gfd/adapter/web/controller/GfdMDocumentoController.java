@@ -5,7 +5,9 @@ import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoOutputDto;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
+import br.com.mili.milibackend.gfd.application.usecases.GfdDocumento.GetAllGfdDocumentsStatusUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
+import br.com.mili.milibackend.gfd.domain.usecases.GetAllSupplierDocumentsUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateStatusObservacaoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
@@ -18,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.*;
 
@@ -32,6 +36,8 @@ public class GfdMDocumentoController {
     private final IGfdManagerService gfdManagerService;
     private final UploadGfdDocumentoUseCase uploadGfdDocumentoUseCase;
     private final UpdateStatusObservacaoDocumentoUseCase updateStatusObservacaoDocumentoUseCase;
+    private final GetAllSupplierDocumentsUseCase getAllSupplierDocumentsUseCase;
+    private final GetAllGfdDocumentsStatusUseCaseImpl getAllGfdDocumentsStatusUseCaseImpl;
     private final IGfdPolicy gfdPolicy;
 
 
@@ -44,19 +50,21 @@ public class GfdMDocumentoController {
     public ResponseEntity<GfdMVerificarDocumentosOutputDto> verificarDocumentos(
             @AuthenticationPrincipal CustomUserPrincipal user,
             @RequestParam(value = "id", required = false) Integer fornecedorId,
-            @RequestParam(value = "idFuncionario", required = false) Integer idFuncionario
+            @RequestParam(value = "idFuncionario", required = false) Integer idFuncionario,
+            @RequestParam(value = "periodo", required = false) LocalDate periodo
     ) {
         log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
         var inputDto = new GfdMVerificarDocumentosInputDto();
         inputDto.setCodUsuario(user.getIdUser());
         inputDto.setIdFuncionario(idFuncionario);
+        inputDto.setPeriodo(periodo);
 
         if (gfdPolicy.isAnalista(user)) {
             inputDto.setId(fornecedorId);
         }
 
-        return ResponseEntity.ok(gfdManagerService.verifyDocumentos(inputDto));
+        return ResponseEntity.ok(getAllGfdDocumentsStatusUseCaseImpl.execute(inputDto));
     }
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
@@ -96,7 +104,7 @@ public class GfdMDocumentoController {
             inputDto.setId(null);
         }
 
-        return ResponseEntity.ok(gfdManagerService.getAllDocumentos(inputDto));
+        return ResponseEntity.ok(getAllSupplierDocumentsUseCase.execute(inputDto));
     }
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +

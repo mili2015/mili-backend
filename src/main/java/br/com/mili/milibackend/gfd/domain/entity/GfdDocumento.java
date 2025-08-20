@@ -73,4 +73,7 @@ public class GfdDocumento {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_FUNCIONARIO")
     private GfdFuncionario gfdFuncionario;
+
+    @OneToOne(mappedBy = "gfdDocumento")
+    private GfdDocumentoPeriodo gfdDocumentoPeriodo;
 }

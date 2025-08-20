@@ -24,6 +24,8 @@ public class GfdMUploadDocumentoInputDto {
     private GfdDocumentoDto gfdDocumento;
     private GfdTipoDocumentoDto gfdTipoDocumento;
     private GfdFuncionarioDto funcionario;
+    private GfdDocumentoPeriodoDto gfdDocumentoPeriodo;
+
 
     @NoArgsConstructor
     @AllArgsConstructor
@@ -31,6 +33,14 @@ public class GfdMUploadDocumentoInputDto {
     @Setter
     public static class GfdFuncionarioDto {
         private Integer id;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdDocumentoPeriodoDto {
+        private LocalDate periodo;
     }
 
     @NoArgsConstructor

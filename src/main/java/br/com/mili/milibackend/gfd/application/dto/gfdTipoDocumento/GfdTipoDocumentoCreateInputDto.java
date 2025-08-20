@@ -19,4 +19,6 @@ public class GfdTipoDocumentoCreateInputDto {
 
     private Boolean obrigatoriedade;
 
+    private String classificacao;
+
 }

@@ -1,4 +1,4 @@
-package br.com.mili.milibackend.gfd.application.usecases;
+package br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario;
 
 import br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarInputDto;
@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 public class LiberarFuncionarioUseCaseImpl implements LiberarFuncionarioUseCase {
     private final GfdFuncionarioRepository gfdFuncionarioRepository;
     private final GfdFuncionarioLiberacaoRepository gfdFuncionarioLiberacaoRepository;
-    private final GetAllGfdFuncionarioUseCase getAllGfdFuncionarioUseCase;
     private final ModelMapper modelMapper;
 
     @Override
