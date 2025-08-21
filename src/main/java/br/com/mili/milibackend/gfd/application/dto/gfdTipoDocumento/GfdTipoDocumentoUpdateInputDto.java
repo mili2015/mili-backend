@@ -21,4 +21,7 @@ public class GfdTipoDocumentoUpdateInputDto {
     private Integer diasValidade;
     @NotNull
     private Boolean obrigatoriedade;
+
+    private String classificacao;
+
 }

@@ -67,26 +67,7 @@ class GfdTipoDocumentoServiceTest {
         assertNull(result);
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void testGetAll() {
-        when(repository.findAll((Specification<GfdTipoDocumento>) any(), any(Sort.class)))
-                .thenReturn(List.of(entity));
 
-        GfdTipoDocumentoGetAllOutputDto dto = new GfdTipoDocumentoGetAllOutputDto();
-        dto.setId(1);
-        dto.setNome("Documento");
-
-        when(modelMapper.map(entity, GfdTipoDocumentoGetAllOutputDto.class)).thenReturn(dto);
-
-        GfdTipoDocumentoGetAllInputDto input = new GfdTipoDocumentoGetAllInputDto();
-        input.setNome("Doc");
-
-        var result = service.getAll(input);
-
-        assertEquals(1, result.size());
-        assertEquals("Documento", result.get(0).getNome());
-    }
 
     @Test
     void testCreate() {

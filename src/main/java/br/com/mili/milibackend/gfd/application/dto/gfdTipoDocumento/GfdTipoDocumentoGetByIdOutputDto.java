@@ -22,4 +22,6 @@ public class GfdTipoDocumentoGetByIdOutputDto {
     private Boolean obrigatoriedade;
 
     private Boolean ativo;
+
+    private String classificacao;
 }

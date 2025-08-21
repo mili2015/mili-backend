@@ -3,6 +3,7 @@ package br.com.mili.milibackend.gfd.application.usecases;
 import br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarOutputDto;
+import br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario.LiberarFuncionarioUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioLiberacao;
 import br.com.mili.milibackend.gfd.infra.projections.GfdFuncionarioDocumentsProjection;

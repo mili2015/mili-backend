@@ -12,6 +12,7 @@ import java.time.LocalDate;
 public class GfdMFuncionarioCreateInputDto {
     private Integer codUsuario;
     private GfdFuncionarioDto funcionario;
+    private GfdDocumentoPeriodoDto gfdDocumentoPeriodo;
 
     @Getter
     @AllArgsConstructor
@@ -38,5 +39,13 @@ public class GfdMFuncionarioCreateInputDto {
         public static class FornecedorDto {
             private Integer codigo;
         }
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdDocumentoPeriodoDto {
+        private LocalDate periodo;
     }
 }

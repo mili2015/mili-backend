@@ -32,7 +32,7 @@ public class GfdMDocumentoUpdateOutputDto {
         private String observacao;
         private GfdDocumentoStatusEnum status;
         private GfdTipoDocumentoDto gfdTipoDocumento;
-
+        private GfdDocumentoPeriodoDto gfdDocumentoPeriodo;
 
         @AllArgsConstructor
         @NoArgsConstructor
@@ -42,6 +42,15 @@ public class GfdMDocumentoUpdateOutputDto {
             private Integer id;
             private String nome;
             private Integer diasValidade;
+        }
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Getter
+        @Setter
+        public static class GfdDocumentoPeriodoDto {
+            private Integer id;
+            private LocalDate periodo;
         }
     }
 }

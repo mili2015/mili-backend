@@ -24,6 +24,8 @@ public class GfdDocumentoGetAllInputDto extends Filtro {
     private LocalDate dataEmissaoInic;
     private LocalDate dataEmissaoFinal;
 
+    private LocalDate periodo;
+
     private Integer tipoDocumentoId;
 
     private String usuario;

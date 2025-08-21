@@ -1,15 +1,18 @@
 package br.com.mili.milibackend.gfd.application.usecases;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
+import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
 import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
 import br.com.mili.milibackend.gfd.application.dto.GfdMUploadDocumentoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.GfdMUploadDocumentoOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.fileprocess.DocumentoFileData;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateOutputDto;
-import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumentoPeriodo.GfdDocumentoPeriodoCreateOutputDto;
+import br.com.mili.milibackend.gfd.application.usecases.GfdDocumento.UploadGfdDocumentoUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.FileProcessingService;
+import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoPeriodoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
@@ -27,7 +30,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FORNECEDOR_NAO_ENCONTRADO;
@@ -56,6 +58,12 @@ class UploadGfdDocumentoUseCaseImplTest {
     private ModelMapper modelMapper;
 
     @Mock
+    private GetFornecedorByCodOrIdUseCase getFornecedorByCodOrIdUseCase;
+
+    @Mock
+    private CreateDocumentoPeriodoUseCase createDocumentoPeriodoUseCase;
+
+    @Mock
     private Gson gson;
 
     @Mock
@@ -73,7 +81,7 @@ class UploadGfdDocumentoUseCaseImplTest {
         inputDto = new GfdMUploadDocumentoInputDto();
         inputDto.setUsuario("usuarioTeste");
         inputDto.setCodUsuario(1);
-        inputDto.setId(null); // codUsuario será usado
+        inputDto.setId(null);
 
         var file = new AttachmentDto("base64encoded", "documento.pdf");
         var docDto = new GfdMUploadDocumentoInputDto.GfdDocumentoDto(file, LocalDate.now(), LocalDate.now().plusDays(10));
@@ -91,6 +99,8 @@ class UploadGfdDocumentoUseCaseImplTest {
         tipoDocumento = new GfdTipoDocumento();
         tipoDocumento.setId(10);
         tipoDocumento.setTipo(GfdTipoDocumentoTipoEnum.FORNECEDOR);
+        tipoDocumento.setClassificacao("classificacao");
+        tipoDocumento.setDiasValidade(30);
     }
 
     @Test
@@ -98,14 +108,19 @@ class UploadGfdDocumentoUseCaseImplTest {
         inputDto.setId(1);
         tipoDocumento.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT);
 
-        when(fornecedorRepository.findById(1)).thenReturn(Optional.of(fornecedor));
+        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId())).thenReturn(fornecedor);
         when(gfdTipoDocumentoRepository.findById(10)).thenReturn(Optional.of(tipoDocumento));
 
         var documentoFileData = new DocumentoFileData("bytes" .getBytes(), "application/pdf", "documento.pdf", 1234);
         when(fileProcessingService.processFile(anyString(), anyString())).thenReturn(documentoFileData);
 
         var createOutputDto = new GfdDocumentoCreateOutputDto();
+        createOutputDto.setId(10);
         when(createDocumentoUseCase.execute(any())).thenReturn(createOutputDto);
+
+        var createPeriodoOutputDto = new GfdDocumentoPeriodoCreateOutputDto();
+        createPeriodoOutputDto.setId(10);
+        when(createDocumentoPeriodoUseCase.execute(any())).thenReturn(createPeriodoOutputDto);
 
         var outputDtoMock = new GfdMUploadDocumentoOutputDto(10, "Nome", "FUNCIONARIO", 30, true, true);
         when(modelMapper.map(eq(createOutputDto), eq(GfdMUploadDocumentoOutputDto.class))).thenReturn(outputDtoMock);
@@ -113,6 +128,7 @@ class UploadGfdDocumentoUseCaseImplTest {
         when(gson.toJson(any(AttachmentDto.class))).thenReturn("{json}");
 
         GfdMUploadDocumentoOutputDto result = useCase.execute(inputDto);
+
         verify(s3Service).upload(eq(StorageFolderEnum.GFD), eq("{json}"));
 
         assertThat(result).isNotNull();
@@ -120,8 +136,7 @@ class UploadGfdDocumentoUseCaseImplTest {
 
     @Test
     void teste_deve_lancar_excecao_quando_forncedor_nao_encontrado() {
-        when(fornecedorRepository.findByCodUsuario(1)).thenReturn(Optional.empty());
-
+        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId())).thenReturn(fornecedor);
 
         NotFoundException ex = assertThrows(NotFoundException.class, () -> useCase.execute(inputDto));
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), ex.getMessage());
@@ -132,7 +147,7 @@ class UploadGfdDocumentoUseCaseImplTest {
     @Test
     void teste_deve_lancar_excecao_quando_tipo_documento_invalido_para_funcionario() {
         tipoDocumento.setTipo(GfdTipoDocumentoTipoEnum.FORNECEDOR);
-        when(fornecedorRepository.findByCodUsuario(1)).thenReturn(Optional.of(fornecedor));
+        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId())).thenReturn(fornecedor);
         when(gfdTipoDocumentoRepository.findById(10)).thenReturn(Optional.of(tipoDocumento));
 
         BadRequestException ex = assertThrows(BadRequestException.class, () -> useCase.execute(inputDto));

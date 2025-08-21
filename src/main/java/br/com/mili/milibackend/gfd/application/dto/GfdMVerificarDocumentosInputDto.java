@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -13,4 +15,6 @@ public class GfdMVerificarDocumentosInputDto {
     private Integer codUsuario;
     private Integer idFuncionario;
     private Integer id;
+
+    private LocalDate periodo;
 }

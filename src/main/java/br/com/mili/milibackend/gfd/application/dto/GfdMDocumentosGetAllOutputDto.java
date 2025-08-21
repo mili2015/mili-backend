@@ -1,7 +1,10 @@
 package br.com.mili.milibackend.gfd.application.dto;
 
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoPeriodo;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -14,6 +17,8 @@ import java.time.LocalDate;
 public class GfdMDocumentosGetAllOutputDto {
     private MyPage<GfdDocumentoDto> gfdDocumento;
     private GfdTipoDocumentoDto gfdTipoDocumento;
+
+
     private Integer nextDoc;
     private Integer previousDoc;
 
@@ -21,11 +26,13 @@ public class GfdMDocumentosGetAllOutputDto {
     @NoArgsConstructor
     @Getter
     @Setter
-    public static class  GfdTipoDocumentoDto {
+    public static class GfdTipoDocumentoDto {
         private Integer id;
         private String nome;
         private Integer diasValidade;
+        private String classificacao;
     }
+
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -45,6 +52,7 @@ public class GfdMDocumentosGetAllOutputDto {
         private String tipoArquivo;
         private GfdDocumentoStatusEnum status;
         private GfdTipoDocumentoDto gfdTipoDocumento;
+        private GfdDocumentoPeriodoDto gfdDocumentoPeriodo;
 
         @AllArgsConstructor
         @NoArgsConstructor
@@ -52,8 +60,16 @@ public class GfdMDocumentosGetAllOutputDto {
         @Setter
         public static class GfdTipoDocumentoDto {
             private Integer id;
-            private String nome;
-            private Integer diasValidade;
         }
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Getter
+        @Setter
+        public static class GfdDocumentoPeriodoDto {
+            private Integer id;
+            private LocalDate periodo;
+        }
+
     }
 }

@@ -1,7 +1,10 @@
 package br.com.mili.milibackend.gfd.infra.specification;
 
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoPeriodo;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -78,6 +81,25 @@ public class GfdDocumentoSpecification {
             return cb.lessThanOrEqualTo(dataCadastrooPath, dataFim);
         };
     }
+
+    public static Specification<GfdDocumento> filtroPeriodo(LocalDate periodo) {
+        return (root, query, cb) -> {
+            if (periodo == null) {
+                return null;
+            }
+
+            Join<GfdDocumento, GfdDocumentoPeriodo> periodoJoin = root.join("gfdDocumentoPeriodo");
+            Path<LocalDate> periodoInicialPath = periodoJoin.get("periodoInicial");
+            Path<LocalDate> periodoFinalPath = periodoJoin.get("periodoFinal");
+
+            return cb.between(
+                    cb.literal(periodo),
+                    periodoInicialPath,
+                    periodoFinalPath
+            );
+        };
+    }
+
 
     public static Specification<GfdDocumento> filtroRangeDataValidade(LocalDate dataInicio, LocalDate dataFim) {
         return (root, query, cb) -> {

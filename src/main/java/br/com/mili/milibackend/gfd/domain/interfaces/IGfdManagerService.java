@@ -6,11 +6,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
 public interface IGfdManagerService {
     GfdMVerificarFornecedorOutputDto verifyFornecedor(GfdMVerificarFornecedorInputDto inputDto);
 
-    GfdMVerificarDocumentosOutputDto verifyDocumentos(GfdMVerificarDocumentosInputDto inputDto);
-
     GfdMFornecedorGetOutputDto getFornecedor(GfdMFornecedorGetInputDto inputDto);
-
-    GfdMDocumentosGetAllOutputDto getAllDocumentos(GfdMDocumentosGetAllInputDto inputDto);
 
     GfdMFuncionarioGetAllOutputDto getAllFuncionarios(GfdMFuncionarioGetAllInputDto inputDto);
 

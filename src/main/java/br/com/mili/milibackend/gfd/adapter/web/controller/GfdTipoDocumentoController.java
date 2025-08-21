@@ -3,6 +3,7 @@ package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
+import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class GfdTipoDocumentoController {
     protected static final String ENDPOINT = "/mili-backend/v1/gfd/tipo-documentos";
 
     private final IGfdTipoDocumentoService gfdTipoDocumentoService;
+    private final GetAllTipoDocumentoUseCase getAllTipoDocumentoUseCase ;
 
        @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
                   "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
@@ -39,7 +41,7 @@ public class GfdTipoDocumentoController {
     ) {
         log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
-        return ResponseEntity.ok(gfdTipoDocumentoService.getAll(inputDto));
+        return ResponseEntity.ok(getAllTipoDocumentoUseCase.execute(inputDto));
     }
 
        @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +

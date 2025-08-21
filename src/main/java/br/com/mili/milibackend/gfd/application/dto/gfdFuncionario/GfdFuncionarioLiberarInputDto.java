@@ -1,7 +1,6 @@
 package br.com.mili.milibackend.gfd.application.dto.gfdFuncionario;
 
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
