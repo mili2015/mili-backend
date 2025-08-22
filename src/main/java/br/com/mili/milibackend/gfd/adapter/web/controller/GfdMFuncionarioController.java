@@ -55,6 +55,8 @@ public class GfdMFuncionarioController {
 
         if (gfdPolicy.isFornecedor(user)) {
             inputDto.setCodUsuario(user.getIdUser());
+        } else {
+            inputDto.setCodUsuario(null);
         }
 
         return ResponseEntity.ok(gfdManagerService.createFuncionario(inputDto));

@@ -16,6 +16,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoPeriodoUseCase
 import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
+import br.com.mili.milibackend.shared.enums.MimeTypeEnum;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.infra.aws.IS3Service;
@@ -56,7 +57,7 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
 
         validarCompatibilidadeTipoDocumento(inputDto, tipoDocumento);
 
-        DocumentoFileData documentoFileData = fileProcessingService.processFile(base64File, base64FileName);
+        DocumentoFileData documentoFileData = fileProcessingService.processFile(base64File, base64FileName, MimeTypeEnum.PDF);
 
         var gfdDocumentoCreateOutputDto = createGfdDocumento(inputDto, tipoDocumento, fornecedor, documentoFileData, gfdDocumentoDto, base64File);
 

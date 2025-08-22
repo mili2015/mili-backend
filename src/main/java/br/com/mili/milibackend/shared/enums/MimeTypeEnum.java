@@ -4,10 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum MimeTypeEnum {
+        ALL("*/*"),
         JPEG("image/jpeg"),
         PNG("image/png"),
         PDF("application/pdf"),
-        MP4("video/mp4");
+        MP4("video/mp4"),
+        IMAGE("image/*");
 
         private final String contentType;
 

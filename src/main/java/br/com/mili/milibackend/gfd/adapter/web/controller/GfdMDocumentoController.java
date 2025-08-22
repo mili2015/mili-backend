@@ -60,8 +60,11 @@ public class GfdMDocumentoController {
         inputDto.setIdFuncionario(idFuncionario);
         inputDto.setPeriodo(periodo);
 
-        if (gfdPolicy.isAnalista(user)) {
+        if (!gfdPolicy.isFornecedor(user)) {
             inputDto.setId(fornecedorId);
+            inputDto.setCodUsuario(null);
+        } else {
+            inputDto.setId(null);
         }
 
         return ResponseEntity.ok(getAllGfdDocumentsStatusUseCaseImpl.execute(inputDto));
@@ -78,10 +81,12 @@ public class GfdMDocumentoController {
 
         if (gfdPolicy.isFornecedor(user)) {
             inputDto.setId(null);
+            inputDto.setCodUsuario(user.getIdUser());
+        } else {
+            inputDto.setCodUsuario(null);
         }
 
         inputDto.setUsuario(user.getUsername());
-        inputDto.setCodUsuario(user.getIdUser());
 
         return ResponseEntity.ok(uploadGfdDocumentoUseCase.execute(inputDto));
     }
@@ -100,7 +105,9 @@ public class GfdMDocumentoController {
         inputDto.setUsuario(user.getUsername());
         inputDto.setCodUsuario(user.getIdUser());
 
-        if (gfdPolicy.isFornecedor(user)) {
+        if (!gfdPolicy.isFornecedor(user)) {
+            inputDto.setCodUsuario(null);
+        } else {
             inputDto.setId(null);
         }
 
@@ -149,8 +156,10 @@ public class GfdMDocumentoController {
         inputDto.setId(id);
         inputDto.setCodUsuario(user.getIdUser());
 
-        if (gfdPolicy.isAnalista(user)) {
+        if (!gfdPolicy.isFornecedor(user)) {
             inputDto.setCodUsuario(null);
+        } else {
+            inputDto.setFornecedorId(null);
         }
 
         gfdManagerService.deleteDocumento(inputDto);
@@ -174,8 +183,10 @@ public class GfdMDocumentoController {
         inputDto.setId(id);
         inputDto.setCodUsuario(user.getIdUser());
 
-        if (gfdPolicy.isAnalista(user)) {
+        if (!gfdPolicy.isFornecedor(user)) {
             inputDto.setCodUsuario(null);
+        } else {
+            inputDto.setFornecedorId(null);
         }
 
         return ResponseEntity.ok(gfdManagerService.downloadDocumento(inputDto));

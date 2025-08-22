@@ -112,7 +112,7 @@ class UploadGfdDocumentoUseCaseImplTest {
         when(gfdTipoDocumentoRepository.findById(10)).thenReturn(Optional.of(tipoDocumento));
 
         var documentoFileData = new DocumentoFileData("bytes" .getBytes(), "application/pdf", "documento.pdf", 1234);
-        when(fileProcessingService.processFile(anyString(), anyString())).thenReturn(documentoFileData);
+        when(fileProcessingService.processFile(anyString(), anyString(), any())).thenReturn(documentoFileData);
 
         var createOutputDto = new GfdDocumentoCreateOutputDto();
         createOutputDto.setId(10);

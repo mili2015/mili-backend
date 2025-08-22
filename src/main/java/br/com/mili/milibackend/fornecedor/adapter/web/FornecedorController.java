@@ -42,7 +42,7 @@ public class FornecedorController {
         return roles.contains(ROLE_ANALISTA);
     }
 
-   @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @PutMapping
     public ResponseEntity<FornecedorMeusDadosUpdateOutputDto> updateMeusDados(
             @AuthenticationPrincipal CustomUserPrincipal user,
@@ -53,7 +53,9 @@ public class FornecedorController {
         inputDto.setCodUsuario(user.getIdUser());
 
         if (isAnalista(user)) {
-            inputDto.setId(inputDto.getId());
+            inputDto.setCodUsuario(null);
+        } else {
+            inputDto.setId(null);
         }
 
         var fornecedor = fornecedorService.updateMeusDados(inputDto);
@@ -62,7 +64,7 @@ public class FornecedorController {
     }
 
 
-  /// @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    /// @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
     @GetMapping
     public ResponseEntity<MyPage<FornecedorGetAllOutputDto>> getAll(
             @ParameterObject @ModelAttribute FornecedorGetAllInputDto inputDto,
