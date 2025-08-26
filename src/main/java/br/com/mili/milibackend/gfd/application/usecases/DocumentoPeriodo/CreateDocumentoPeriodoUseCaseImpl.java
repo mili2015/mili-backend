@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_PERIODO_VAZIO;
 import static br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoClassificacaoEnum.COMPETENCIA;
@@ -64,7 +65,7 @@ public class CreateDocumentoPeriodoUseCaseImpl implements CreateDocumentoPeriodo
         } else {
             // competencia
             // - pega o valor por meio do input e cria os registros
-            if (gfdDocumentoPeriodoDto == null) {
+            if (gfdDocumentoPeriodoDto == null || gfdDocumentoPeriodoDto.getPeriodo() == null) {
                 throw new BadRequestException(GFD_PERIODO_VAZIO.getMensagem(), GFD_PERIODO_VAZIO.getCode());
             }
             var primeiroPeriodo = gfdDocumentoPeriodoDto.getPeriodo().withDayOfMonth(1);
@@ -92,7 +93,7 @@ public class CreateDocumentoPeriodoUseCaseImpl implements CreateDocumentoPeriodo
     private LocalDate ultimoPeriodo(GfdDocumentoPeriodoCreateInputDto inputDto, GfdDocumentoPeriodoCreateInputDto.GfdDocumentoDto gfdDocumentoDto, int qtdPeriodos) {
         var ultimoPeriodo = gfdDocumentoDto.getDataEmissao()
                 .plusMonths(qtdPeriodos == 1 ? qtdPeriodos : qtdPeriodos - 1)
-                .withDayOfMonth(gfdDocumentoDto.getDataEmissao().plusMonths(qtdPeriodos).lengthOfMonth());
+                .with(TemporalAdjusters.lastDayOfMonth());
 
         if (inputDto.getGfdDocumentoDto().getDataValidade() != null) {
             ultimoPeriodo = inputDto.getGfdDocumentoDto().getDataValidade().withDayOfMonth(inputDto.getGfdDocumentoDto().getDataValidade().lengthOfMonth());

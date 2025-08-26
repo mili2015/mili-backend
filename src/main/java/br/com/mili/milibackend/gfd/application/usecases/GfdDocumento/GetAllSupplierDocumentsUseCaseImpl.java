@@ -84,13 +84,6 @@ public class GetAllSupplierDocumentsUseCaseImpl implements GetAllSupplierDocumen
         var gfdDocumentoGetAllInputDto = modelMapper.map(inputDto, GfdDocumentoGetAllInputDto.class);
         gfdDocumentoGetAllInputDto.setCtforCodigo(fornecedor.getCodigo());
 
-        var periodo = gfdDocumentoGetAllInputDto.getPeriodo();
-        var dataAtual = LocalDate.now().withDayOfMonth(1);
-
-        if (periodo != null && periodo.withDayOfMonth(1).equals(dataAtual)) {
-            gfdDocumentoGetAllInputDto.setPeriodo(null);
-        }
-
         var pageGfdDocumentoService = getAllGfdDocumentosUseCase.execute(gfdDocumentoGetAllInputDto);
 
         var gfdDocumentoDto = pageGfdDocumentoService.getContent().stream().map(gfdDocumento -> {
