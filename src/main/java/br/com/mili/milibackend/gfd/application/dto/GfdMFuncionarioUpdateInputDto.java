@@ -1,5 +1,8 @@
 package br.com.mili.milibackend.gfd.application.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -11,6 +14,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class GfdMFuncionarioUpdateInputDto {
     private Integer codUsuario;
+
+    @Valid
     private GfdFuncionarioDto funcionario;
 
     @Getter
@@ -21,14 +26,31 @@ public class GfdMFuncionarioUpdateInputDto {
     public static class GfdFuncionarioDto {
         private Integer id;
         private FornecedorDto fornecedor;
+
+        @NotEmpty
         private String nome;
+
+        @NotEmpty
         private String cpf;
+
+        @NotNull
         private LocalDate dataNascimento;
+
+        @NotEmpty
         private String paisNacionalidade;
+
+        @NotEmpty
         private String funcao;
+
+        @NotEmpty
         private String tipoContratacao;
+
+        @NotNull
         private LocalDate periodoInicial;
+
+        @NotNull
         private LocalDate periodoFinal;
+
         private String observacao;
 
 

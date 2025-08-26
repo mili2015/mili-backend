@@ -2,6 +2,7 @@ package br.com.mili.milibackend.fornecedor.application.service;
 
 import br.com.mili.milibackend.fornecedor.application.dto.*;
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
+import br.com.mili.milibackend.fornecedor.domain.usecases.ValidatePermissionFornecedorUseCase;
 import br.com.mili.milibackend.fornecedor.infra.dto.FornecedorResumoDto;
 import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
@@ -39,13 +40,15 @@ class FornecedorServiceTest {
     @Mock
     private ModelMapper modelMapper;
 
+    @Mock
+    private ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase;
+
     @Test
     void test_GetByCodUsuario__deveRetornarFornecedor_quandoEncontrado() {
         var input = new FornecedorGetByCodUsuarioInputDto();
         input.setCodUsuario(123);
 
         var entity = new Fornecedor();
-        entity.setCodUsuario(123);
         entity.setRazaoSocial("Teste");
 
         var dto = new FornecedorGetByCodUsuarioOutputDto();
@@ -100,6 +103,7 @@ class FornecedorServiceTest {
 
         assertNull(result);
     }
+
     @Test
     void test_UpdateMeusDados__deveAtualizarPorId_quandoExistir() {
         // Arrange
@@ -113,16 +117,13 @@ class FornecedorServiceTest {
         var entity = new Fornecedor();
         entity.setCodigo(1);
         entity.setRazaoSocial("Antiga");
-        entity.setCodUsuario(999);
 
         var outputDto = new FornecedorMeusDadosUpdateOutputDto();
         outputDto.setRazaoSocial("Antiga");
 
         when(fornecedorRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        TypeMap<FornecedorMeusDadosUpdateInputDto, Fornecedor> typeMap = mock(TypeMap.class);
-        when(modelMapper.getTypeMap(FornecedorMeusDadosUpdateInputDto.class, Fornecedor.class)).thenReturn(typeMap);
-        doNothing().when(typeMap).map(any(), any());
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         when(fornecedorRepository.save(entity)).thenReturn(entity);
         when(modelMapper.map(entity, FornecedorMeusDadosUpdateOutputDto.class)).thenReturn(outputDto);
@@ -134,7 +135,6 @@ class FornecedorServiceTest {
         assertNotNull(result);
         assertEquals("Antiga", result.getRazaoSocial());
         verify(fornecedorRepository).save(entity);
-        verify(typeMap).map(input, entity);
         verify(modelMapper).map(entity, FornecedorMeusDadosUpdateOutputDto.class);
     }
 
@@ -147,18 +147,14 @@ class FornecedorServiceTest {
         input.setCelular("987654321");
 
         var entity = new Fornecedor();
-        entity.setCodUsuario(123);
 
         var outputDto = new FornecedorMeusDadosUpdateOutputDto();
 
         when(fornecedorRepository.findByCodUsuario(123)).thenReturn(Optional.of(entity));
 
-        TypeMap<FornecedorMeusDadosUpdateInputDto, Fornecedor> typeMap = mock(TypeMap.class);
-        when(modelMapper.getTypeMap(FornecedorMeusDadosUpdateInputDto.class, Fornecedor.class)).thenReturn(typeMap);
-        doNothing().when(typeMap).map(any(), any());
-
         when(fornecedorRepository.save(entity)).thenReturn(entity);
         when(modelMapper.map(entity, FornecedorMeusDadosUpdateOutputDto.class)).thenReturn(outputDto);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         var result = fornecedorService.updateMeusDados(input);
 

@@ -6,6 +6,7 @@ import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByIdOutpu
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
+import br.com.mili.milibackend.fornecedor.domain.usecases.ValidatePermissionFornecedorUseCase;
 import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
@@ -56,6 +57,9 @@ class GfdManagerServiceTest {
 
     @Mock
     private IGfdDocumentoService gfdDocumentoService;
+
+    @Mock
+    private ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase;
 
     @Mock
     private ModelMapper modelMapper;
@@ -151,7 +155,7 @@ class GfdManagerServiceTest {
         fornecedor.setEmail("email@teste.com");
         fornecedor.setCelular("123456789");
         fornecedor.setAceiteLgpd(0);
-        fornecedor.setCodUsuario(123);
+
 
         when(getFornecedorByCodOrIdUseCase.execute(123, null)).thenReturn(fornecedor);
 
@@ -175,7 +179,7 @@ class GfdManagerServiceTest {
         fornecedor.setEmail("email@teste.com");
         fornecedor.setCelular("123456789");
         fornecedor.setAceiteLgpd(0);
-        fornecedor.setCodUsuario(123);
+
 
         when(getFornecedorByCodOrIdUseCase.execute(null, 1)).thenReturn(fornecedor);
         when(modelMapper.map(fornecedor, GfdMFornecedorGetOutputDto.class)).thenReturn(new GfdMFornecedorGetOutputDto());
@@ -209,7 +213,7 @@ class GfdManagerServiceTest {
         // Fornecedor mapeado
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setCodigo(codFornecedor);
-        fornecedor.setCodUsuario(codUsuario);
+
 
         // Funcionário de entrada para o service de domínio
         GfdFuncionarioCreateInputDto funcionarioCreateInputDto = new GfdFuncionarioCreateInputDto();
@@ -232,6 +236,7 @@ class GfdManagerServiceTest {
         when(modelMapper.map(funcionarioInputDto, GfdFuncionarioCreateInputDto.class)).thenReturn(new GfdFuncionarioCreateInputDto());
         when(gfdFuncionarioService.create(any())).thenReturn(funcionarioCriado);
         when(modelMapper.map(funcionarioCriado, GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto.class)).thenReturn(funcionarioOutputDto);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         // Act
         var output = gfdManagerService.createFuncionario(inputDto);
@@ -260,8 +265,8 @@ class GfdManagerServiceTest {
 
         var fornecedorEntity = new Fornecedor();
         fornecedorEntity.setCodigo(codFornecedor);
-        fornecedorEntity.setCodUsuario(333);
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(false);
 
         // Act
         var ex = assertThrows(ForbiddenException.class, () -> gfdManagerService.createFuncionario(inputDto));
@@ -288,7 +293,6 @@ class GfdManagerServiceTest {
 
         var fornecedorEntity = new Fornecedor();
         fornecedorEntity.setCodigo(codFornecedor);
-        fornecedorEntity.setCodUsuario(codUsuario);
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
 
 
@@ -309,6 +313,8 @@ class GfdManagerServiceTest {
         outFuncDto.setNome("Maria Atualizada");
         when(modelMapper.map(domainOutputDto, GfdMFuncionarioUpdateOutputDto.GfdFuncionarioDto.class))
                 .thenReturn(outFuncDto);
+
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         // Act
         var result = gfdManagerService.updateFuncionario(inputDto);
@@ -339,8 +345,9 @@ class GfdManagerServiceTest {
 
         var fornecedorEntity = new Fornecedor();
         fornecedorEntity.setCodigo(codFornecedor);
-        fornecedorEntity.setCodUsuario(333);
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
+
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(false);
         // Act
         var ex = assertThrows(ForbiddenException.class, () -> gfdManagerService.updateFuncionario(inputDto));
         assertEquals(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), ex.getMessage());
@@ -366,9 +373,9 @@ class GfdManagerServiceTest {
 
         var fornecedorEntity = new Fornecedor();
         fornecedorEntity.setCodigo(codFornecedor);
-        fornecedorEntity.setCodUsuario(333);
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
 
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(false);
         // Act
         var ex = assertThrows(ForbiddenException.class, () -> gfdManagerService.getFuncionario(inputDto));
         assertEquals(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), ex.getMessage());
@@ -394,14 +401,13 @@ class GfdManagerServiceTest {
 
         var fornecedorEntity = new Fornecedor();
         fornecedorEntity.setCodigo(codFornecedor);
-        fornecedorEntity.setCodUsuario(codUsuario);
 
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         var funcionarioEntity = new GfdFuncionarioGetAllOutputDto();
         funcionarioEntity.setId(idFuncionario);
         funcionarioEntity.setNome("Maria");
-
 
         when(getAllGfdFuncionarioUseCase.execute(any(GfdFuncionarioGetAllInputDto.class))).thenReturn(new PageBaseImpl<GfdFuncionarioGetAllOutputDto>(List.of(funcionarioEntity), 1, 20, 0));
 
@@ -440,13 +446,13 @@ class GfdManagerServiceTest {
 
         var fornecedorEntity = new Fornecedor();
         fornecedorEntity.setCodigo(codFornecedor);
-        fornecedorEntity.setCodUsuario(codUsuario);
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
 
         var domainDeleteDto = new GfdFuncionarioDeleteInputDto();
         domainDeleteDto.setId(idFuncionario);
         when(modelMapper.map(funcDto, GfdFuncionarioDeleteInputDto.class))
                 .thenReturn(domainDeleteDto);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         // Act
         gfdManagerService.deleteFuncionario(inputDto);
@@ -473,8 +479,8 @@ class GfdManagerServiceTest {
 
         var fornecedorEntity = new Fornecedor();
         fornecedorEntity.setCodigo(codFornecedor);
-        fornecedorEntity.setCodUsuario(999);
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(false);
 
         // Act & Assert
         var ex = assertThrows(ForbiddenException.class, () ->
@@ -499,7 +505,7 @@ class GfdManagerServiceTest {
         Fornecedor fornecedor;
         fornecedor = new Fornecedor();
         fornecedor.setCodigo(fornecedorExistenteId);
-        fornecedor.setCodUsuario(usuarioLogadoId);
+
         fornecedor.setEmail(emailFornecedor);
 
         var input = new GfdMDocumentoUpdateInputDto();
@@ -519,6 +525,7 @@ class GfdManagerServiceTest {
         when(getFornecedorByCodOrIdUseCase.execute(usuarioLogadoId, fornecedorExistenteId)).thenReturn(fornecedor);
         when(updateGfdDocumentoUseCase.execute(any(GfdDocumentoUpdateInputDto.class))).thenReturn(updated);
         when(modelMapper.map(any(GfdDocumentoUpdateOutputDto.class), eq(GfdMDocumentoUpdateOutputDto.GfdDocumentoUpdateOutputDto.class))).thenReturn(outputDto);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         //act
         var result = gfdManagerService.updateDocumento(input);
@@ -540,6 +547,7 @@ class GfdManagerServiceTest {
                         GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(),
                         GFD_FORNECEDOR_NAO_ENCONTRADO.getCode()
                 ));
+
 
         assertThrows(NotFoundException.class, () -> gfdManagerService.updateDocumento(input));
     }
@@ -587,7 +595,6 @@ class GfdManagerServiceTest {
         Fornecedor fornecedor;
         fornecedor = new Fornecedor();
         fornecedor.setCodigo(fornecedorExistenteId);
-        fornecedor.setCodUsuario(codUsuario + 1);
         fornecedor.setEmail(emailFornecedor);
 
         var input = new GfdMDocumentoUpdateInputDto();
@@ -619,13 +626,14 @@ class GfdManagerServiceTest {
 
         var fornecedor = new Fornecedor();
         fornecedor.setCodigo(idFornecedor);
-        fornecedor.setCodUsuario(idUsuarioLogado);
+
         fornecedor.setEmail(emailFornecedor);
 
         when(getFornecedorByCodOrIdUseCase.execute(idUsuarioLogado, idFornecedor)).thenReturn(fornecedor);
         when(modelMapper.map(inputDto, GfdDocumentoDownloadInputDto.class)).thenReturn(downloadInputDto);
         when(gfdDocumentoService.download(downloadInputDto)).thenReturn(downloadOutputDto);
         when(modelMapper.map(downloadOutputDto, GfdMDocumentoDownloadOutputDto.class)).thenReturn(expectedOutputDto);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         // Act
         var resultado = gfdManagerService.downloadDocumento(inputDto);
@@ -651,7 +659,7 @@ class GfdManagerServiceTest {
 
         var fornecedor = new Fornecedor();
         fornecedor.setCodigo(idFornecedor);
-        fornecedor.setCodUsuario(idUsuarioLogado);
+
         fornecedor.setEmail(emailFornecedor);
 
         var input = new GfdMDocumentoDeleteInputDto(idDocumento, idUsuarioLogado, idFornecedor);
@@ -659,6 +667,7 @@ class GfdManagerServiceTest {
 
         when(getFornecedorByCodOrIdUseCase.execute(idUsuarioLogado, idFornecedor)).thenReturn(fornecedor);
         when(modelMapper.map(input, GfdDocumentoDeleteInputDto.class)).thenReturn(deleteDto);
+        when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
         gfdManagerService.deleteDocumento(input);
 

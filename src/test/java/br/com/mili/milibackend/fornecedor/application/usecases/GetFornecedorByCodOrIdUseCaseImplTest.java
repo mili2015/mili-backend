@@ -31,7 +31,6 @@ class GetFornecedorByCodOrIdUseCaseImplTest {
     public void setUp() {
         fornecedor = new Fornecedor();
         fornecedor.setCodigo(1);
-        fornecedor.setCodUsuario(1);
         fornecedor.setRazaoSocial("Fornecedor 1");
     }
 
