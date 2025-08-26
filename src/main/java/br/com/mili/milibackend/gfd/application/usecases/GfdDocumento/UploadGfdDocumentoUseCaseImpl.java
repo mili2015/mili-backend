@@ -113,7 +113,8 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
 
         var gfdDocumentoInputDto = GfdDocumentoCreateInputDto.GfdDocumentoDto.builder()
                 .ctforCodigo(fornecedor.getCodigo())
-                .nomeArquivo(documentoFileData.getNomeArquivo()).nomeArquivoPath("gfd/" + documentoFileData.getNomeArquivo())
+                .nomeArquivo(documentoFileData.getNomeArquivo())
+                .nomeArquivoPath("gfd/" + documentoFileData.getNomeArquivo())
                 .tamanhoArquivo(documentoFileData.getTamanho())
                 .dataCadastro(LocalDate.now())
                 .tipoArquivo(documentoFileData.getMimeType())
