@@ -42,8 +42,8 @@ class GetAllGfdFuncionarioUseCaseImplTest {
         inputDto.setFuncao("Dev");
         inputDto.setAtivo(1);
         inputDto.setFornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(99));
-        inputDto.getPageable().setPage(2);
         inputDto.getPageable().setSize(5);
+        inputDto.getPageable().setPage(2);
 
         var proj1 = Mockito.mock(GfdFuncionarioStatusProjection.class);
         when(proj1.getCtforCodigo()).thenReturn(99);
@@ -51,10 +51,11 @@ class GetAllGfdFuncionarioUseCaseImplTest {
         var proj2 = Mockito.mock(GfdFuncionarioStatusProjection.class);
         when(proj2.getCtforCodigo()).thenReturn(99);
 
+
         when(repository.getAll(
                 eq(1), eq("%João%"), eq("%Dev%"),
                 any(), any(), any(),
-                eq(99), eq(1),
+                eq(99), eq(5),
                 eq(5), eq(1)
         )).thenReturn((List<GfdFuncionarioStatusProjection>) List.of(proj1, proj2));
 
