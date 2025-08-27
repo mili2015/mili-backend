@@ -42,7 +42,10 @@ public class CreateDocumentoPeriodoUseCaseImpl implements CreateDocumentoPeriodo
         if (isGeral) {
             final int UM_MES_EN_DIAS = 30;
 
-            var diasValidade = (tipoDocumentoDto.getDiasValidade() / UM_MES_EN_DIAS);
+            int diasValidade = tipoDocumentoDto.getDiasValidade() != null
+                    ? tipoDocumentoDto.getDiasValidade()
+                    : UM_MES_EN_DIAS;
+
             int qtdPeriodos = (int) Math.ceil(diasValidade);
 
             var primeiroPeriodo = gfdDocumentoDto.getDataEmissao().withDayOfMonth(1);
