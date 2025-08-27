@@ -38,7 +38,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             FROM GFD_FORNECEDOR_FUNCIONARIO A
             JOIN GFD_TIPO_DOCUMENTO B
               ON B.TIPO = CASE
-                            WHEN A.TIPO_CONTRATACAO = 'PJ' THEN 'FUNCIONARIO_MEI'
+                            WHEN A.TIPO_CONTRATACAO = 'SUB_CONTRATADOS' THEN 'FUNCIONARIO_MEI'
                             WHEN A.TIPO_CONTRATACAO = 'CLT_SEGURANCA' THEN 'FUNCIONARIO_CLT_SEGURANCA'
                             ELSE 'FUNCIONARIO_CLT'
                          END
@@ -132,7 +132,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             FROM GFD_FORNECEDOR_FUNCIONARIO A
             JOIN GFD_TIPO_DOCUMENTO B
               ON B.TIPO = CASE
-                            WHEN A.TIPO_CONTRATACAO = 'PJ' THEN 'FUNCIONARIO_MEI'
+                            WHEN A.TIPO_CONTRATACAO = 'SUB_CONTRATADOS' THEN 'FUNCIONARIO_MEI'
                             WHEN A.TIPO_CONTRATACAO = 'CLT_SEGURANCA' THEN 'FUNCIONARIO_CLT_SEGURANCA'
                             ELSE 'FUNCIONARIO_CLT'
                          END

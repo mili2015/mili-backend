@@ -34,7 +34,7 @@ public class GetAllGfdFuncionarioUseCaseImpl implements GetAllGfdFuncionarioUseC
                 inputDto.getPeriodoInicio(),
                 inputDto.getPeriodoFim(),
                 inputDto.getFornecedor() != null ? inputDto.getFornecedor().getCodigo() : null,
-                pageNumber,
+                pageNumber * pageSize,
                 pageSize,
                 inputDto.getAtivo() != null ? inputDto.getAtivo() : 1
         );
