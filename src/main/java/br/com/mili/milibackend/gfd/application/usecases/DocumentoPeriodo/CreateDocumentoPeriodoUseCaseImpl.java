@@ -40,64 +40,76 @@ public class CreateDocumentoPeriodoUseCaseImpl implements CreateDocumentoPeriodo
         boolean isGeral = tipoDocumentoDto.getClassificacao() == null || !tipoDocumentoDto.getClassificacao().equals(COMPETENCIA.name());
 
         if (isGeral) {
-            final int UM_MES_EN_DIAS = 30;
-            final int UM_ANO = 30 * 12;
-            final int DEZ_ANOS = 10 * UM_ANO;
-
-            int diasValidade = tipoDocumentoDto.getDiasValidade() != null
-                    ? tipoDocumentoDto.getDiasValidade() / UM_MES_EN_DIAS
-                    : DEZ_ANOS;
-
-            int qtdPeriodos = (int) Math.ceil(diasValidade);
-
-            var primeiroPeriodo = gfdDocumentoDto.getDataEmissao().withDayOfMonth(1);
-            var ultimoPeriodo = ultimoPeriodo(inputDto, gfdDocumentoDto, qtdPeriodos);
-
-            // apaga os periodos iguais para o mesmo tipo de documento
-            // quando for update
-            if (inputDto.isUpdate()) {
-                gfdDocumentoPeriodoRepository.deleteByGfdDocumento_Id(gfdDocumentoDto.getId());
-            }
-
-            var gfdDocumentoPeriodo = GfdDocumentoPeriodo.builder()
-                    .periodoInicial(primeiroPeriodo)
-                    .periodoFinal(ultimoPeriodo)
-                    .gfdDocumento(gfdDocumento)
-                    .build();
-
-            gfdDocumentoPeriodosCreatedDto = modelMapper.map(gfdDocumentoPeriodoRepository.save(gfdDocumentoPeriodo), GfdDocumentoPeriodoCreateOutputDto.class);
+            gfdDocumentoPeriodosCreatedDto = criarDocumentoPeriodoGeral(inputDto, tipoDocumentoDto, gfdDocumentoDto, gfdDocumento);
 
         } else {
-            // competencia
-            // - pega o valor por meio do input e cria os registros
-            if (gfdDocumentoPeriodoDto == null || gfdDocumentoPeriodoDto.getPeriodo() == null) {
-                throw new BadRequestException(GFD_PERIODO_VAZIO.getMensagem(), GFD_PERIODO_VAZIO.getCode());
-            }
-            var primeiroPeriodo = gfdDocumentoPeriodoDto.getPeriodo().withDayOfMonth(1);
-            var ultimoPeriodo = gfdDocumentoPeriodoDto.getPeriodo().withDayOfMonth(gfdDocumentoPeriodoDto.getPeriodo().lengthOfMonth());
-
-            var gfdDocumentoPeriodo = GfdDocumentoPeriodo.builder()
-                    .periodoInicial(primeiroPeriodo)
-                    .periodoFinal(ultimoPeriodo)
-                    .gfdDocumento(gfdDocumento)
-                    .build();
-
-            // apaga o periodo quando for atualização
-            if (inputDto.isUpdate()) {
-                gfdDocumentoPeriodoRepository.deleteByGfdDocumento_Id(gfdDocumentoDto.getId());
-            }
-
-            var gfdDocumentoPeriodoCreated = gfdDocumentoPeriodoRepository.save(gfdDocumentoPeriodo);
-
-            gfdDocumentoPeriodosCreatedDto = (modelMapper.map(gfdDocumentoPeriodoCreated, GfdDocumentoPeriodoCreateOutputDto.class));
+            gfdDocumentoPeriodosCreatedDto = criarDocumentoPeriodoCompetencia(inputDto, gfdDocumentoPeriodoDto, gfdDocumento, gfdDocumentoDto);
         }
 
         return gfdDocumentoPeriodosCreatedDto;
     }
 
+    private GfdDocumentoPeriodoCreateOutputDto criarDocumentoPeriodoCompetencia(GfdDocumentoPeriodoCreateInputDto inputDto, GfdDocumentoPeriodoCreateInputDto.GfdDocumentoPeriodoDto gfdDocumentoPeriodoDto, GfdDocumento gfdDocumento, GfdDocumentoPeriodoCreateInputDto.GfdDocumentoDto gfdDocumentoDto) {
+        GfdDocumentoPeriodoCreateOutputDto gfdDocumentoPeriodosCreatedDto;
+        if (gfdDocumentoPeriodoDto == null || gfdDocumentoPeriodoDto.getPeriodo() == null) {
+            throw new BadRequestException(GFD_PERIODO_VAZIO.getMensagem(), GFD_PERIODO_VAZIO.getCode());
+        }
+        var primeiroPeriodo = gfdDocumentoPeriodoDto.getPeriodo().withDayOfMonth(1);
+        var ultimoPeriodo = gfdDocumentoPeriodoDto.getPeriodo().withDayOfMonth(gfdDocumentoPeriodoDto.getPeriodo().lengthOfMonth());
+
+        var gfdDocumentoPeriodo = GfdDocumentoPeriodo.builder()
+                .periodoInicial(primeiroPeriodo)
+                .periodoFinal(ultimoPeriodo)
+                .gfdDocumento(gfdDocumento)
+                .build();
+
+        // apaga o periodo quando for atualização
+        if (inputDto.isUpdate()) {
+            gfdDocumentoPeriodoRepository.deleteByGfdDocumento_Id(gfdDocumentoDto.getId());
+        }
+
+        var gfdDocumentoPeriodoCreated = gfdDocumentoPeriodoRepository.save(gfdDocumentoPeriodo);
+
+        gfdDocumentoPeriodosCreatedDto = (modelMapper.map(gfdDocumentoPeriodoCreated, GfdDocumentoPeriodoCreateOutputDto.class));
+        return gfdDocumentoPeriodosCreatedDto;
+    }
+
+    private GfdDocumentoPeriodoCreateOutputDto criarDocumentoPeriodoGeral(GfdDocumentoPeriodoCreateInputDto inputDto, GfdDocumentoPeriodoCreateInputDto.TipoDocumentoDto tipoDocumentoDto, GfdDocumentoPeriodoCreateInputDto.GfdDocumentoDto gfdDocumentoDto, GfdDocumento gfdDocumento) {
+        GfdDocumentoPeriodoCreateOutputDto gfdDocumentoPeriodosCreatedDto;
+        final int UM_MES_EN_DIAS = 30;
+        final int UM_ANO = 30 * 12;
+        final int DEZ_ANOS = 10 * UM_ANO;
+
+        int qtdMeses = tipoDocumentoDto.getDiasValidade() != null
+                ? tipoDocumentoDto.getDiasValidade() / UM_MES_EN_DIAS
+                : DEZ_ANOS / UM_MES_EN_DIAS;
+
+        int qtdPeriodos = (int) Math.ceil(qtdMeses <= 0 ? (double) DEZ_ANOS / UM_MES_EN_DIAS : qtdMeses);
+
+        var primeiroPeriodo = gfdDocumentoDto.getDataEmissao().withDayOfMonth(1);
+        var ultimoPeriodo = ultimoPeriodo(inputDto, gfdDocumentoDto, qtdPeriodos);
+
+        // apaga os periodos iguais para o mesmo tipo de documento
+        // quando for update
+        if (inputDto.isUpdate()) {
+            gfdDocumentoPeriodoRepository.deleteByGfdDocumento_Id(gfdDocumentoDto.getId());
+        }
+
+        var gfdDocumentoPeriodo = GfdDocumentoPeriodo.builder()
+                .periodoInicial(primeiroPeriodo)
+                .periodoFinal(ultimoPeriodo)
+                .gfdDocumento(gfdDocumento)
+                .build();
+
+        gfdDocumentoPeriodosCreatedDto = modelMapper.map(gfdDocumentoPeriodoRepository.save(gfdDocumentoPeriodo), GfdDocumentoPeriodoCreateOutputDto.class);
+        return gfdDocumentoPeriodosCreatedDto;
+    }
+
     private LocalDate ultimoPeriodo(GfdDocumentoPeriodoCreateInputDto inputDto, GfdDocumentoPeriodoCreateInputDto.GfdDocumentoDto gfdDocumentoDto, int qtdPeriodos) {
+        final int PROXIMO_MES = 1;
+
         var ultimoPeriodo = gfdDocumentoDto.getDataEmissao()
-                .plusMonths(qtdPeriodos == 1 ? qtdPeriodos : qtdPeriodos - 1)
+                .plusMonths(qtdPeriodos == 1 ? qtdPeriodos : qtdPeriodos + PROXIMO_MES)
                 .with(TemporalAdjusters.lastDayOfMonth());
 
         if (inputDto.getGfdDocumentoDto().getDataValidade() != null) {
