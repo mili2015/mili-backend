@@ -109,12 +109,12 @@ public class GfdManagerService implements IGfdManagerService {
 
         if(!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        };
-        var gfdFuncionarioCreateOutputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioCreateInputDto.class);
+        }
 
-        gfdFuncionarioCreateOutputDto.setFornecedor(new GfdFuncionarioCreateInputDto.FornecedorDto(fornecedor.getCodigo()));
+        var gfdFuncionarioCreateInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioCreateInputDto.class);
+        gfdFuncionarioCreateInputDto.setFornecedor(new GfdFuncionarioCreateInputDto.FornecedorDto(fornecedor.getCodigo()));
 
-        var functionarioDto = modelMapper.map(gfdFuncionarioService.create(gfdFuncionarioCreateOutputDto), GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto.class);
+        var functionarioDto = modelMapper.map(gfdFuncionarioService.create(gfdFuncionarioCreateInputDto), GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto.class);
 
         return new GfdMFuncionarioCreateOutputDto(functionarioDto);
     }
