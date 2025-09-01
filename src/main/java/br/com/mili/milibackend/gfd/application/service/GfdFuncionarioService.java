@@ -25,6 +25,7 @@ public class GfdFuncionarioService implements IGfdFuncionarioService {
         var gfdFuncionario = modelMapper.map(inputDto, GfdFuncionario.class);
 
         gfdFuncionario.setAtivo(1);
+        gfdFuncionario.setLiberado(0);
 
         return modelMapper.map(gfdFuncionarioRepository.save(gfdFuncionario), GfdFuncionarioCreateOutputDto.class);
     }
