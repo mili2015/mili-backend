@@ -70,7 +70,9 @@ public class GfdMDocumentoController {
         return ResponseEntity.ok(getAllGfdDocumentsStatusUseCaseImpl.execute(inputDto));
     }
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "') " +
+                  "or hasAuthority('" + ROLE_SESMT + "')")
     @PostMapping("upload")
     @Transactional
     public ResponseEntity<GfdMUploadDocumentoOutputDto> uploadDocumentos(
@@ -144,7 +146,10 @@ public class GfdMDocumentoController {
         return ResponseEntity.ok(gfdManagerService.updateDocumento(inputDto));
     }
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
     @DeleteMapping("documentos/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Integer id,

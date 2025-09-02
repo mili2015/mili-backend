@@ -20,8 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_ANALISTA;
-import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.ROLE_FORNECEDOR;
+import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.*;
 
 @Slf4j
 @RestController
@@ -42,7 +41,9 @@ public class FornecedorController {
         return roles.contains(ROLE_ANALISTA);
     }
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "') " +
+                  "or hasAuthority('" + ROLE_SESMT + "')")
     @PutMapping
     public ResponseEntity<FornecedorMeusDadosUpdateOutputDto> updateMeusDados(
             @AuthenticationPrincipal CustomUserPrincipal user,
