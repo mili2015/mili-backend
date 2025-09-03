@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -20,9 +22,8 @@ public class FornecedorMeusDadosUpdateInputDto {
     @NotBlank
     private String contato;
 
-    @NotBlank
-    @Email
-    private String email;
+
+    private List<@NotBlank @Email String> emails;
 
     @NotBlank
     private String celular;

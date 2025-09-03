@@ -6,6 +6,7 @@ import br.com.mili.milibackend.fornecedor.application.dto.FornecedorMeusDadosUpd
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorMeusDadosUpdateOutputDto;
 import br.com.mili.milibackend.fornecedor.application.service.FornecedorService;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
+import br.com.mili.milibackend.gfd.application.policy.GfdPolicy;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import jakarta.validation.Valid;
@@ -29,16 +30,11 @@ public class FornecedorController {
     protected static final String ENDPOINT = "/mili-backend/v1/fornecedores";
 
     private final IFornecedorService fornecedorService;
+    private final GfdPolicy gfdPolicy;
 
-    public FornecedorController(FornecedorService fornecedorService) {
+    public FornecedorController(FornecedorService fornecedorService, GfdPolicy gfdPolicy) {
         this.fornecedorService = fornecedorService;
-    }
-
-    private boolean isAnalista(CustomUserPrincipal user) {
-        Set<String> roles = user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
-        return roles.contains(ROLE_ANALISTA);
+        this.gfdPolicy = gfdPolicy;
     }
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
@@ -53,7 +49,7 @@ public class FornecedorController {
 
         inputDto.setCodUsuario(user.getIdUser());
 
-        if (isAnalista(user)) {
+        if (!gfdPolicy.isFornecedor(user)) {
             inputDto.setCodUsuario(null);
         } else {
             inputDto.setId(null);
