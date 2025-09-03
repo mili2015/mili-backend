@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static br.com.mili.milibackend.fornecedor.adapter.exception.FornecedorCodeException.FORNECEDOR_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FUNCIONARIO_SEM_PERMISSAO;
@@ -69,7 +70,7 @@ public class FornecedorService implements IFornecedorService {
         }
 
         fornecedorFound.setContato(inputDto.getContato());
-        fornecedorFound.setEmail(inputDto.getEmail());
+        fornecedorFound.setEmail(String.join(";", inputDto.getEmails()));
         fornecedorFound.setCelular(inputDto.getCelular());
         fornecedorFound.setAceiteLgpd(inputDto.getAceiteLgpd());
 

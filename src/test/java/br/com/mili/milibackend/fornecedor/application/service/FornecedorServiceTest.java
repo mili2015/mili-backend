@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static br.com.mili.milibackend.fornecedor.adapter.exception.FornecedorCodeException.FORNECEDOR_NAO_ENCONTRADO;
@@ -111,7 +112,7 @@ class FornecedorServiceTest {
         input.setId(1);
         input.setCodUsuario(999);
         input.setContato("Contato");
-        input.setEmail("email@test.com");
+        input.setEmails(List.of("email@test.com", "email2@test.com"));
         input.setCelular("123456789");
 
         var entity = new Fornecedor();
@@ -143,7 +144,7 @@ class FornecedorServiceTest {
         var input = new FornecedorMeusDadosUpdateInputDto();
         input.setCodUsuario(123);
         input.setContato("Contato");
-        input.setEmail("email@test.com");
+        input.setEmails(List.of("email@test.com", "email2@test.com"));
         input.setCelular("987654321");
 
         var entity = new Fornecedor();
@@ -169,7 +170,7 @@ class FornecedorServiceTest {
         input.setId(999);
         input.setCodUsuario(999);
         input.setContato("Contato");
-        input.setEmail("email@test.com");
+        input.setEmails(List.of("email@test.com", "email2@test.com"));
         input.setCelular("000000000");
 
         when(fornecedorRepository.findById(999)).thenReturn(Optional.empty());
