@@ -107,7 +107,7 @@ public class GfdManagerService implements IGfdManagerService {
         // busca o fornecedor
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
 
-        if(!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
+        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
         }
 
@@ -125,9 +125,10 @@ public class GfdManagerService implements IGfdManagerService {
         // busca o fornecedor
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
 
-        if(!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
+        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        };
+        }
+        ;
         var gfdFuncionarioUpdateInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioUpdateInputDto.class);
 
         gfdFuncionarioUpdateInputDto.setFornecedor(new GfdFuncionarioUpdateInputDto.FornecedorDto(fornecedor.getCodigo()));
@@ -144,9 +145,10 @@ public class GfdManagerService implements IGfdManagerService {
         // busca o fornecedor
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
 
-        if(!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
+        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        };
+        }
+        ;
         var getAllInputDto = new GfdFuncionarioGetAllInputDto();
         getAllInputDto.setId(inputDto.getFuncionario().getId());
 
@@ -168,9 +170,10 @@ public class GfdManagerService implements IGfdManagerService {
         // busca o fornecedor
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
 
-        if(!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
+        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        };
+        }
+        ;
 
         var gfdFuncionarioDeleteInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioDeleteInputDto.class);
 
@@ -184,9 +187,10 @@ public class GfdManagerService implements IGfdManagerService {
         // busca o fornecedor
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
 
-        if(!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
+        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        };
+        }
+        ;
         // atualiza o documento
         var dto = GfdDocumentoUpdateInputDto.builder()
                 .documento(
@@ -207,7 +211,14 @@ public class GfdManagerService implements IGfdManagerService {
         if (isNaoConforme || isExpirado) {
             var funcionarioId = updatedDto.getGfdFuncionario() != null ? updatedDto.getGfdFuncionario().getId() : null;
 
-            enviarEmail(updatedDto.getGfdTipoDocumento().getId(), fornecedor.getEmail(), updatedDto.getStatus().getDescricao(), funcionarioId);
+            for (String email : fornecedor.getEmail().split(";")) {
+                enviarEmail(
+                        updatedDto.getGfdTipoDocumento().getId(),
+                        email,
+                        updatedDto.getStatus().getDescricao(),
+                        funcionarioId
+                );
+            }
         }
 
         var gfdDocumentoOutDto = modelMapper.map(updatedDto, GfdMDocumentoUpdateOutputDto.GfdDocumentoUpdateOutputDto.class);
@@ -221,9 +232,10 @@ public class GfdManagerService implements IGfdManagerService {
         // busca o fornecedor
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
 
-        if(!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
+        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        };
+        }
+        ;
         var dto = modelMapper.map(inputDto, GfdDocumentoDownloadInputDto.class);
         var linkDto = gfdDocumentoService.download(dto);
 
@@ -238,9 +250,10 @@ public class GfdManagerService implements IGfdManagerService {
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
 
         // quando o usuario vier significa que o utilizador é um fornecedor
-        if(!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
+        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        };
+        }
+        ;
 
         var dto = modelMapper.map(inputDto, GfdDocumentoDeleteInputDto.class);
         deleteGfdDocumentoUseCase.execute(dto);
