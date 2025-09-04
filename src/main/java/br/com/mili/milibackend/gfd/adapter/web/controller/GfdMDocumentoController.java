@@ -129,7 +129,8 @@ public class GfdMDocumentoController {
         return ResponseEntity.ok(updateStatusObservacaoDocumentoUseCase.execute(inputDto));
     }
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')")
     @PutMapping("documentos")
     public ResponseEntity<GfdMDocumentoUpdateOutputDto> updateDocumento(
             @RequestBody @Valid GfdMDocumentoUpdateInputDto inputDto,
@@ -138,10 +139,6 @@ public class GfdMDocumentoController {
         log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
-
-        if (gfdPolicy.isAnalista(user)) {
-            inputDto.setCodUsuario(null);
-        }
 
         return ResponseEntity.ok(gfdManagerService.updateDocumento(inputDto));
     }
