@@ -1,8 +1,5 @@
 package br.com.mili.milibackend.gfd.infra.email;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class GfdDocumentoEmailTemplate {
     public static String template(String status, String url) {
         String html = """
@@ -22,5 +19,4 @@ public class GfdDocumentoEmailTemplate {
         // %2$s → url
         return String.format(html, status, url);
     }
-
 }

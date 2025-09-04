@@ -1,11 +1,11 @@
 package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 
-import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateObservacaoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateObservacaoOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.gfd.domain.usecases.LiberarFuncionarioUseCase;
@@ -40,7 +40,10 @@ public class GfdMFuncionarioController {
     private final IGfdPolicy gfdPolicy;
 
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
     @PostMapping("funcionarios")
     @Transactional
     @Operation(
@@ -63,7 +66,10 @@ public class GfdMFuncionarioController {
     }
 
 
-    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
     @PutMapping("funcionarios/{id}")
     @Transactional
     @Operation(
