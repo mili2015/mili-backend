@@ -138,7 +138,9 @@ public class GfdMDocumentoController {
     ) {
         log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
 
-        inputDto.setCodUsuario(user.getIdUser());
+        if (!gfdPolicy.isFornecedor(user)) {
+            inputDto.setCodUsuario(null);
+        }
 
         return ResponseEntity.ok(gfdManagerService.updateDocumento(inputDto));
     }
