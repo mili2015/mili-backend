@@ -1,8 +1,8 @@
 package br.com.mili.milibackend.gfd.application.usecases.GfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
-import br.com.mili.milibackend.gfd.application.dto.GfdMVerificarDocumentosInputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdMVerificarDocumentosOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMVerificarDocumentosInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMVerificarDocumentosOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
@@ -83,19 +83,25 @@ public class GetAllGfdDocumentsStatusUseCaseImpl implements GetAllGfdDocumentsSt
                 ));
     }
 
-    private void addNonMandatoryDocuments
-            (Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<GfdDocumento> listDocumento, List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos) {
+    private void addNonMandatoryDocuments(
+            Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList,
+            List<GfdDocumento> latestDocuments,
+            List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos
+    ) {
         tipoDocumentos.stream().filter(tipoDoc -> !tipoDoc.getObrigatoriedade()).forEach(tipoDoc -> {
             var outputDto = buildGfdMVerificarDocumentoOutpDto("OPCIONAL", tipoDoc.getNome(), tipoDoc.getId());
             outputDtoList.add(outputDto);
         });
     }
 
-    private void addMandatoryDocuments
-            (Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<GfdDocumento> documentos, List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos) {
+    private void addMandatoryDocuments(
+            Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList,
+            List<GfdDocumento> latestDocuments,
+            List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos
+    ) {
         tipoDocumentos.stream().filter(GfdTipoDocumentoGetAllOutputDto::getObrigatoriedade).forEach(tipoDoc -> {
-            if (fornecedorHasDocument(documentos, tipoDoc)) {
-                addExistingDocument(outputDtoList, documentos, tipoDoc);
+            if (fornecedorHasDocument(latestDocuments, tipoDoc)) {
+                addExistingDocument(outputDtoList, latestDocuments, tipoDoc);
             } else {
                 var outputDto = buildGfdMVerificarDocumentoOutpDto("NÃO ENVIADO", tipoDoc.getNome(), tipoDoc.getId());
                 outputDtoList.add(outputDto);
@@ -103,23 +109,29 @@ public class GetAllGfdDocumentsStatusUseCaseImpl implements GetAllGfdDocumentsSt
         });
     }
 
-    private void addExistingDocument
-            (Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList, List<GfdDocumento> documentos, GfdTipoDocumentoGetAllOutputDto
-                    tipoDoc) {
-        documentos.stream().filter(doc -> doc.getGfdTipoDocumento().getId().equals(tipoDoc.getId())).forEach(doc -> {
+    private void addExistingDocument(
+            Set<GfdMVerificarDocumentosOutputDto.DocumentoDto> outputDtoList,
+            List<GfdDocumento> latestDocuments,
+            GfdTipoDocumentoGetAllOutputDto tipoDoc
+    ) {
+        latestDocuments.stream().filter(doc -> doc.getGfdTipoDocumento().getId().equals(tipoDoc.getId())).forEach(doc -> {
             var outputDto = buildGfdMVerificarDocumentoOutpDto(doc.getStatus().getDescricao(), tipoDoc.getNome(), tipoDoc.getId());
             outputDtoList.add(outputDto);
         });
     }
 
-    private boolean fornecedorHasDocument
-            (List<GfdDocumento> documentos, GfdTipoDocumentoGetAllOutputDto
-                    tipoDoc) {
+    private boolean fornecedorHasDocument(
+            List<GfdDocumento> documentos,
+            GfdTipoDocumentoGetAllOutputDto tipoDoc
+    ) {
         return documentos.stream().anyMatch(doc -> doc.getGfdTipoDocumento().getId().equals(tipoDoc.getId()));
     }
 
-    private GfdMVerificarDocumentosOutputDto.DocumentoDto buildGfdMVerificarDocumentoOutpDto(String status, String
-            nome, Integer idTipoDocumento) {
+    private GfdMVerificarDocumentosOutputDto.DocumentoDto buildGfdMVerificarDocumentoOutpDto(
+            String status,
+            String nome,
+            Integer idTipoDocumento
+    ) {
         var outputDto = new GfdMVerificarDocumentosOutputDto.DocumentoDto();
         outputDto.setStatus(status);
         outputDto.setNome(nome);

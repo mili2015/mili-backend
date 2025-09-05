@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -61,5 +62,8 @@ public class GfdFuncionario {
     private Integer liberado;
 
     @OneToMany(mappedBy = "id")
-    private List<GfdDocumento> documentos;
+    private List<GfdDocumento> documentos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "funcionario")
+    private List<GfdLocalTrabalho> locaisTrabalho = new ArrayList<>();
 }

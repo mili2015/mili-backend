@@ -2,8 +2,8 @@ package br.com.mili.milibackend.gfd.application.usecases.GfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
-import br.com.mili.milibackend.gfd.application.dto.GfdMDocumentosGetAllInputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdMDocumentosGetAllOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMDocumentosGetAllInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMDocumentosGetAllOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;

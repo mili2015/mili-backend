@@ -1,7 +1,9 @@
 package br.com.mili.milibackend.gfd.domain.interfaces;
 
-import br.com.mili.milibackend.gfd.application.dto.*;
-import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.*;
+import br.com.mili.milibackend.gfd.application.dto.manager.fornecedor.GfdMFornecedorGetInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.fornecedor.GfdMFornecedorGetOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.*;
 
 public interface IGfdManagerService {
     GfdMVerificarFornecedorOutputDto verifyFornecedor(GfdMVerificarFornecedorInputDto inputDto);

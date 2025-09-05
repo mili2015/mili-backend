@@ -1,9 +1,9 @@
 package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 
-import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.application.usecases.GfdDocumento.GetAllGfdDocumentsStatusUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
@@ -138,7 +138,9 @@ public class GfdMDocumentoController {
     ) {
         log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
 
-        inputDto.setCodUsuario(user.getIdUser());
+        if (!gfdPolicy.isFornecedor(user)) {
+            inputDto.setCodUsuario(null);
+        }
 
         return ResponseEntity.ok(gfdManagerService.updateDocumento(inputDto));
     }

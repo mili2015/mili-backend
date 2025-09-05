@@ -2,8 +2,8 @@ package br.com.mili.milibackend.gfd.application.usecases.GfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
-import br.com.mili.milibackend.gfd.application.dto.GfdMUploadDocumentoInputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdMUploadDocumentoOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMUploadDocumentoInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMUploadDocumentoOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.fileprocess.DocumentoFileData;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoCreateOutputDto;

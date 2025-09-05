@@ -3,6 +3,8 @@ package br.com.mili.milibackend.gfd.application.dto.gfdFuncionario;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -31,11 +33,22 @@ public class GfdFuncionarioGetAllOutputDto {
     private Integer totalEmAnalise;
     private Integer naoEnviado;
 
+    @Builder.Default
+    private List<LocalTrabalhoDto> locaisTrabalho = new ArrayList<>();
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
     @Setter
     public static class FornecedorDto {
         private Integer codigo;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class LocalTrabalhoDto {
+        private Integer ctempCodigo;
     }
 }

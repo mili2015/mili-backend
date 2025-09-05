@@ -4,6 +4,7 @@ import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -24,6 +25,7 @@ public class GfdFuncionarioCreateOutputDto {
     private String observacao;
     private String ativo;
     private Integer liberado;
+    private List<LocalTrabalhoDto> locaisTrabalho;
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -31,5 +33,13 @@ public class GfdFuncionarioCreateOutputDto {
     @Setter
     public static class FornecedorDto {
         private Integer codigo;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class LocalTrabalhoDto {
+        private Integer ctempCodigo;
     }
 }

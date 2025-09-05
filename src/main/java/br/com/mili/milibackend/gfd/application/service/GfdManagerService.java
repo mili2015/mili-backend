@@ -6,7 +6,6 @@ import br.com.mili.milibackend.envioEmail.shared.RemetenteEnum;
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
 import br.com.mili.milibackend.fornecedor.domain.usecases.ValidatePermissionFornecedorUseCase;
-import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoDeleteInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoDownloadInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateInputDto;
@@ -14,12 +13,19 @@ import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionario
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioDeleteInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.*;
+import br.com.mili.milibackend.gfd.application.dto.manager.fornecedor.GfdMFornecedorGetInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.fornecedor.GfdMFornecedorGetOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.*;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.gfd.domain.usecases.DeleteGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.CreateFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.UpdateGfdFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.GfdResponsavelIntegracao.SendEmailResponsavelIntegracaoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.email.GfdDocumentoEmailTemplate;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
@@ -47,8 +53,10 @@ public class GfdManagerService implements IGfdManagerService {
     private final UpdateGfdDocumentoUseCase updateGfdDocumentoUseCase;
     private final DeleteGfdDocumentoUseCase deleteGfdDocumentoUseCase;
     private final ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase;
+    private final CreateFuncionarioUseCase createFuncionarioUseCase;
+    private final UpdateGfdFuncionarioUseCase updateGfdFuncionarioUseCase;
 
-    public GfdManagerService(IGfdDocumentoService gfdDocumentoService, ModelMapper modelMapper, IGfdFuncionarioService gfdFuncionarioService, IEnvioEmailService envioEmailService, @Value("${frontend.url.origin}") String baseUrl, GetAllGfdFuncionarioUseCase getAllGfdFuncionarioUseCase, GetFornecedorByCodOrIdUseCase getFornecedorByCodOrIdUseCase, UpdateGfdDocumentoUseCase updateGfdDocumentoUseCase, DeleteGfdDocumentoUseCase deleteGfdDocumentoUseCase, ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase) {
+    public GfdManagerService(IGfdDocumentoService gfdDocumentoService, ModelMapper modelMapper, IGfdFuncionarioService gfdFuncionarioService, IEnvioEmailService envioEmailService, @Value("${frontend.url.origin}") String baseUrl, GetAllGfdFuncionarioUseCase getAllGfdFuncionarioUseCase, GetFornecedorByCodOrIdUseCase getFornecedorByCodOrIdUseCase, UpdateGfdDocumentoUseCase updateGfdDocumentoUseCase, DeleteGfdDocumentoUseCase deleteGfdDocumentoUseCase, ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase, CreateFuncionarioUseCase createFuncionarioUseCase, UpdateGfdFuncionarioUseCase updateGfdFuncionarioUseCase) {
         this.gfdDocumentoService = gfdDocumentoService;
         this.modelMapper = modelMapper;
         this.gfdFuncionarioService = gfdFuncionarioService;
@@ -59,6 +67,8 @@ public class GfdManagerService implements IGfdManagerService {
         this.updateGfdDocumentoUseCase = updateGfdDocumentoUseCase;
         this.deleteGfdDocumentoUseCase = deleteGfdDocumentoUseCase;
         this.validatePermissionFornecedorUseCase = validatePermissionFornecedorUseCase;
+        this.createFuncionarioUseCase = createFuncionarioUseCase;
+        this.updateGfdFuncionarioUseCase = updateGfdFuncionarioUseCase;
     }
 
     @Override
@@ -102,52 +112,58 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public GfdMFuncionarioCreateOutputDto createFuncionario(@Valid GfdMFuncionarioCreateInputDto inputDto) {
-        var fornecedorId = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
+        var inputFornecedorId = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null
+                ? inputDto.getFuncionario().getFornecedor().getCodigo()
+                : null;
 
-        // busca o fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
-
-        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
-            throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        }
+        var fornecedor = getFornecedorAndValidate(
+                inputFornecedorId,
+                inputDto.getCodUsuario()
+        );
 
         var gfdFuncionarioCreateInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioCreateInputDto.class);
         gfdFuncionarioCreateInputDto.setFornecedor(new GfdFuncionarioCreateInputDto.FornecedorDto(fornecedor.getCodigo()));
 
-        var functionarioDto = modelMapper.map(gfdFuncionarioService.create(gfdFuncionarioCreateInputDto), GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto.class);
+        var funcionarioCreated = createFuncionarioUseCase.execute(gfdFuncionarioCreateInputDto);
 
-        return new GfdMFuncionarioCreateOutputDto(functionarioDto);
+        var functionarioOutputDto = modelMapper.map(funcionarioCreated, GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto.class);
+
+        return new GfdMFuncionarioCreateOutputDto(functionarioOutputDto);
+    }
+
+    private Fornecedor getFornecedorAndValidate(Integer codUsuario, Integer idFornecedor) {
+
+        // busca o fornecedor
+        var fornecedor = getFornecedorByCodOrIdUseCase.execute(idFornecedor, codUsuario);
+
+        if (!validatePermissionFornecedorUseCase.execute(idFornecedor, fornecedor.getCodigo())) {
+            throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
+        }
+        return fornecedor;
     }
 
     @Override
     public GfdMFuncionarioUpdateOutputDto updateFuncionario(@Valid GfdMFuncionarioUpdateInputDto inputDto) {
-        var fornecedorId = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
-        // busca o fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
+        var inputFornecedorId = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null
+                ? inputDto.getFuncionario().getFornecedor().getCodigo()
+                : null;
 
-        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
-            throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        }
-        ;
+        var fornecedor = getFornecedorAndValidate(inputFornecedorId, inputDto.getCodUsuario());
+
         var gfdFuncionarioUpdateInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioUpdateInputDto.class);
 
         gfdFuncionarioUpdateInputDto.setFornecedor(new GfdFuncionarioUpdateInputDto.FornecedorDto(fornecedor.getCodigo()));
 
-        var functionarioDto = modelMapper.map(gfdFuncionarioService.update(gfdFuncionarioUpdateInputDto), GfdMFuncionarioUpdateOutputDto.GfdFuncionarioDto.class);
+        var funcionarioUpdated = updateGfdFuncionarioUseCase.execute(gfdFuncionarioUpdateInputDto);
+
+        var functionarioDto = modelMapper.map(funcionarioUpdated, GfdMFuncionarioUpdateOutputDto.GfdFuncionarioDto.class);
 
         return new GfdMFuncionarioUpdateOutputDto(functionarioDto);
     }
 
     @Override
     public GfdMFuncionarioGetOutputDto getFuncionario(GfdMFuncionarioGetInputDto inputDto) {
-        var fornecedorId = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
-
-        // busca o fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
-
-        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
-            throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        }
+        getFornecedorAndValidate(inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null, inputDto.getCodUsuario());
         ;
         var getAllInputDto = new GfdFuncionarioGetAllInputDto();
         getAllInputDto.setId(inputDto.getFuncionario().getId());
@@ -165,14 +181,7 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public void deleteFuncionario(GfdMFuncionarioDeleteInputDto inputDto) {
-        var fornecedorId = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
-
-        // busca o fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
-
-        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
-            throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        }
+        getFornecedorAndValidate(inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null, inputDto.getCodUsuario());
         ;
 
         var gfdFuncionarioDeleteInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioDeleteInputDto.class);
@@ -182,15 +191,8 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public GfdMDocumentoUpdateOutputDto updateDocumento(GfdMDocumentoUpdateInputDto inputDto) {
-        var fornecedorId = inputDto.getFornecedor() != null ? inputDto.getFornecedor().getId() : null;
+        var fornecedor = getFornecedorAndValidate(inputDto.getFornecedor() != null ? inputDto.getFornecedor().getId() : null, inputDto.getCodUsuario());
 
-        // busca o fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
-
-        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
-            throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        }
-        ;
         // atualiza o documento
         var dto = GfdDocumentoUpdateInputDto.builder()
                 .documento(
@@ -212,7 +214,7 @@ public class GfdManagerService implements IGfdManagerService {
             var funcionarioId = updatedDto.getGfdFuncionario() != null ? updatedDto.getGfdFuncionario().getId() : null;
 
             for (String email : fornecedor.getEmail().split(";")) {
-                enviarEmail(
+                enviarEmailForneceddor(
                         updatedDto.getGfdTipoDocumento().getId(),
                         email,
                         updatedDto.getStatus().getDescricao(),
@@ -227,15 +229,8 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public GfdMDocumentoDownloadOutputDto downloadDocumento(GfdMDocumentoDownloadInputDto inputDto) {
-        var fornecedorId = inputDto.getFornecedorId();
+        getFornecedorAndValidate(inputDto.getFornecedorId(), inputDto.getCodUsuario());
 
-        // busca o fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
-
-        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
-            throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        }
-        ;
         var dto = modelMapper.map(inputDto, GfdDocumentoDownloadInputDto.class);
         var linkDto = gfdDocumentoService.download(dto);
 
@@ -244,22 +239,13 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public void deleteDocumento(GfdMDocumentoDeleteInputDto inputDto) {
-        var fornecedorId = inputDto.getFornecedorId();
-
-        // busca o fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
-
-        // quando o usuario vier significa que o utilizador é um fornecedor
-        if (!validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo())) {
-            throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
-        }
-        ;
+        getFornecedorAndValidate(inputDto.getFornecedorId(), inputDto.getCodUsuario());
 
         var dto = modelMapper.map(inputDto, GfdDocumentoDeleteInputDto.class);
         deleteGfdDocumentoUseCase.execute(dto);
     }
 
-    private void enviarEmail(Integer tipoDocumento, String email, String status, Integer funcionarioId) {
+    private void enviarEmailForneceddor(Integer tipoDocumento, String email, String status, Integer funcionarioId) {
         var urlDocumento = baseUrl + "/gfd/fornecedor/docs/" + tipoDocumento;
         var urlDocumentoFuncionario = funcionarioId != null ? baseUrl + "/gfd/fornecedor/funcionario/" + funcionarioId + "/docs/" + tipoDocumento : null;
 
@@ -275,6 +261,7 @@ public class GfdManagerService implements IGfdManagerService {
 
         envioEmailService.enviarFila(envioEmail);
     }
+
 
     private boolean representanteCadastrado(Fornecedor fornecedor) {
         return fornecedor.getContato() != null && fornecedor.getEmail() != null && fornecedor.getCelular() != null && (fornecedor.getAceiteLgpd() != null && fornecedor.getAceiteLgpd().equals(1));

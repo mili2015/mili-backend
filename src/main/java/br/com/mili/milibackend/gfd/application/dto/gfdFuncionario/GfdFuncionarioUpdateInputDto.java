@@ -3,6 +3,7 @@ package br.com.mili.milibackend.gfd.application.dto.gfdFuncionario;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -21,6 +22,7 @@ public class GfdFuncionarioUpdateInputDto {
     private LocalDate periodoInicial;
     private LocalDate periodoFinal;
     private String observacao;
+    private List<LocalTrabalhoDto> locaisTrabalho;
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -28,5 +30,13 @@ public class GfdFuncionarioUpdateInputDto {
     @Setter
     public static class FornecedorDto {
         private Integer codigo;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class LocalTrabalhoDto {
+        private Integer ctempCodigo;
     }
 }

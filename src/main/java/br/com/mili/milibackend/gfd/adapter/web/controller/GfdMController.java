@@ -1,10 +1,10 @@
 package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 
-import br.com.mili.milibackend.gfd.application.dto.GfdMFornecedorGetInputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdMFornecedorGetOutputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdMVerificarFornecedorInputDto;
-import br.com.mili.milibackend.gfd.application.dto.GfdMVerificarFornecedorOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.fornecedor.GfdMFornecedorGetInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.fornecedor.GfdMFornecedorGetOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.GfdMVerificarFornecedorInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.GfdMVerificarFornecedorOutputDto;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;

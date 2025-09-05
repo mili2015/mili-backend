@@ -1,8 +1,10 @@
 package br.com.mili.milibackend.gfd.application.dto.gfdFuncionario;
 
+import br.com.mili.milibackend.gfd.domain.entity.GfdLocalTrabalho;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -22,11 +24,21 @@ public class GfdFuncionarioCreateInputDto {
     private String observacao;
     private Integer ativo;
 
+    private List<LocalTrabalhoDto> locaisTrabalho;
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
     @Setter
     public static class FornecedorDto {
         private Integer codigo;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class LocalTrabalhoDto {
+        private Integer ctempCodigo;
     }
 }

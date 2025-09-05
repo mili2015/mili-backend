@@ -4,17 +4,21 @@ import br.com.mili.milibackend.envioEmail.domain.entity.EnvioEmail;
 import br.com.mili.milibackend.envioEmail.domain.interfaces.IEnvioEmailService;
 import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByIdOutputDto;
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
-import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorService;
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
 import br.com.mili.milibackend.fornecedor.domain.usecases.ValidatePermissionFornecedorUseCase;
-import br.com.mili.milibackend.gfd.application.dto.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.*;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.*;
+import br.com.mili.milibackend.gfd.application.dto.manager.fornecedor.GfdMFornecedorGetInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.fornecedor.GfdMFornecedorGetOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.*;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoService;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
 import br.com.mili.milibackend.gfd.domain.usecases.DeleteGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.CreateFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.UpdateGfdFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateGfdDocumentoUseCase;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
@@ -48,6 +52,12 @@ class GfdManagerServiceTest {
 
     @Mock
     private IGfdFuncionarioService gfdFuncionarioService;
+
+    @Mock
+    private CreateFuncionarioUseCase createFuncionarioUseCase;
+
+    @Mock
+    private UpdateGfdFuncionarioUseCase updateGfdFuncionarioUseCase;
 
     @Mock
     private UpdateGfdDocumentoUseCase updateGfdDocumentoUseCase;
@@ -234,7 +244,7 @@ class GfdManagerServiceTest {
         // Mocks
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedor);
         when(modelMapper.map(funcionarioInputDto, GfdFuncionarioCreateInputDto.class)).thenReturn(new GfdFuncionarioCreateInputDto());
-        when(gfdFuncionarioService.create(any())).thenReturn(funcionarioCriado);
+        when(createFuncionarioUseCase.execute(any())).thenReturn(funcionarioCriado);
         when(modelMapper.map(funcionarioCriado, GfdMFuncionarioCreateOutputDto.GfdFuncionarioDto.class)).thenReturn(funcionarioOutputDto);
         when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
@@ -305,7 +315,7 @@ class GfdManagerServiceTest {
         var domainOutputDto = new GfdFuncionarioUpdateOutputDto();
         domainOutputDto.setId(idFuncionario);
         domainOutputDto.setNome("Maria Atualizada");
-        when(gfdFuncionarioService.update(domainUpdateInput))
+        when(updateGfdFuncionarioUseCase.execute(domainUpdateInput))
                 .thenReturn(domainOutputDto);
 
         var outFuncDto = new GfdMFuncionarioUpdateOutputDto.GfdFuncionarioDto();
