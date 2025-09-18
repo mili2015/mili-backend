@@ -2,8 +2,11 @@ package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
+import br.com.mili.milibackend.gfd.application.usecases.GfdTipoDocumento.GfdTipoDocumentoWithRescisaoGetAllInputDto;
+import br.com.mili.milibackend.gfd.application.usecases.GfdTipoDocumento.GfdTipoDocumentoWithRescisaoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.GfdTipoDocumento.GetAllTipoDocumentoWithRescisaoUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +31,9 @@ public class GfdTipoDocumentoController {
 
     private final IGfdTipoDocumentoService gfdTipoDocumentoService;
     private final GetAllTipoDocumentoUseCase getAllTipoDocumentoUseCase ;
+    private final GetAllTipoDocumentoWithRescisaoUseCase getAllTipoDocumentoWithRescisaoUseCase;
 
-       @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
                   "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
                   "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
                   "or hasAuthority('" + ROLE_SESMT + "')"
@@ -42,6 +46,21 @@ public class GfdTipoDocumentoController {
         log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
         return ResponseEntity.ok(getAllTipoDocumentoUseCase.execute(inputDto));
+    }
+
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+                  "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+                  "or hasAuthority('" + ROLE_SESMT + "')"
+    )
+    @GetMapping("/rescisao")
+    public ResponseEntity<GfdTipoDocumentoWithRescisaoGetAllOutputDto> getAllWithRescisao(
+            @AuthenticationPrincipal CustomUserPrincipal user,
+            @ParameterObject @ModelAttribute @Valid GfdTipoDocumentoWithRescisaoGetAllInputDto inputDto
+    ) {
+        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+
+        return ResponseEntity.ok(getAllTipoDocumentoWithRescisaoUseCase.execute(inputDto));
     }
 
        @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +

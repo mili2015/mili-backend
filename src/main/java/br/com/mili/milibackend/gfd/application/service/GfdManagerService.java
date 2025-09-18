@@ -23,9 +23,8 @@ import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioService;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.gfd.domain.usecases.DeleteGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.CreateFuncionarioUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.UpdateGfdFuncionarioUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.GfdResponsavelIntegracao.SendEmailResponsavelIntegracaoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.CreateFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.UpdateGfdFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.email.GfdDocumentoEmailTemplate;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
@@ -181,8 +180,7 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public void deleteFuncionario(GfdMFuncionarioDeleteInputDto inputDto) {
-        getFornecedorAndValidate(inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null, inputDto.getCodUsuario());
-        ;
+        getFornecedorAndValidate(inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null, inputDto.getCodUsuario());;
 
         var gfdFuncionarioDeleteInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioDeleteInputDto.class);
 

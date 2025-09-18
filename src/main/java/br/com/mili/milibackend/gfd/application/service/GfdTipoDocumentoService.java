@@ -1,8 +1,10 @@
 package br.com.mili.milibackend.gfd.application.service;
 
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
+import br.com.mili.milibackend.gfd.domain.entity.GfdCategoriaDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdCategoriaDocumento.GetByIdGfdCategoriaDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GF
 @RequiredArgsConstructor
 public class GfdTipoDocumentoService implements IGfdTipoDocumentoService {
     private final GfdTipoDocumentoRepository gfdTipoDocumentoRepository;
+    private final GetByIdGfdCategoriaDocumentoUseCase getByIdGfdCategoriaDocumentoUseCase;
     private final GfdDocumentoService gfdDocumentoService;
     private final ModelMapper modelMapper;
 
@@ -38,6 +41,13 @@ public class GfdTipoDocumentoService implements IGfdTipoDocumentoService {
 
         gfdTipoDocumento.setAtivo(true);
 
+        // recuperar a categoria para ver existe
+        var categoriaDocumentoFound = getByIdGfdCategoriaDocumentoUseCase.execute(inputDto.getCategoriaDocumento().getId());
+
+        if(categoriaDocumentoFound == null) {
+            throw new NotFoundException(GFD_TIPO_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), GFD_TIPO_DOCUMENTO_NAO_ENCONTRADO.getCode());
+        }
+
         var gfdTipoDocumentoCreated = gfdTipoDocumentoRepository.save(gfdTipoDocumento);
 
         return modelMapper.map(gfdTipoDocumentoCreated, GfdTipoDocumentoCreateOutputDto.class);
@@ -48,6 +58,15 @@ public class GfdTipoDocumentoService implements IGfdTipoDocumentoService {
         var gfdTipoDocumento = gfdTipoDocumentoRepository.findById(inputDto.getId()).orElseThrow(
                 () -> new NotFoundException(GFD_TIPO_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), GFD_TIPO_DOCUMENTO_NAO_ENCONTRADO.getCode())
         );
+
+        // recuperar a categoria para ver existe
+        var categoriaDocumentoFound = getByIdGfdCategoriaDocumentoUseCase.execute(inputDto.getCategoriaDocumento().getId());
+
+        if(categoriaDocumentoFound == null) {
+            throw new NotFoundException(GFD_TIPO_DOCUMENTO_NAO_ENCONTRADO.getMensagem(), GFD_TIPO_DOCUMENTO_NAO_ENCONTRADO.getCode());
+        }
+
+        gfdTipoDocumento.setCategoriaDocumento(modelMapper.map(categoriaDocumentoFound, GfdCategoriaDocumento.class));
 
         modelMapper.map(inputDto, gfdTipoDocumento);
 

@@ -97,6 +97,11 @@ public class GetAllGfdFuncionarioUseCaseImpl implements GetAllGfdFuncionarioUseC
 
         dto.setLocaisTrabalho(locaisPorFuncionario.getOrDefault(projection.getId(), List.of()));
 
+        //seta a contratacao no dto
+        var tipoContratacao = new GfdFuncionarioGetAllOutputDto.GfdTipoContratacaoDto();
+        tipoContratacao.setId(projection.getIdTipoContratacao());
+        dto.setTipoContratacao(tipoContratacao);
+
         return dto;
     }
 

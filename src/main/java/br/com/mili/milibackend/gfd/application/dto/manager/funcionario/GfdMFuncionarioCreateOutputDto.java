@@ -1,5 +1,6 @@
 package br.com.mili.milibackend.gfd.application.dto.manager.funcionario;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -24,12 +25,22 @@ public class GfdMFuncionarioCreateOutputDto {
         private LocalDate dataNascimento;
         private String paisNacionalidade;
         private String funcao;
-        private String tipoContratacao;
         private LocalDate periodoInicial;
         private LocalDate periodoFinal;
         private String observacao;
         private Integer ativo;
         private FornecedorDto fornecedor;
+
+        @NotNull
+        private GfdTipoContratacaoDto tipoContratacao;
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Getter
+        @Setter
+        public static class GfdTipoContratacaoDto {
+            private Integer id;
+        }
 
         @AllArgsConstructor
         @NoArgsConstructor

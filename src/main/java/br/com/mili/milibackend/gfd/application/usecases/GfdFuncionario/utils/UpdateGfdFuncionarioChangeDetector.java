@@ -1,4 +1,4 @@
-package br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario;
+package br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario.utils;
 
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateInputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;

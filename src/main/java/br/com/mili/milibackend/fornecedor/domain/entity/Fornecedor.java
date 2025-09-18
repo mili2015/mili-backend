@@ -1,6 +1,8 @@
 package br.com.mili.milibackend.fornecedor.domain.entity;
 
+import br.com.mili.milibackend.gfd.domain.entity.GfdCategoriaDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoFornecedor;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -103,4 +105,8 @@ public class Fornecedor {
 
     @OneToMany(mappedBy = "ctforCodigo", fetch = FetchType.LAZY)
     private List<GfdDocumento> documentos;
+
+    @ManyToOne
+    @JoinColumn(name = "ID_TIPO_FORNECEDOR")
+    private GfdTipoFornecedor tipoFornecedor;
 }

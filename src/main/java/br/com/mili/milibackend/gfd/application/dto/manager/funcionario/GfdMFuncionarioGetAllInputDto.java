@@ -22,7 +22,7 @@ public class GfdMFuncionarioGetAllInputDto  {
         private Integer id;
         private String nome;
         private String funcao;
-        private String tipoContratacao;
+        private Integer tipoContratacao;
         private LocalDate periodoInicio;
         private LocalDate periodoFim;
         private Integer ativo;

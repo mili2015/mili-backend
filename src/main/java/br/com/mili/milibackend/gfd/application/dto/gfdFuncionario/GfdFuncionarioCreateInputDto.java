@@ -18,13 +18,23 @@ public class GfdFuncionarioCreateInputDto {
     private LocalDate dataNascimento;
     private String paisNacionalidade;
     private String funcao;
-    private String tipoContratacao;
     private LocalDate periodoInicial;
     private LocalDate periodoFinal;
     private String observacao;
     private Integer ativo;
 
     private List<LocalTrabalhoDto> locaisTrabalho;
+
+    private GfdTipoContratacaoDto tipoContratacao;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdTipoContratacaoDto {
+        private Integer id;
+    }
+
 
     @AllArgsConstructor
     @NoArgsConstructor

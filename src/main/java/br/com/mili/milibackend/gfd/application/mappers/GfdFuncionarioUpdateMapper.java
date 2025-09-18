@@ -3,6 +3,7 @@ package br.com.mili.milibackend.gfd.application.mappers;
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateInputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoContratacao;
 
 public class GfdFuncionarioUpdateMapper {
 
@@ -25,9 +26,14 @@ public class GfdFuncionarioUpdateMapper {
         entity.setDataNascimento(inputDto.getDataNascimento());
         entity.setPaisNacionalidade(inputDto.getPaisNacionalidade());
         entity.setFuncao(inputDto.getFuncao());
-        entity.setTipoContratacao(inputDto.getTipoContratacao());
         entity.setPeriodoInicial(inputDto.getPeriodoInicial());
         entity.setPeriodoFinal(inputDto.getPeriodoFinal());
         entity.setObservacao(inputDto.getObservacao());
+
+        if(inputDto.getTipoContratacao() != null) {
+            var tipoContratacao = new GfdTipoContratacao();
+            tipoContratacao.setId(inputDto.getTipoContratacao().getId());
+            entity.setTipoContratacao(tipoContratacao);
+        }
     }
 }

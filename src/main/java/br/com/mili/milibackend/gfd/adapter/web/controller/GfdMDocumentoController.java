@@ -5,7 +5,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpda
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.manager.documentos.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
-import br.com.mili.milibackend.gfd.application.usecases.GfdDocumento.GetAllGfdDocumentsStatusUseCaseImpl;
+import br.com.mili.milibackend.gfd.application.usecases.GfdDocumento.GetAllStatusGfdDocumentsUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllSupplierDocumentsUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateStatusObservacaoDocumentoUseCase;
@@ -37,7 +37,7 @@ public class GfdMDocumentoController {
     private final UploadGfdDocumentoUseCase uploadGfdDocumentoUseCase;
     private final UpdateStatusObservacaoDocumentoUseCase updateStatusObservacaoDocumentoUseCase;
     private final GetAllSupplierDocumentsUseCase getAllSupplierDocumentsUseCase;
-    private final GetAllGfdDocumentsStatusUseCaseImpl getAllGfdDocumentsStatusUseCaseImpl;
+    private final GetAllStatusGfdDocumentsUseCaseImpl getAllStatusGfdDocumentsUseCaseImpl;
     private final IGfdPolicy gfdPolicy;
 
 
@@ -67,7 +67,7 @@ public class GfdMDocumentoController {
             inputDto.setId(null);
         }
 
-        return ResponseEntity.ok(getAllGfdDocumentsStatusUseCaseImpl.execute(inputDto));
+        return ResponseEntity.ok(getAllStatusGfdDocumentsUseCaseImpl.execute(inputDto));
     }
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +

@@ -19,19 +19,30 @@ public class GfdFuncionarioGetAllOutputDto {
     private LocalDate dataNascimento;
     private String paisNacionalidade;
     private String funcao;
-    private String tipoContratacao;
     private LocalDate periodoInicial;
     private LocalDate periodoFinal;
     private String observacao;
     private Character ativo;
     private Character liberado;
+    private Integer desligado;
     private FornecedorDto fornecedor;
+
 
     private Integer totalEnviado;
     private Integer totalConforme;
     private Integer totalNaoConforme;
     private Integer totalEmAnalise;
     private Integer naoEnviado;
+
+    private GfdTipoContratacaoDto tipoContratacao;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdTipoContratacaoDto {
+        private Integer id;
+    }
 
     @Builder.Default
     private List<LocalTrabalhoDto> locaisTrabalho = new ArrayList<>();
@@ -43,6 +54,7 @@ public class GfdFuncionarioGetAllOutputDto {
     public static class FornecedorDto {
         private Integer codigo;
     }
+
 
     @AllArgsConstructor
     @NoArgsConstructor

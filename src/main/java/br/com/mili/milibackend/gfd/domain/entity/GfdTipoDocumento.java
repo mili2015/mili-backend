@@ -38,4 +38,8 @@ public class GfdTipoDocumento {
 
     @Column(name = "CLASSIFICACAO")
     private String classificacao;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_CATEGORIA_DOC")
+    private GfdCategoriaDocumento categoriaDocumento;
 }

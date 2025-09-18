@@ -19,10 +19,20 @@ public class GfdFuncionarioUpdateObservacaoOutputDto {
     private LocalDate dataNascimento;
     private String paisNacionalidade;
     private String funcao;
-    private String tipoContratacao;
     private LocalDate periodoInicial;
     private LocalDate periodoFinal;
     private String observacao;
+
+    private GfdTipoContratacaoDto tipoContratacao;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdTipoContratacaoDto {
+        private Integer id;
+    }
+
 
     @AllArgsConstructor
     @NoArgsConstructor

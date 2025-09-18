@@ -15,8 +15,6 @@ public class GfdTipoDocumentoUpdateOutputDto {
 
     private String nome;
 
-    private String tipo;
-
     private Integer diasValidade;
 
     private Boolean obrigatoriedade;
@@ -24,5 +22,15 @@ public class GfdTipoDocumentoUpdateOutputDto {
     private Boolean ativo;
 
     private String classificacao;
+
+    private GfdCategoriaDocumentoDto categoriaDocumento;
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdCategoriaDocumentoDto {
+        private Integer id;
+    }
 
 }

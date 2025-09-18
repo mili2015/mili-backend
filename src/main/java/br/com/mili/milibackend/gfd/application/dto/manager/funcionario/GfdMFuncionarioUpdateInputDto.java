@@ -44,8 +44,6 @@ public class GfdMFuncionarioUpdateInputDto {
         @NotEmpty
         private String funcao;
 
-        @NotEmpty
-        private String tipoContratacao;
 
         @NotNull
         private LocalDate periodoInicial;
@@ -56,6 +54,17 @@ public class GfdMFuncionarioUpdateInputDto {
         private String observacao;
 
         private List<@NotNull LocalTrabalhoDto> locaisTrabalho;
+
+        @NotNull
+        private GfdTipoContratacaoDto tipoContratacao;
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Getter
+        @Setter
+        public static class GfdTipoContratacaoDto {
+            private Integer id;
+        }
 
         @AllArgsConstructor
         @NoArgsConstructor

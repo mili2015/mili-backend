@@ -13,6 +13,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdDocumentosUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdDocumentoPeriodoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
+import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,6 +67,12 @@ class GetAllSupplierDocumentsUseCaseImplTest {
     void setUp() {
         fornecedor = Fornecedor.builder()
                 .codigo(123)
+                .tipoFornecedor(
+                        GfdTipoFornecedor.builder()
+                                .categoriaDocumento(
+                                        GfdCategoriaDocumento.builder().id(1).nome("fornecedor")
+                                                .build())
+                                .build())
                 .build();
 
         tipoDocumento = new GfdTipoDocumento();
@@ -94,18 +101,21 @@ class GetAllSupplierDocumentsUseCaseImplTest {
         tipoDto.setNome("Test Tipo");
         tipoDto.setClassificacao("GERAL");
         tipoDto.setDiasValidade(180);
+        tipoDto.setCategoriaDocumento(new GfdTipoDocumentoGetAllOutputDto.GfdCategoriaDocumentoDto(1, "funcionario Clt"));
 
         var tipoDto2 = new GfdTipoDocumentoGetAllOutputDto();
         tipoDto2.setId(2);
         tipoDto2.setNome("Test Tipo 2");
         tipoDto2.setClassificacao("COMPETENCIA");
         tipoDto2.setDiasValidade(30);
+        tipoDto.setCategoriaDocumento(new GfdTipoDocumentoGetAllOutputDto.GfdCategoriaDocumentoDto(2, "funcionario CLT Segurança"));
 
         var tipoDto3 = new GfdTipoDocumentoGetAllOutputDto();
         tipoDto3.setId(3);
         tipoDto3.setNome("Test Tipo 3");
         tipoDto3.setClassificacao("GERAL");
         tipoDto3.setDiasValidade(30);
+        tipoDto.setCategoriaDocumento(new GfdTipoDocumentoGetAllOutputDto.GfdCategoriaDocumentoDto(3, "funcionario PJ"));
 
         tiposDocumento = Arrays.asList(tipoDto, tipoDto2, tipoDto3);
     }
@@ -132,7 +142,7 @@ class GetAllSupplierDocumentsUseCaseImplTest {
         when(modelMapper.map(any(GfdDocumentoGetAllOutputDto.class), eq(GfdMDocumentosGetAllOutputDto.GfdDocumentoDto.class))).thenReturn(mappedDto);
 
         GfdTipoDocumentoGetAllInputDto tipoInput = new GfdTipoDocumentoGetAllInputDto();
-        tipoInput.setTipo(GfdTipoDocumentoTipoEnum.FORNECEDOR);
+        tipoInput.setCategoriaDocumento(new GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto(1));
         when(getAllTipoDocumentoUseCase.execute(any(GfdTipoDocumentoGetAllInputDto.class))).thenReturn(tiposDocumento);
 
         // Act
@@ -142,7 +152,6 @@ class GetAllSupplierDocumentsUseCaseImplTest {
         assertEquals(3, result.getNextDoc(), "nextDoc deve ser 3");
         assertEquals(1, result.getPreviousDoc(), "previousDoc deve ser 1");
     }
-
 
 
     @Test
@@ -159,7 +168,7 @@ class GetAllSupplierDocumentsUseCaseImplTest {
         when(modelMapper.map(any(GfdDocumentoGetAllOutputDto.class), eq(GfdMDocumentosGetAllOutputDto.GfdDocumentoDto.class))).thenReturn(mappedDto);
 
         GfdTipoDocumentoGetAllInputDto tipoInput = new GfdTipoDocumentoGetAllInputDto();
-        tipoInput.setTipo(GfdTipoDocumentoTipoEnum.FORNECEDOR);
+        tipoInput.setCategoriaDocumento(new GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto(1));
         when(getAllTipoDocumentoUseCase.execute(any(GfdTipoDocumentoGetAllInputDto.class))).thenReturn(tiposDocumento);
 
         // Act
