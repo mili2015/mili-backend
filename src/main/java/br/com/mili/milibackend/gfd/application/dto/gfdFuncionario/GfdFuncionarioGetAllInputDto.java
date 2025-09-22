@@ -8,13 +8,13 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class GfdFuncionarioGetAllInputDto extends Filtro {
     private Integer id;
     private String nome;
     private String funcao;
-    private String tipoContratacao;
+    private Integer tipoContratacao;
     private LocalDate periodoInicio;
     private LocalDate periodoFim;
     private Integer ativo;

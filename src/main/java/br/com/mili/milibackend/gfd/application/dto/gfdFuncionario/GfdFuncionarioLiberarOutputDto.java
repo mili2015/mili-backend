@@ -18,7 +18,7 @@ public class GfdFuncionarioLiberarOutputDto {
     private LocalDate periodoFim;
     private Integer ativo;
 
-    private GfdFuncionarioGetAllInputDto.FornecedorDto fornecedor;
+    private FornecedorDto fornecedor;
 
     @AllArgsConstructor
     @NoArgsConstructor

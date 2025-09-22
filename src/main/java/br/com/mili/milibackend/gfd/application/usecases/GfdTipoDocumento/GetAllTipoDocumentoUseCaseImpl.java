@@ -24,11 +24,6 @@ public class GetAllTipoDocumentoUseCaseImpl implements GetAllTipoDocumentoUseCas
     public List<GfdTipoDocumentoGetAllOutputDto> execute(GfdTipoDocumentoGetAllInputDto inputDto) {
         Specification<GfdTipoDocumento> spec = Specification.where(null);
 
-        //filtra por tipo
-        if (inputDto.getTipo() != null) {
-            spec = spec.and(GfdTipoDocumentoSpecification.filtroTipo(inputDto.getTipo()));
-        }
-
         //filtra por nome
         if (inputDto.getNome() != null) {
             spec = spec.and(GfdTipoDocumentoSpecification.filtroNome(inputDto.getNome()));
@@ -39,11 +34,31 @@ public class GetAllTipoDocumentoUseCaseImpl implements GetAllTipoDocumentoUseCas
             spec = spec.and(GfdTipoDocumentoSpecification.filtroId(inputDto.getId()));
         }
 
+        //filtro por id de categoria
+        var categoriaDocumento = inputDto.getCategoriaDocumento();
+
+        if (categoriaDocumento != null) {
+            spec = filtroGfdTipoDocumento(categoriaDocumento, spec);
+        }
+
+        if(inputDto.getClassificacao() != null) {
+            spec = spec.and(GfdTipoDocumentoSpecification.filtroClassificacao(inputDto.getClassificacao()));
+        }
+
         //filtra apenas os ativos
         spec = spec.and(GfdTipoDocumentoSpecification.filtroAtivo(true));
 
         var listTipoDocumento = gfdTipoDocumentoRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "id"));
 
-        return listTipoDocumento.stream().map(tipoDocumento -> modelMapper.map(tipoDocumento, GfdTipoDocumentoGetAllOutputDto.class)).toList();
+        return listTipoDocumento.stream().map(tipoDocumento ->
+                        modelMapper.map(tipoDocumento, GfdTipoDocumentoGetAllOutputDto.class))
+                .toList();
+    }
+
+    private static Specification<GfdTipoDocumento> filtroGfdTipoDocumento(GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto categoriaDocumento, Specification<GfdTipoDocumento> spec) {
+        if (categoriaDocumento.getId() != null) {
+            spec = spec.and(GfdTipoDocumentoSpecification.filtroCategoriaId(categoriaDocumento.getId()));
+        }
+        return spec;
     }
 }

@@ -13,9 +13,11 @@ public interface GfdFuncionarioStatusProjection {
     String getTipoContratacao();
     LocalDate getPeriodoInicial();
     LocalDate getPeriodoFinal();
+    Integer getIdTipoContratacao();
     String getObservacao();
     Character getAtivo();
     Character getLiberado();
+    Integer getDesligado();
 
     Integer getTotalEnviado();
     Integer getTotalConforme();

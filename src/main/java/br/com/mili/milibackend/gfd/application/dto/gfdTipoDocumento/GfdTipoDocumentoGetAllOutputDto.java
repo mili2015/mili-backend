@@ -15,8 +15,6 @@ public class GfdTipoDocumentoGetAllOutputDto {
 
     private String nome;
 
-    private GfdTipoDocumentoTipoEnum tipo;
-
     private Integer diasValidade;
 
     private Boolean obrigatoriedade;
@@ -24,4 +22,16 @@ public class GfdTipoDocumentoGetAllOutputDto {
     private Boolean ativo;
 
     private String classificacao;
+
+    private GfdCategoriaDocumentoDto categoriaDocumento;
+
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdCategoriaDocumentoDto {
+        private Integer id;
+        private String nome;
+    }
 }

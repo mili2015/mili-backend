@@ -43,9 +43,6 @@ public class GfdFuncionario {
     @Column(name = "FUNCAO")
     private String funcao;
 
-    @Column(name = "TIPO_CONTRATACAO")
-    private String tipoContratacao;
-
     @Column(name = "PERIODO_INICIAL")
     private LocalDate periodoInicial;
 
@@ -66,4 +63,11 @@ public class GfdFuncionario {
 
     @OneToMany(mappedBy = "funcionario")
     private List<GfdLocalTrabalho> locaisTrabalho = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_TIPO_CONTRATACAO")
+    private GfdTipoContratacao tipoContratacao;
+
+    @Column(name = "DESLIGADO")
+    private Integer desligado;
 }

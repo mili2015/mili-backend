@@ -1,5 +1,6 @@
 package br.com.mili.milibackend.gfd.application.usecases.GfdDocumento;
 
+import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
 import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMVerificarDocumentosInputDto;
 import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMVerificarDocumentosOutputDto;
@@ -7,8 +8,7 @@ import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
-import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioTipoContratacaoEnum;
-import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoClassificacaoEnum;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdDocumentsStatusUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
@@ -26,7 +26,7 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeEx
 
 @RequiredArgsConstructor
 @Service
-public class GetAllGfdDocumentsStatusUseCaseImpl implements GetAllGfdDocumentsStatusUseCase {
+public class GetAllStatusGfdDocumentsUseCaseImpl implements GetAllGfdDocumentsStatusUseCase {
     private final GetFornecedorByCodOrIdUseCase getFornecedorByCodOrIdUseCase;
     private final GfdFuncionarioRepository gfdFuncionarioRepository;
     private final GetAllTipoDocumentoUseCase getAllTipoDocumentoUseCase;
@@ -46,26 +46,15 @@ public class GetAllGfdDocumentsStatusUseCaseImpl implements GetAllGfdDocumentsSt
         de cada tipo, para podermos exibir os status na tela*/
         var latestDocuments = gfdDocumentoRepository.findLatestDocumentsByPeriodoAndFornecedorOrFuncionario(fornecedor.getCodigo(), inputDto.getIdFuncionario(), inputDto.getPeriodo());
 
-        /* extrair */
+        /* busca o tipo do documento enviado */
         var tipoDocumentoInputDto = new GfdTipoDocumentoGetAllInputDto();
-        tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FORNECEDOR);
+        var gfdCategoriaDocumentoDto = new GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto();
+        gfdCategoriaDocumentoDto.setId(fornecedor.getTipoFornecedor().getCategoriaDocumento().getId());
 
-        if (inputDto.getIdFuncionario() != null) {
-            // pega as informacoes de funcionario
-            var funcionario = getGfdFuncionarioGetByIdOutputDto(inputDto.getIdFuncionario());
-
-            // adiciona no title o nome do funcionario
-            output.setTitle(fornecedor.getRazaoSocial() + " - " + funcionario.getNome());
-
-            if (funcionario.getTipoContratacao().equals(GfdFuncionarioTipoContratacaoEnum.CLT.getDescricao())) {
-                tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT);
-            } else if (funcionario.getTipoContratacao().equals(GfdFuncionarioTipoContratacaoEnum.CLT_SEGURANCA.getDescricao())) {
-                tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT_SEGURANCA);
-            } else {
-                tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_MEI);
-            }
-        }
+        tipoDocumentoInputDto.setCategoriaDocumento(gfdCategoriaDocumentoDto);
         /**/
+
+        adicionarFiltroFuncionario(inputDto, output, fornecedor, gfdCategoriaDocumentoDto, tipoDocumentoInputDto);
 
         var tipoDocumentos = getAllTipoDocumentoUseCase.execute(tipoDocumentoInputDto);
 
@@ -75,6 +64,27 @@ public class GetAllGfdDocumentsStatusUseCaseImpl implements GetAllGfdDocumentsSt
         output.setDocumentos(documentos.stream().toList());
 
         return output;
+    }
+
+    private void adicionarFiltroFuncionario(GfdMVerificarDocumentosInputDto inputDto, GfdMVerificarDocumentosOutputDto output, Fornecedor fornecedor, GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto gfdCategoriaDocumentoDto, GfdTipoDocumentoGetAllInputDto tipoDocumentoInputDto) {
+        if (inputDto.getIdFuncionario() != null) {
+
+            // pega as informacoes de funcionario
+            var funcionario = getGfdFuncionarioGetByIdOutputDto(inputDto.getIdFuncionario());
+            output.setTitle(fornecedor.getRazaoSocial() + " - " + funcionario.getNome());
+
+            var idCategoriaDocumento = funcionario.getTipoContratacao().getCategoriaDocumento().getId();
+            gfdCategoriaDocumentoDto.setId(idCategoriaDocumento);
+
+            tipoDocumentoInputDto.setCategoriaDocumento(gfdCategoriaDocumentoDto);
+
+            // verifica se o funcionario foi desligado
+            if(funcionario.getDesligado() == null || funcionario.getDesligado() == 0)
+            {
+                tipoDocumentoInputDto.setClassificacao("!" + GfdTipoDocumentoTipoClassificacaoEnum.RESCISAO.name());
+            }
+
+        }
     }
 
     private GfdFuncionario getGfdFuncionarioGetByIdOutputDto(Integer inputDto) {
@@ -99,7 +109,9 @@ public class GetAllGfdDocumentsStatusUseCaseImpl implements GetAllGfdDocumentsSt
             List<GfdDocumento> latestDocuments,
             List<GfdTipoDocumentoGetAllOutputDto> tipoDocumentos
     ) {
-        tipoDocumentos.stream().filter(GfdTipoDocumentoGetAllOutputDto::getObrigatoriedade).forEach(tipoDoc -> {
+        tipoDocumentos.stream()
+                .filter(GfdTipoDocumentoGetAllOutputDto::getObrigatoriedade)
+                .forEach(tipoDoc -> {
             if (fornecedorHasDocument(latestDocuments, tipoDoc)) {
                 addExistingDocument(outputDtoList, latestDocuments, tipoDoc);
             } else {

@@ -1,15 +1,13 @@
 package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarInputDto;
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarOutputDto;
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateObservacaoInputDto;
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateObservacaoOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
 import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.gfd.domain.usecases.LiberarFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateObservacaoFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.DesactivateFuncionarioUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,6 +36,7 @@ public class GfdMFuncionarioController {
     private final LiberarFuncionarioUseCase updateLiberarFuncionarioUseCase;
     private final UpdateObservacaoFuncionarioUseCase updateObservacaoFuncionarioUseCase;
     private final IGfdPolicy gfdPolicy;
+    private final DesactivateFuncionarioUseCase desactivateFuncionarioUseCase;
 
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
@@ -128,7 +127,7 @@ public class GfdMFuncionarioController {
     public ResponseEntity<Void> deleteFuncionario(
             @AuthenticationPrincipal CustomUserPrincipal user,
             @PathVariable Integer id,
-            @RequestBody @Valid GfdMFuncionarioDeleteInputDto inputDto
+            @ParameterObject @ModelAttribute @Valid GfdMFuncionarioDeleteInputDto inputDto
     ) {
         log.info("{} {}/{}", RequestMethod.DELETE, ENDPOINT, user.getUsername());
 
@@ -139,6 +138,31 @@ public class GfdMFuncionarioController {
         inputDto.getFuncionario().setId(id);
 
         gfdManagerService.deleteFuncionario(inputDto);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') or hasAuthority('" + ROLE_FORNECEDOR + "')")
+    @DeleteMapping("funcionarios/{id}/desligar")
+    @Transactional
+    @Operation(
+            summary = "desativa um funcionário",
+            description = "Não retorna nada, sendo que se o usuário for fornecedor, o funcionário desativado será de seu usuário(empresa)"
+    )
+    public ResponseEntity<Void> desativateFuncionario(
+            @AuthenticationPrincipal CustomUserPrincipal user,
+            @PathVariable Integer id,
+            @ParameterObject @ModelAttribute @Valid GfdFuncionarioDesactivateInputDto inputDto
+    ) {
+        log.info("{} {}/{}", RequestMethod.DELETE, ENDPOINT, user.getUsername());
+
+        if (gfdPolicy.isFornecedor(user)) {
+            inputDto.setCodUsuario(user.getIdUser());
+        }
+
+        inputDto.getFuncionario().setId(id);
+
+        desactivateFuncionarioUseCase.execute(inputDto);
 
         return ResponseEntity.noContent().build();
     }

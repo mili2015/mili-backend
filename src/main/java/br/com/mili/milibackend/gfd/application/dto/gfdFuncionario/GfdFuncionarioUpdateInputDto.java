@@ -1,5 +1,7 @@
 package br.com.mili.milibackend.gfd.application.dto.gfdFuncionario;
 
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoContratacao;
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -18,11 +20,20 @@ public class GfdFuncionarioUpdateInputDto {
     private LocalDate dataNascimento;
     private String paisNacionalidade;
     private String funcao;
-    private String tipoContratacao;
     private LocalDate periodoInicial;
     private LocalDate periodoFinal;
     private String observacao;
     private List<LocalTrabalhoDto> locaisTrabalho;
+
+    private GfdTipoContratacaoDto tipoContratacao;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdTipoContratacaoDto {
+        private Integer id;
+    }
 
     @AllArgsConstructor
     @NoArgsConstructor

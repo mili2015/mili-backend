@@ -11,18 +11,26 @@ import lombok.Setter;
 @Setter
 public class GfdTipoDocumentoCreateOutputDto {
 
+    private Integer id;
+
+    private String nome;
+
+    private Integer diasValidade;
+
+    private Boolean obrigatoriedade;
+
+    private Boolean ativo;
+
+    private String classificacao;
+
+    private GfdCategoriaDocumentoDto categoriaDocumento;
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdCategoriaDocumentoDto {
         private Integer id;
-
-        private String nome;
-
-        private String tipo;
-
-        private Integer diasValidade;
-
-        private Boolean obrigatoriedade;
-
-        private Boolean ativo;
-
-        private String classificacao;
+    }
 
 }

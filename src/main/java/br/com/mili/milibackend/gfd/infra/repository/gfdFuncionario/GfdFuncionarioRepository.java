@@ -14,81 +14,85 @@ import java.util.List;
 public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, Integer>, JpaSpecificationExecutor<GfdFuncionario>, IGfdFuncionarioCustomRepository {
 
     String QUERY_GFD_FUNCIONARIO = """
-            SELECT
-                A.ATIVO as ATIVO,
-                A.CTFOR_CODIGO,
-                A.ID_FUNCIONARIO AS ID,
-                A.NOME,
-                A.CPF,
-                A.DATA_NASCIMENTO,
-                A.PAIS_NACIONALIDADE,
-                A.FUNCAO,
-                A.TIPO_CONTRATACAO,
-                A.PERIODO_INICIAL,
-                A.PERIODO_FINAL,
-                A.OBSERVACAO,
-                A.LIBERADO,
+                 SELECT
+                     A.ATIVO as ATIVO,
+                     A.CTFOR_CODIGO,
+                     A.ID_FUNCIONARIO AS ID,
+                     A.NOME,
+                     A.CPF,
+                     A.DATA_NASCIMENTO,
+                     A.PAIS_NACIONALIDADE,
+                     A.FUNCAO,
+                     A.TIPO_CONTRATACAO,
+                     A.PERIODO_INICIAL,
+                     A.PERIODO_FINAL,
+                     A.ID_TIPO_CONTRATACAO,
+                     A.OBSERVACAO,
+                     A.DESLIGADO,
+                     A.LIBERADO,
             
-                SUM(CASE WHEN C.STATUS = 'ENVIADO'       THEN 1 ELSE 0 END) AS total_enviado,
-                SUM(CASE WHEN C.STATUS = 'CONFORME'      THEN 1 ELSE 0 END) AS total_conforme,
-                SUM(CASE WHEN C.STATUS = 'NAO CONFORME'  THEN 1 ELSE 0 END) AS total_nao_conforme,
-                SUM(CASE WHEN C.STATUS = 'EM ANALISE'    THEN 1 ELSE 0 END) AS total_em_analise,
-                SUM(CASE WHEN C.STATUS IS NULL AND B.OBRIGATORIEDADE = 1 THEN 1 ELSE 0 END) AS nao_enviado
+                     SUM(CASE WHEN C.STATUS = 'ENVIADO'       THEN 1 ELSE 0 END) AS total_enviado,
+                     SUM(CASE WHEN C.STATUS = 'CONFORME'      THEN 1 ELSE 0 END) AS total_conforme,
+                     SUM(CASE WHEN C.STATUS = 'NAO CONFORME'  THEN 1 ELSE 0 END) AS total_nao_conforme,
+                     SUM(CASE WHEN C.STATUS = 'EM ANALISE'    THEN 1 ELSE 0 END) AS total_em_analise,
+                     SUM(CASE WHEN C.STATUS IS NULL AND B.OBRIGATORIEDADE = 1 THEN 1 ELSE 0 END) AS nao_enviado
             
-            FROM GFD_FORNECEDOR_FUNCIONARIO A
-            JOIN GFD_TIPO_DOCUMENTO B
-              ON B.TIPO = CASE
-                            WHEN A.TIPO_CONTRATACAO = 'SUBCONTRATADOS' THEN 'FUNCIONARIO_MEI'
-                            WHEN A.TIPO_CONTRATACAO = 'CLT_SEGURANCA' THEN 'FUNCIONARIO_CLT_SEGURANCA'
-                            ELSE 'FUNCIONARIO_CLT'
-                         END
+                 FROM GFD_FORNECEDOR_FUNCIONARIO A
+                 JOIN GFD_TIPO_CONTRATACAO TC ON TC.ID = A.ID_TIPO_CONTRATACAO
+                 JOIN GFD_TIPO_DOCUMENTO B ON B.ID_CATEGORIA_DOC = TC.ID_CATEGORIA_DOC
+                 AND B.ATIVO = 1
+                 AND (
+                          (A.DESLIGADO = 1)
+                       OR (A.DESLIGADO <> 1 AND B.CLASSIFICACAO <> 'RESCISAO')
+                 )
             
-            LEFT JOIN (
-                SELECT *
-                FROM (
-                    SELECT C.*,
-                           ROW_NUMBER() OVER (
-                               PARTITION BY C.CTFOR_CODIGO, C.ID_TIPO_DOCUMENTO, C.ID_FUNCIONARIO
-                               ORDER BY C.ID DESC
-                           ) AS RN
-                    FROM CT_FORNECEDOR_DOCUMENTOS C
-                    -- Remova este filtro fixo se quiser flexibilidade: WHERE C.CTFOR_CODIGO = 54159
-                ) SUB
-                WHERE SUB.RN = 1
-            ) C
-              ON C.CTFOR_CODIGO = A.CTFOR_CODIGO
-             AND C.ID_TIPO_DOCUMENTO = B.ID
-             AND C.ID_FUNCIONARIO = A.ID_FUNCIONARIO
+                 LEFT JOIN (
+                     SELECT *
+                     FROM (
+                         SELECT C.*,
+                                ROW_NUMBER() OVER (
+                                    PARTITION BY C.CTFOR_CODIGO, C.ID_TIPO_DOCUMENTO, C.ID_FUNCIONARIO
+                                    ORDER BY C.ID DESC
+                                ) AS RN
+                         FROM CT_FORNECEDOR_DOCUMENTOS C
+                     ) SUB
+                     WHERE SUB.RN = 1
+                 ) C
+                   ON C.CTFOR_CODIGO = A.CTFOR_CODIGO
+                  AND C.ID_TIPO_DOCUMENTO = B.ID
+                  AND C.ID_FUNCIONARIO = A.ID_FUNCIONARIO
             
-            WHERE (:idFuncionario IS NULL OR A.ID_FUNCIONARIO = :idFuncionario)
-              AND (:nome IS NULL OR LOWER(A.NOME) LIKE LOWER(:nome))
-              AND A.ATIVO = :ativo
-              AND (:funcao IS NULL OR LOWER(A.FUNCAO) LIKE LOWER(:funcao))
-              AND (:tipoContratacao IS NULL OR A.TIPO_CONTRATACAO = :tipoContratacao)
-              AND (:idFornecedor IS NULL OR A.CTFOR_CODIGO = :idFornecedor)
-              AND (
-                    (:periodoInicio IS NULL AND :periodoFim IS NULL)
-                 OR (:periodoInicio IS NOT NULL AND :periodoFim IS NOT NULL AND A.PERIODO_INICIAL BETWEEN :periodoInicio AND :periodoFim)
-                 OR (:periodoInicio IS NOT NULL AND :periodoFim IS NULL AND A.PERIODO_INICIAL >= :periodoInicio)
-                 OR (:periodoInicio IS NULL AND :periodoFim IS NOT NULL AND A.PERIODO_INICIAL <= :periodoFim)
-              )
+                 WHERE (:idFuncionario IS NULL OR A.ID_FUNCIONARIO = :idFuncionario)
+                   AND (:nome IS NULL OR LOWER(A.NOME) LIKE LOWER(:nome))
+                   AND A.ATIVO = :ativo
+                   AND (:funcao IS NULL OR LOWER(A.FUNCAO) LIKE LOWER(:funcao))
+                   AND (:tipoContratacao IS NULL OR A.ID_TIPO_CONTRATACAO = :tipoContratacao)
+                   AND (:idFornecedor IS NULL OR A.CTFOR_CODIGO = :idFornecedor)
+                   AND (
+                         (:periodoInicio IS NULL AND :periodoFim IS NULL)
+                      OR (:periodoInicio IS NOT NULL AND :periodoFim IS NOT NULL AND A.PERIODO_INICIAL BETWEEN :periodoInicio AND :periodoFim)
+                      OR (:periodoInicio IS NOT NULL AND :periodoFim IS NULL AND A.PERIODO_INICIAL >= :periodoInicio)
+                      OR (:periodoInicio IS NULL AND :periodoFim IS NOT NULL AND A.PERIODO_INICIAL <= :periodoFim)
+                   )
             
-            GROUP BY
-                A.ATIVO,
-                A.CTFOR_CODIGO,
-                A.ID_FUNCIONARIO,
-                A.NOME,
-                A.CPF,
-                A.DATA_NASCIMENTO,
-                A.PAIS_NACIONALIDADE,
-                A.FUNCAO,
-                A.TIPO_CONTRATACAO,
-                A.PERIODO_INICIAL,
-                A.PERIODO_FINAL,
-                A.LIBERADO,
-                A.OBSERVACAO
+                 GROUP BY
+                     A.ATIVO,
+                     A.CTFOR_CODIGO,
+                     A.ID_FUNCIONARIO,
+                     A.NOME,
+                     A.CPF,
+                     A.DATA_NASCIMENTO,
+                     A.PAIS_NACIONALIDADE,
+                     A.FUNCAO,
+                     A.TIPO_CONTRATACAO,
+                     A.PERIODO_INICIAL,
+                     A.ID_TIPO_CONTRATACAO,
+                     A.PERIODO_FINAL,
+                     A.LIBERADO,
+                     A.OBSERVACAO,
+                     A.DESLIGADO
             
-            ORDER BY A.ID_FUNCIONARIO
+                 ORDER BY A.ID_FUNCIONARIO DESC
             """;
 
     @Query(value = QUERY_GFD_FUNCIONARIO + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY", nativeQuery = true)
@@ -96,7 +100,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             Integer idFuncionario,
             String nome,
             String funcao,
-            String tipoContratacao,
+            Integer tipoContratacao,
             LocalDate periodoInicio,
             LocalDate periodoFim,
             Integer idFornecedor,
@@ -114,7 +118,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             Integer idFuncionario,
             String nome,
             String funcao,
-            String tipoContratacao,
+            Integer tipoContratacao,
             LocalDate periodoInicio,
             LocalDate periodoFim,
             Integer idFornecedor,
@@ -123,37 +127,38 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
 
 
     String QUERY_GFD_FUNCIONARIO_DOCUMENTOS = """
-            SELECT
-                SUM(CASE WHEN C.STATUS = 'ENVIADO'       THEN 1 ELSE 0 END) AS total_enviado,
-                SUM(CASE WHEN C.STATUS = 'CONFORME'      THEN 1 ELSE 0 END) AS total_conforme,
-                SUM(CASE WHEN C.STATUS = 'NAO CONFORME'  THEN 1 ELSE 0 END) AS total_nao_conforme,
-                SUM(CASE WHEN C.STATUS = 'EM ANALISE'    THEN 1 ELSE 0 END) AS total_em_analise,
-                SUM(CASE WHEN C.STATUS IS NULL AND B.OBRIGATORIEDADE = 1 THEN 1 ELSE 0 END) AS nao_enviado
-            FROM GFD_FORNECEDOR_FUNCIONARIO A
-            JOIN GFD_TIPO_DOCUMENTO B
-              ON B.TIPO = CASE
-                            WHEN A.TIPO_CONTRATACAO = 'SUBCONTRATADOS' THEN 'FUNCIONARIO_MEI'
-                            WHEN A.TIPO_CONTRATACAO = 'CLT_SEGURANCA' THEN 'FUNCIONARIO_CLT_SEGURANCA'
-                            ELSE 'FUNCIONARIO_CLT'
-                         END
-            LEFT JOIN (
-                SELECT *
-                FROM (
-                    SELECT C.*,
-                           ROW_NUMBER() OVER (
-                               PARTITION BY C.CTFOR_CODIGO, C.ID_TIPO_DOCUMENTO, C.ID_FUNCIONARIO
-                               ORDER BY C.ID DESC
-                           ) AS RN
-                    FROM CT_FORNECEDOR_DOCUMENTOS C
-                ) SUB
-                WHERE SUB.RN = 1
-            ) C
-              ON C.CTFOR_CODIGO = A.CTFOR_CODIGO
-             AND C.ID_TIPO_DOCUMENTO = B.ID
-             AND C.ID_FUNCIONARIO = A.ID_FUNCIONARIO
-            WHERE (:idFuncionario IS NULL OR A.ID_FUNCIONARIO = :idFuncionario)
-            ORDER BY A.ID_FUNCIONARIO
+                 SELECT
+                     SUM(CASE WHEN C.STATUS = 'ENVIADO'       THEN 1 ELSE 0 END) AS total_enviado,
+                     SUM(CASE WHEN C.STATUS = 'CONFORME'      THEN 1 ELSE 0 END) AS total_conforme,
+                     SUM(CASE WHEN C.STATUS = 'NAO CONFORME'  THEN 1 ELSE 0 END) AS total_nao_conforme,
+                     SUM(CASE WHEN C.STATUS = 'EM ANALISE'    THEN 1 ELSE 0 END) AS total_em_analise,
+                     SUM(CASE WHEN C.STATUS IS NULL AND B.OBRIGATORIEDADE = 1 THEN 1 ELSE 0 END) AS nao_enviado
+                 FROM GFD_FORNECEDOR_FUNCIONARIO A
+                 JOIN GFD_TIPO_CONTRATACAO TC ON TC.ID = A.ID_TIPO_CONTRATACAO
+                 JOIN GFD_TIPO_DOCUMENTO B ON B.ID_CATEGORIA_DOC = TC.ID_CATEGORIA_DOC AND B.ATIVO = 1
+                 AND (
+                          (A.DESLIGADO = 1)
+                       OR (A.DESLIGADO <> 1 AND B.CLASSIFICACAO <> 'RESCISAO')
+                 )
+                 LEFT JOIN (
+                     SELECT *
+                     FROM (
+                         SELECT C.*,
+                                ROW_NUMBER() OVER (
+                                    PARTITION BY C.CTFOR_CODIGO, C.ID_TIPO_DOCUMENTO, C.ID_FUNCIONARIO
+                                    ORDER BY C.ID DESC
+                                ) AS RN
+                         FROM CT_FORNECEDOR_DOCUMENTOS C
+                     ) SUB
+                     WHERE SUB.RN = 1
+                 ) C
+                   ON C.CTFOR_CODIGO = A.CTFOR_CODIGO
+                  AND C.ID_TIPO_DOCUMENTO = B.ID
+                  AND C.ID_FUNCIONARIO = A.ID_FUNCIONARIO
+                 WHERE (:idFuncionario IS NULL OR A.ID_FUNCIONARIO = :idFuncionario)
+                 ORDER BY A.ID_FUNCIONARIO
             """;
+
     @Query(value = QUERY_GFD_FUNCIONARIO_DOCUMENTOS, nativeQuery = true)
     GfdFuncionarioDocumentsProjection getAllDocuments(
             Integer idFuncionario

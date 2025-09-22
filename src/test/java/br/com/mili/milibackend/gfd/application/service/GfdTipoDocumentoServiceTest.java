@@ -1,8 +1,11 @@
 package br.com.mili.milibackend.gfd.application.service;
 
+import br.com.mili.milibackend.gfd.application.dto.gfdCategoriaDocumento.GfdCategoriaDocumentoGetByIdOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
+import br.com.mili.milibackend.gfd.domain.entity.GfdCategoriaDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdCategoriaDocumento.GetByIdGfdCategoriaDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +30,9 @@ class GfdTipoDocumentoServiceTest {
 
     @Mock
     private ModelMapper modelMapper;
+
+    @Mock
+    private GetByIdGfdCategoriaDocumentoUseCase getByIdGfdCategoriaDocumentoUseCase;
 
     @InjectMocks
     private GfdTipoDocumentoService service;
@@ -72,9 +78,10 @@ class GfdTipoDocumentoServiceTest {
     @Test
     void testCreate() {
         GfdTipoDocumentoCreateInputDto input = new GfdTipoDocumentoCreateInputDto();
+        input.setCategoriaDocumento(new GfdTipoDocumentoCreateInputDto.GfdCategoriaDocumentoDto(1));
+
         input.setNome("Novo");
         input.setDiasValidade(10);
-        input.setTipo("FORNECEDOR");
         input.setObrigatoriedade(true);
 
         GfdTipoDocumento newEntity = new GfdTipoDocumento();
@@ -96,6 +103,8 @@ class GfdTipoDocumentoServiceTest {
         when(modelMapper.map(input, GfdTipoDocumento.class)).thenReturn(newEntity);
         when(repository.save(newEntity)).thenReturn(savedEntity);
         when(modelMapper.map(savedEntity, GfdTipoDocumentoCreateOutputDto.class)).thenReturn(outputDto);
+        when(getByIdGfdCategoriaDocumentoUseCase.execute(any())).thenReturn(new GfdCategoriaDocumentoGetByIdOutputDto());
+
 
         var result = service.create(input);
 
@@ -110,34 +119,39 @@ class GfdTipoDocumentoServiceTest {
         GfdTipoDocumentoUpdateInputDto input = new GfdTipoDocumentoUpdateInputDto();
         input.setId(1);
         input.setNome("Atualizado");
-        input.setTipo("PDF");
+        input.setCategoriaDocumento(new GfdTipoDocumentoUpdateInputDto.GfdCategoriaDocumentoDto(1));
         input.setObrigatoriedade(true);
 
         when(repository.findById(1)).thenReturn(Optional.of(entity));
+        when(getByIdGfdCategoriaDocumentoUseCase.execute(any()))
+                .thenReturn(new GfdCategoriaDocumentoGetByIdOutputDto());
 
-        input.setTipo("FORNECEDOR");
+        when(modelMapper.map(any(GfdCategoriaDocumentoGetByIdOutputDto.class), eq(GfdCategoriaDocumento.class)))
+                .thenReturn(new GfdCategoriaDocumento());
 
         doAnswer(invocation -> {
             GfdTipoDocumentoUpdateInputDto src = invocation.getArgument(0);
             GfdTipoDocumento dest = invocation.getArgument(1);
-            dest.setTipo(GfdTipoDocumentoTipoEnum.valueOf(src.getTipo()));
+            dest.setNome(src.getNome());
+            dest.setObrigatoriedade(src.getObrigatoriedade());
             return null;
         }).when(modelMapper).map(any(GfdTipoDocumentoUpdateInputDto.class), any(GfdTipoDocumento.class));
 
-
-        when(repository.save(entity)).thenReturn(entity);
+        when(repository.save(any(GfdTipoDocumento.class))).thenReturn(entity);
 
         GfdTipoDocumentoUpdateOutputDto outputDto = new GfdTipoDocumentoUpdateOutputDto();
         outputDto.setId(1);
         outputDto.setNome("Atualizado");
 
-        when(modelMapper.map(entity, GfdTipoDocumentoUpdateOutputDto.class)).thenReturn(outputDto);
+        when(modelMapper.map(any(GfdTipoDocumento.class), eq(GfdTipoDocumentoUpdateOutputDto.class)))
+                .thenReturn(outputDto);
 
         var result = service.update(input);
 
         assertNotNull(result);
         assertEquals("Atualizado", result.getNome());
     }
+
 
     @Test
     void testUpdate_notFound() {

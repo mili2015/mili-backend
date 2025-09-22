@@ -1,8 +1,6 @@
 package br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento;
 
 
-import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
-import br.com.mili.milibackend.shared.page.Filtro;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,11 +15,21 @@ public class GfdTipoDocumentoGetAllInputDto {
 
     private String nome;
 
-    private GfdTipoDocumentoTipoEnum tipo;
-
     private Integer diasValidade;
 
     private Boolean obrigatoriedade;
 
     private Boolean ativo;
+
+    private GfdCategoriaDocumentoDto categoriaDocumento;
+
+    private String classificacao;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GfdCategoriaDocumentoDto {
+        private Integer id;
+    }
 }

@@ -4,10 +4,11 @@ import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionario
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdResponsavelIntegracao.ResponsavelIntegracaoSendEmailInputDto;
 import br.com.mili.milibackend.gfd.application.mappers.GfdFuncionarioUpdateMapper;
+import br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario.utils.UpdateGfdFuncionarioChangeDetector;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.entity.GfdLocalTrabalho;
 import br.com.mili.milibackend.gfd.domain.entity.GfdLocalTrabalhoPk;
-import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.UpdateGfdFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.UpdateGfdFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GfdResponsavelIntegracao.SendEmailResponsavelIntegracaoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdLocalTrabalhoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
@@ -17,11 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;
 

@@ -2,13 +2,15 @@ package br.com.mili.milibackend.gfd.application.usecases.GfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
-import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMDocumentosGetAllInputDto;
-import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMDocumentosGetAllOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMDocumentosGetAllInputDto;
+import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMDocumentosGetAllOutputDto;
 import br.com.mili.milibackend.gfd.application.helpers.GfdTipoDocumentoNavigationHelper;
-import br.com.mili.milibackend.gfd.domain.entity.*;
+import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoClassificacaoEnum;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdDocumentosUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllSupplierDocumentsUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
@@ -47,7 +49,7 @@ public class GetAllSupplierDocumentsUseCaseImpl implements GetAllSupplierDocumen
 
         var pageDocumentos = recuperarDocumentos(inputDto, fornecedor);
 
-        var recuperarTiposDocumentoFornecedor = getFornecedorTipoDocumentos(inputDto.getFuncionario() != null ? inputDto.getFuncionario().getId() : null);
+        var recuperarTiposDocumentoFornecedor = getFornecedorTipoDocumentos(inputDto.getFuncionario() != null ? inputDto.getFuncionario().getId() : null, fornecedor);
 
         var navigation = GfdTipoDocumentoNavigationHelper.calculateNavigation(recuperarTiposDocumentoFornecedor, inputDto.getTipoDocumentoId());
 
@@ -115,19 +117,21 @@ public class GetAllSupplierDocumentsUseCaseImpl implements GetAllSupplierDocumen
         return gfdTipoDocumentoDto;
     }
 
-    List<GfdTipoDocumentoGetAllOutputDto> getFornecedorTipoDocumentos(Integer funcionarioId) {
+    List<GfdTipoDocumentoGetAllOutputDto> getFornecedorTipoDocumentos(Integer funcionarioId, Fornecedor fornecedor) {
         var tipoDocumentoInputDto = new GfdTipoDocumentoGetAllInputDto();
-        tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FORNECEDOR);
+        var gfdCategoriaDocumentoDto = new GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto();
+        gfdCategoriaDocumentoDto.setId(fornecedor.getTipoFornecedor().getCategoriaDocumento().getId());
+
+        tipoDocumentoInputDto.setCategoriaDocumento(gfdCategoriaDocumentoDto);
 
         if (funcionarioId != null) {
             // pega as informacoes de funcionario
             var funcionario = getGfdFuncionarioGetByIdOutputDto(funcionarioId);
 
-            if (funcionario.getTipoContratacao().equals(GfdFuncionarioTipoContratacaoEnum.CLT.getDescricao())) {
-                tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT);
-            } else {
-                tipoDocumentoInputDto.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_MEI);
-            }
+            var idCategoriaDocumento = funcionario.getTipoContratacao().getCategoriaDocumento().getId();
+            gfdCategoriaDocumentoDto.setId(idCategoriaDocumento);
+
+            tipoDocumentoInputDto.setCategoriaDocumento(gfdCategoriaDocumentoDto);
         }
 
         return getAllTipoDocumentoUseCase.execute(tipoDocumentoInputDto);
