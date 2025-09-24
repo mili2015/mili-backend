@@ -1,5 +1,6 @@
 package br.com.mili.milibackend.gfd.application.dto.manager.fornecedor;
 
+import br.com.mili.milibackend.fornecedor.application.dto.FornecedorGetByIdOutputDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,4 +68,15 @@ public class GfdMFornecedorGetOutputDto {
     private Integer codUsuario;
 
     private Integer aceiteLgpd;
+
+    private GfdTipoFornecedorDto tipoFornecedor;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdTipoFornecedorDto {
+        private Integer id;
+        private String descricao;
+    }
 }

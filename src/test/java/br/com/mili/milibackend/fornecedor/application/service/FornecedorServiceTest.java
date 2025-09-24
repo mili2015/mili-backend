@@ -5,6 +5,8 @@ import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.usecases.ValidatePermissionFornecedorUseCase;
 import br.com.mili.milibackend.fornecedor.infra.dto.FornecedorResumoDto;
 import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
+import br.com.mili.milibackend.gfd.application.dto.gfdTipoFornecedor.GfdTipoFornecedorGetByIdOutputDto;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdTipoFornecedor.GetByIdGfdTipoFornecedorUseCase;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.MyPageable;
@@ -43,6 +45,10 @@ class FornecedorServiceTest {
 
     @Mock
     private ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase;
+
+    @Mock
+    private GetByIdGfdTipoFornecedorUseCase getByIdGfdTipoFornecedorUseCase;
+
 
     @Test
     void test_GetByCodUsuario__deveRetornarFornecedor_quandoEncontrado() {
@@ -112,6 +118,7 @@ class FornecedorServiceTest {
         input.setId(1);
         input.setCodUsuario(999);
         input.setContato("Contato");
+        input.setTipoFornecedor(FornecedorMeusDadosUpdateInputDto.GfdTipoFornecedorDto.builder().id(1).build());
         input.setEmails(List.of("email@test.com", "email2@test.com"));
         input.setCelular("123456789");
 
@@ -126,8 +133,13 @@ class FornecedorServiceTest {
 
         when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
 
+        when(getByIdGfdTipoFornecedorUseCase.execute(any())).thenReturn(
+                GfdTipoFornecedorGetByIdOutputDto.builder().build()
+        );
+
         when(fornecedorRepository.save(entity)).thenReturn(entity);
         when(modelMapper.map(entity, FornecedorMeusDadosUpdateOutputDto.class)).thenReturn(outputDto);
+
 
         // Act
         var result = fornecedorService.updateMeusDados(input);
@@ -144,6 +156,7 @@ class FornecedorServiceTest {
         var input = new FornecedorMeusDadosUpdateInputDto();
         input.setCodUsuario(123);
         input.setContato("Contato");
+        input.setTipoFornecedor(FornecedorMeusDadosUpdateInputDto.GfdTipoFornecedorDto.builder().id(1).build());
         input.setEmails(List.of("email@test.com", "email2@test.com"));
         input.setCelular("987654321");
 
@@ -152,6 +165,10 @@ class FornecedorServiceTest {
         var outputDto = new FornecedorMeusDadosUpdateOutputDto();
 
         when(fornecedorRepository.findByCodUsuario(123)).thenReturn(Optional.of(entity));
+
+        when(getByIdGfdTipoFornecedorUseCase.execute(any())).thenReturn(
+                GfdTipoFornecedorGetByIdOutputDto.builder().build()
+        );
 
         when(fornecedorRepository.save(entity)).thenReturn(entity);
         when(modelMapper.map(entity, FornecedorMeusDadosUpdateOutputDto.class)).thenReturn(outputDto);
@@ -169,6 +186,7 @@ class FornecedorServiceTest {
         var input = new FornecedorMeusDadosUpdateInputDto();
         input.setId(999);
         input.setCodUsuario(999);
+        input.setTipoFornecedor(FornecedorMeusDadosUpdateInputDto.GfdTipoFornecedorDto.builder().id(1).build());
         input.setContato("Contato");
         input.setEmails(List.of("email@test.com", "email2@test.com"));
         input.setCelular("000000000");

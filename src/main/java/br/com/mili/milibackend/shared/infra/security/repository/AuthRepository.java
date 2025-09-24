@@ -26,7 +26,7 @@ public interface AuthRepository extends JpaRepository<AuthDummy, Long> {
                 CT_OPCAO_ACESSO C
             WHERE
                 A.CTUSU_CODIGO = :userId
-                AND B.CTSIS_CODIGO IN (39, 38, 53, 65, 81)
+                AND B.CTSIS_CODIGO IN (39, 38, 53, 65, 81, 82)
                 AND A.CTUSU_CODIGO = B.CTUSU_CODIGO
                 AND B.CTSIS_CODIGO = C.CTSIS_CODIGO
                 AND B.CTOAC_CODIGO = C.CTOAC_CODIGO
@@ -55,9 +55,9 @@ public interface AuthRepository extends JpaRepository<AuthDummy, Long> {
                         AND A.CTUSU_CODIGO = C.CTUSU_CODIGO
                         AND C.CTSIS_CODIGO = D.CTSIS_CODIGO
                         AND C.CTOAC_CODIGO = D.CTOAC_CODIGO
-                        AND C.CTSIS_CODIGO IN (39, 38, 53, 65, 81)
+                        AND C.CTSIS_CODIGO IN (39, 38, 53, 65, 81, 82)
                 )
-                AND B.CTSIS_CODIGO IN (39, 38, 53, 65, 81)
+                AND B.CTSIS_CODIGO IN (39, 38, 53, 65, 81, 82)
                 AND A.CTUSU_CODIGO = B.CTUSU_CODIGO
                 AND B.CTSIS_CODIGO = C.CTSIS_CODIGO
                 AND B.CTOAC_CODIGO = C.CTOAC_CODIGO

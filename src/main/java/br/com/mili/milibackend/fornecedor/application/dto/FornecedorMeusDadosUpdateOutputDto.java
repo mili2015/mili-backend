@@ -68,4 +68,15 @@ public class FornecedorMeusDadosUpdateOutputDto {
     private Integer codUsuario;
 
     private Integer aceiteLgpd;
+
+    private GfdTipoFornecedorDto tipoFornecedor;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdTipoFornecedorDto {
+        private Integer id;
+        private String descricao;
+    }
 }

@@ -7,10 +7,13 @@ import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorS
 import br.com.mili.milibackend.fornecedor.domain.usecases.ValidatePermissionFornecedorUseCase;
 import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
 import br.com.mili.milibackend.fornecedor.infra.specification.FornecedorSpecification;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoFornecedor;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdTipoFornecedor.GetByIdGfdTipoFornecedorUseCase;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,24 +21,20 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static br.com.mili.milibackend.fornecedor.adapter.exception.FornecedorCodeException.FORNECEDOR_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FUNCIONARIO_SEM_PERMISSAO;
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_TIPO_FORNECEDOR_NAO_ENCONTRADO;
 
 @Service
+@RequiredArgsConstructor
 public class FornecedorService implements IFornecedorService {
-
     private final FornecedorRepository fornecedorRepository;
     private final ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase;
+    private final GetByIdGfdTipoFornecedorUseCase getByIdGfdTipoFornecedorUseCase;
 
     private final ModelMapper modelMapper;
 
-    public FornecedorService(FornecedorRepository fornecedorRepository, ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase, ModelMapper modelMapper) {
-        this.fornecedorRepository = fornecedorRepository;
-        this.validatePermissionFornecedorUseCase = validatePermissionFornecedorUseCase;
-        this.modelMapper = modelMapper;
-    }
 
     public FornecedorGetByCodUsuarioOutputDto getByCodUsuario(FornecedorGetByCodUsuarioInputDto inputDto) {
         Fornecedor fornecedorFound = fornecedorRepository.findByCodUsuario(inputDto.getCodUsuario()).orElse(null);
@@ -73,6 +72,18 @@ public class FornecedorService implements IFornecedorService {
         fornecedorFound.setEmail(String.join(";", inputDto.getEmails()));
         fornecedorFound.setCelular(inputDto.getCelular());
         fornecedorFound.setAceiteLgpd(inputDto.getAceiteLgpd());
+
+        // busca o tipo fornecedor pelo codigo
+        var tipo = getByIdGfdTipoFornecedorUseCase.execute(inputDto.getTipoFornecedor().getId());
+
+        if (tipo == null) {
+            throw new NotFoundException(GFD_TIPO_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), GFD_TIPO_FORNECEDOR_NAO_ENCONTRADO.getCode());
+        }
+
+        fornecedorFound.setTipoFornecedor(
+                GfdTipoFornecedor.builder()
+                        .id(tipo.getId()).build()
+        );
 
         fornecedorRepository.save(fornecedorFound);
 
