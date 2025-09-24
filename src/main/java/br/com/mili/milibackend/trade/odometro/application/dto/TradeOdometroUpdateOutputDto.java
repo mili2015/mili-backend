@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 public class TradeOdometroUpdateOutputDto {
     private Integer id;
 
+    private BigDecimal kmInicio;
+
+    private LocalDateTime dataInicio;
+
     private BigDecimal kmFim;
 
     private LocalDateTime dataFim;
