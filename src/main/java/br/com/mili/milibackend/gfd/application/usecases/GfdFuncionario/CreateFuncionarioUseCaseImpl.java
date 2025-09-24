@@ -5,7 +5,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionario
 import br.com.mili.milibackend.gfd.application.dto.gfdResponsavelIntegracao.ResponsavelIntegracaoSendEmailInputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.entity.GfdLocalTrabalho;
-import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.CreateFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.CreateFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GfdResponsavelIntegracao.SendEmailResponsavelIntegracaoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdLocalTrabalhoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
