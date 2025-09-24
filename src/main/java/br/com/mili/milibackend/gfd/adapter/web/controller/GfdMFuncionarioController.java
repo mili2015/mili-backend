@@ -7,7 +7,7 @@ import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.gfd.domain.usecases.LiberarFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateObservacaoFuncionarioUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.DesactivateFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.GfdFuncionario.DesactivateFuncionarioUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
