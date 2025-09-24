@@ -1,6 +1,6 @@
 package br.com.mili.milibackend.fornecedor.application.dto;
 
-import jakarta.persistence.Column;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +22,6 @@ public class FornecedorMeusDadosUpdateInputDto {
     @NotBlank
     private String contato;
 
-
     private List<@NotBlank @Email String> emails;
 
     @NotBlank
@@ -30,4 +29,17 @@ public class FornecedorMeusDadosUpdateInputDto {
 
     @NotNull
     private Integer aceiteLgpd;
+
+    @Valid
+    @NotNull
+    private GfdTipoFornecedorDto tipoFornecedor;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class GfdTipoFornecedorDto {
+        @NotNull
+        private Integer id;
+    }
 }

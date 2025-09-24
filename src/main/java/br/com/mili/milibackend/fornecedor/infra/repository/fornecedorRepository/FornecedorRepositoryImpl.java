@@ -3,6 +3,7 @@ package br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.interfaces.repository.IFornecedorCustomRepository;
 import br.com.mili.milibackend.fornecedor.infra.dto.FornecedorResumoDto;
+import br.com.mili.milibackend.gfd.domain.entity.GfdTipoFornecedor;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -26,6 +27,7 @@ public class FornecedorRepositoryImpl implements IFornecedorCustomRepository {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<FornecedorResumoDto> cq = cb.createQuery(FornecedorResumoDto.class);
         Root<Fornecedor> root = cq.from(Fornecedor.class);
+        Join<GfdTipoFornecedor, Fornecedor> tipo = root.join("tipoFornecedor", JoinType.LEFT);
 
         // select só com os campos que interessam pro DTO
         cq.select(cb.construct(
@@ -37,7 +39,12 @@ public class FornecedorRepositoryImpl implements IFornecedorCustomRepository {
                 root.get("celular"),
                 root.get("contato"),
                 root.get("email"),
-                root.get("aceiteLgpd")
+                root.get("aceiteLgpd"),
+
+                cb.construct(FornecedorResumoDto.GfdTipoFornecedorDto.class,
+                        tipo.get("id"),
+                        tipo.get("descricao")
+                )
         ));
 
         // aplica a Specification (predicados)
