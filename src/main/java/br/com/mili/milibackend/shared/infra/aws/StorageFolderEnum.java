@@ -1,7 +1,8 @@
 package br.com.mili.milibackend.shared.infra.aws;
 
 public enum StorageFolderEnum {
-    GFD("/fornecedor/gfd");
+    GFD("v1/fornecedor/gfd"),
+    ODOMETRO("connect-trade/odometro");
 
 
     private final String value;
