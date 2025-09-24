@@ -23,6 +23,8 @@ public class UpdateOdometroUseCaseImpl implements UpdateOdometroUseCase {
         Odometro odometer = odometerRepository.findById(inputDto.getId())
                 .orElseThrow(() -> new NotFoundException(TRADE_MCD_ODOMETRO_NAO_ENCONTRADO.getMensagem(), TRADE_MCD_ODOMETRO_NAO_ENCONTRADO.getCode()));
 
+        odometer.setKmInicio(inputDto.getKmInicio());
+        odometer.setDataInicio(inputDto.getDataInicio());
         odometer.setKmFim(inputDto.getKmFim());
         odometer.setDataFim(inputDto.getDataFim());
 
