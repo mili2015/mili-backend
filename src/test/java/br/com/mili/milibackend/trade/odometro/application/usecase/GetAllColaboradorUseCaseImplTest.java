@@ -53,8 +53,7 @@ class GetAllColaboradorUseCaseImplTest {
 
         TradeColaboradorGetAllOutputDto mapped = new TradeColaboradorGetAllOutputDto();
         mapped.setId(10);
-        mapped.setNome("Joao");
-        mapped.setSobrenome("Silva");
+        mapped.setNomeCompleto("Joao Silva");
         when(modelMapper.map(eq(c1), eq(TradeColaboradorGetAllOutputDto.class))).thenReturn(mapped);
 
         // Act
