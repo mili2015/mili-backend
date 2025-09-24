@@ -13,8 +13,7 @@ public class TradeColaboradorGetAllOutputDto {
     private Integer idColaboradorSuperior;
     private Integer mcdaCodigo;
     private Integer ctusuCodigo;
-    private String nome;
-    private String sobrenome;
+    private String nomeCompleto;
     private String cpf;
     private String email;
     private String celular;

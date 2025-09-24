@@ -33,7 +33,11 @@ public class GetAllColaboradorUseCaseImpl implements GetAllColaboradorUseCase {
         var page = colaboradorRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
         var dto = page.getContent().stream()
-                .map(content -> modelMapper.map(content, TradeColaboradorGetAllOutputDto.class))
+                .map(content -> {
+                   var dtoContent = modelMapper.map(content, TradeColaboradorGetAllOutputDto.class);
+                   dtoContent.setNomeCompleto(content.getNome() + " " + content.getSobrenome());
+                   return dtoContent;
+                })
                 .toList();
 
         return new PageBaseImpl<>(dto, page.getPageable().getPageNumber() + 1, page.getSize(), page.getTotalElements()) {};
