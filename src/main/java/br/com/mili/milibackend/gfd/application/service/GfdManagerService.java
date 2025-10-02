@@ -99,7 +99,7 @@ public class GfdManagerService implements IGfdManagerService {
         var fornecedor = getFornecedorAndValidate(inputDto.getCodUsuario(), fornecedorId);
 
         var filtro = modelMapper.map(funcionarioInput, GfdFuncionarioGetAllInputDto.class);
-        filtro.setFornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(fornecedorId));
+        filtro.setFornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(fornecedor.getCodigo()));
 
         var pageFuncionario = getAllGfdFuncionarioUseCase.execute(filtro);
 
