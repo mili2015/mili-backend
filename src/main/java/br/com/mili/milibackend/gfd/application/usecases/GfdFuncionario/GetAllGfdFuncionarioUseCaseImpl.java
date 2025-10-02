@@ -7,6 +7,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.infra.projections.GfdFuncionarioStatusProjection;
 import br.com.mili.milibackend.gfd.infra.repository.GfdLocalTrabalhoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
+import br.com.mili.milibackend.shared.exception.types.BadRequestException;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FORNECEDOR_NULL;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,11 @@ public class GetAllGfdFuncionarioUseCaseImpl implements GetAllGfdFuncionarioUseC
 
         String nome = wrapLike(inputDto.getNome());
         String funcao = wrapLike(inputDto.getFuncao());
+
+        if(inputDto.getFornecedor() == null || inputDto.getFornecedor().getCodigo() == null)
+        {
+            throw new BadRequestException(GFD_FORNECEDOR_NULL.getMensagem(), GFD_FORNECEDOR_NULL.getCode());
+        }
 
         var gfdFuncionarioStatusProjection = gfdFuncionarioRepository.getAll(
                 inputDto.getId(),
