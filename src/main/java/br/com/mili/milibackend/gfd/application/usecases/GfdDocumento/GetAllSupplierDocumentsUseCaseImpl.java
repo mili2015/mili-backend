@@ -17,6 +17,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdDocumentoPeriodoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
+import br.com.mili.milibackend.shared.exception.types.ConflictException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import br.com.mili.milibackend.shared.util.CleanFileName;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_LEI_LGPD_NAO_ACEITA;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_TIPO_DOCUMENTO_NAO_ENCONTRADO;
 
 @Service
@@ -44,6 +46,10 @@ public class GetAllSupplierDocumentsUseCaseImpl implements GetAllSupplierDocumen
     @Override
     public GfdMDocumentosGetAllOutputDto execute(GfdMDocumentosGetAllInputDto inputDto) {
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId());
+
+       if(fornecedor.getAceiteLgpd() == null || fornecedor.getAceiteLgpd() == 0){
+            throw new ConflictException(GFD_LEI_LGPD_NAO_ACEITA.getMensagem(), GFD_LEI_LGPD_NAO_ACEITA.getCode());
+        }
 
         var tipoDocumento = recuperarTipoDocumento(inputDto);
 
