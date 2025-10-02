@@ -223,7 +223,7 @@ class GfdManagerServiceTest {
         // Fornecedor mapeado
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setCodigo(codFornecedor);
-
+        fornecedor.setAceiteLgpd(1);
 
         // Funcionário de entrada para o service de domínio
         GfdFuncionarioCreateInputDto funcionarioCreateInputDto = new GfdFuncionarioCreateInputDto();
@@ -302,6 +302,7 @@ class GfdManagerServiceTest {
         inputDto.setFuncionario(funcDto);
 
         var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setAceiteLgpd(1);
         fornecedorEntity.setCodigo(codFornecedor);
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
 
@@ -411,6 +412,7 @@ class GfdManagerServiceTest {
 
         var fornecedorEntity = new Fornecedor();
         fornecedorEntity.setCodigo(codFornecedor);
+        fornecedorEntity.setAceiteLgpd(1);
 
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
         when(validatePermissionFornecedorUseCase.execute(any(), any())).thenReturn(true);
@@ -455,6 +457,7 @@ class GfdManagerServiceTest {
         inputDto.setFuncionario(funcDto);
 
         var fornecedorEntity = new Fornecedor();
+        fornecedorEntity.setAceiteLgpd(1);
         fornecedorEntity.setCodigo(codFornecedor);
         when(getFornecedorByCodOrIdUseCase.execute(codUsuario, codFornecedor)).thenReturn(fornecedorEntity);
 
@@ -515,7 +518,7 @@ class GfdManagerServiceTest {
         Fornecedor fornecedor;
         fornecedor = new Fornecedor();
         fornecedor.setCodigo(fornecedorExistenteId);
-
+        fornecedor.setAceiteLgpd(1);
         fornecedor.setEmail(emailFornecedor);
 
         var input = new GfdMDocumentoUpdateInputDto();
@@ -636,7 +639,7 @@ class GfdManagerServiceTest {
 
         var fornecedor = new Fornecedor();
         fornecedor.setCodigo(idFornecedor);
-
+        fornecedor.setAceiteLgpd(1);
         fornecedor.setEmail(emailFornecedor);
 
         when(getFornecedorByCodOrIdUseCase.execute(idUsuarioLogado, idFornecedor)).thenReturn(fornecedor);
@@ -669,7 +672,7 @@ class GfdManagerServiceTest {
 
         var fornecedor = new Fornecedor();
         fornecedor.setCodigo(idFornecedor);
-
+        fornecedor.setAceiteLgpd(1);
         fornecedor.setEmail(emailFornecedor);
 
         var input = new GfdMDocumentoDeleteInputDto(idDocumento, idUsuarioLogado, idFornecedor);

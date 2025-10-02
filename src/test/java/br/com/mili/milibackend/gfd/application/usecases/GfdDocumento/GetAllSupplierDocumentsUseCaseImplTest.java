@@ -67,6 +67,7 @@ class GetAllSupplierDocumentsUseCaseImplTest {
     void setUp() {
         fornecedor = Fornecedor.builder()
                 .codigo(123)
+                .aceiteLgpd(1)
                 .tipoFornecedor(
                         GfdTipoFornecedor.builder()
                                 .categoriaDocumento(

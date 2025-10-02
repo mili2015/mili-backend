@@ -95,6 +95,7 @@ class UploadGfdDocumentoUseCaseImplTest {
 
         fornecedor = new Fornecedor();
         fornecedor.setCodigo(123);
+        fornecedor.setAceiteLgpd(1);
 
         tipoDocumento = new GfdTipoDocumento();
         tipoDocumento.setId(10);
