@@ -27,6 +27,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.CreateFunciona
 import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.UpdateGfdFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.email.GfdDocumentoEmailTemplate;
+import br.com.mili.milibackend.shared.exception.types.ConflictException;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FUNCIONARIO_SEM_PERMISSAO;
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_LEI_LGPD_NAO_ACEITA;
 
 @Service
 public class GfdManagerService implements IGfdManagerService {
@@ -94,11 +96,10 @@ public class GfdManagerService implements IGfdManagerService {
         Integer fornecedorId = funcionarioInput != null && funcionarioInput.getFornecedor() != null ? funcionarioInput.getFornecedor().getCodigo() : null;
 
         // Busca e valida fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), fornecedorId);
-        validatePermissionFornecedorUseCase.execute(inputDto.getCodUsuario(), fornecedor.getCodigo());
+        var fornecedor = getFornecedorAndValidate(inputDto.getCodUsuario(), fornecedorId);
 
         var filtro = modelMapper.map(funcionarioInput, GfdFuncionarioGetAllInputDto.class);
-        filtro.setFornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(fornecedor.getCodigo()));
+        filtro.setFornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(fornecedorId));
 
         var pageFuncionario = getAllGfdFuncionarioUseCase.execute(filtro);
 
@@ -116,8 +117,8 @@ public class GfdManagerService implements IGfdManagerService {
                 : null;
 
         var fornecedor = getFornecedorAndValidate(
-                inputFornecedorId,
-                inputDto.getCodUsuario()
+                inputDto.getCodUsuario(),
+                inputFornecedorId
         );
 
         var gfdFuncionarioCreateInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioCreateInputDto.class);
@@ -131,13 +132,18 @@ public class GfdManagerService implements IGfdManagerService {
     }
 
     private Fornecedor getFornecedorAndValidate(Integer codUsuario, Integer idFornecedor) {
-
         // busca o fornecedor
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(idFornecedor, codUsuario);
+        var fornecedor = getFornecedorByCodOrIdUseCase.execute(codUsuario, idFornecedor);
 
-        if (!validatePermissionFornecedorUseCase.execute(idFornecedor, fornecedor.getCodigo())) {
+        //todo: colocar no dto isAnalista pare evitar isso
+        if (!validatePermissionFornecedorUseCase.execute(codUsuario, idFornecedor)) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
         }
+
+        if (fornecedor.getAceiteLgpd() == null || fornecedor.getAceiteLgpd() == 0) {
+            throw new ConflictException(GFD_LEI_LGPD_NAO_ACEITA.getMensagem(), GFD_LEI_LGPD_NAO_ACEITA.getCode());
+        }
+
         return fornecedor;
     }
 
@@ -147,7 +153,7 @@ public class GfdManagerService implements IGfdManagerService {
                 ? inputDto.getFuncionario().getFornecedor().getCodigo()
                 : null;
 
-        var fornecedor = getFornecedorAndValidate(inputFornecedorId, inputDto.getCodUsuario());
+        var fornecedor = getFornecedorAndValidate(inputDto.getCodUsuario(), inputFornecedorId);
 
         var gfdFuncionarioUpdateInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioUpdateInputDto.class);
 
@@ -162,7 +168,9 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public GfdMFuncionarioGetOutputDto getFuncionario(GfdMFuncionarioGetInputDto inputDto) {
-        getFornecedorAndValidate(inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null, inputDto.getCodUsuario());
+        var codFornecedor = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
+
+        getFornecedorAndValidate(inputDto.getCodUsuario(), codFornecedor);
         ;
         var getAllInputDto = new GfdFuncionarioGetAllInputDto();
         getAllInputDto.setId(inputDto.getFuncionario().getId());
@@ -180,7 +188,10 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public void deleteFuncionario(GfdMFuncionarioDeleteInputDto inputDto) {
-        getFornecedorAndValidate(inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null, inputDto.getCodUsuario());;
+        var codFornecedor = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
+
+        getFornecedorAndValidate(inputDto.getCodUsuario(), codFornecedor);
+        ;
 
         var gfdFuncionarioDeleteInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioDeleteInputDto.class);
 
@@ -189,7 +200,9 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public GfdMDocumentoUpdateOutputDto updateDocumento(GfdMDocumentoUpdateInputDto inputDto) {
-        var fornecedor = getFornecedorAndValidate(inputDto.getFornecedor() != null ? inputDto.getFornecedor().getId() : null, inputDto.getCodUsuario());
+        var codFornecedor = inputDto.getFornecedor() != null ? inputDto.getFornecedor().getId() : null;
+
+        var fornecedor = getFornecedorAndValidate(inputDto.getCodUsuario(), codFornecedor);
 
         // atualiza o documento
         var dto = GfdDocumentoUpdateInputDto.builder()
@@ -227,7 +240,7 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public GfdMDocumentoDownloadOutputDto downloadDocumento(GfdMDocumentoDownloadInputDto inputDto) {
-        getFornecedorAndValidate(inputDto.getFornecedorId(), inputDto.getCodUsuario());
+        getFornecedorAndValidate(inputDto.getCodUsuario(), inputDto.getFornecedorId());
 
         var dto = modelMapper.map(inputDto, GfdDocumentoDownloadInputDto.class);
         var linkDto = gfdDocumentoService.download(dto);
@@ -237,7 +250,7 @@ public class GfdManagerService implements IGfdManagerService {
 
     @Override
     public void deleteDocumento(GfdMDocumentoDeleteInputDto inputDto) {
-        getFornecedorAndValidate(inputDto.getFornecedorId(), inputDto.getCodUsuario());
+        getFornecedorAndValidate(inputDto.getCodUsuario(), inputDto.getFornecedorId());
 
         var dto = modelMapper.map(inputDto, GfdDocumentoDeleteInputDto.class);
         deleteGfdDocumentoUseCase.execute(dto);

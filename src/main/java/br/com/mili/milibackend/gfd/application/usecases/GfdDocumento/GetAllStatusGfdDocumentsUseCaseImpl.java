@@ -13,6 +13,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdDocumentsStatusUseCa
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
+import br.com.mili.milibackend.shared.exception.types.ConflictException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_LEI_LGPD_NAO_ACEITA;
 
 @RequiredArgsConstructor
 @Service
@@ -38,6 +40,10 @@ public class GetAllStatusGfdDocumentsUseCaseImpl implements GetAllGfdDocumentsSt
         var documentos = new LinkedHashSet<GfdMVerificarDocumentosOutputDto.DocumentoDto>();
 
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId());
+
+       if(fornecedor.getAceiteLgpd() == null || fornecedor.getAceiteLgpd() == 0){
+            throw new ConflictException(GFD_LEI_LGPD_NAO_ACEITA.getMensagem(), GFD_LEI_LGPD_NAO_ACEITA.getCode());
+        }
 
         // adiciona no title o nome do fornecedor
         output.setTitle(fornecedor.getRazaoSocial());

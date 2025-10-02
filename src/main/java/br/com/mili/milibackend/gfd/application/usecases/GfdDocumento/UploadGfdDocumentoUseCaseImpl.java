@@ -18,6 +18,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.shared.enums.MimeTypeEnum;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
+import br.com.mili.milibackend.shared.exception.types.ConflictException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.infra.aws.IS3Service;
 import br.com.mili.milibackend.shared.infra.aws.StorageFolderEnum;
@@ -29,8 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
-import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_FORNECEDOR_NAO_ENCONTRADO;
-import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GFD_TIPO_DOCUMENTO_FUNCIONARIO_BAD_REQUEST;
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +52,10 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
         var base64FileName = gfdDocumentoDto.getBase64File().fileName();
 
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId());
+
+       if(fornecedor.getAceiteLgpd() == null || fornecedor.getAceiteLgpd() == 0){
+            throw new ConflictException(GFD_LEI_LGPD_NAO_ACEITA.getMensagem(), GFD_LEI_LGPD_NAO_ACEITA.getCode());
+        }
 
         var tipoDocumento = recuperarTipoDocumento(inputDto);
 
