@@ -170,10 +170,12 @@ public class GfdManagerService implements IGfdManagerService {
     public GfdMFuncionarioGetOutputDto getFuncionario(GfdMFuncionarioGetInputDto inputDto) {
         var codFornecedor = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
 
-        getFornecedorAndValidate(inputDto.getCodUsuario(), codFornecedor);
-        ;
-        var getAllInputDto = new GfdFuncionarioGetAllInputDto();
-        getAllInputDto.setId(inputDto.getFuncionario().getId());
+        var fornecedor = getFornecedorAndValidate(inputDto.getCodUsuario(), codFornecedor);
+
+        var getAllInputDto = GfdFuncionarioGetAllInputDto.builder()
+            .id(inputDto.getFuncionario().getId())
+            .fornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(fornecedor.getCodigo()))
+            .build();
 
         var funcionario = getAllGfdFuncionarioUseCase.execute(getAllInputDto).getContent();
 
@@ -191,7 +193,6 @@ public class GfdManagerService implements IGfdManagerService {
         var codFornecedor = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
 
         getFornecedorAndValidate(inputDto.getCodUsuario(), codFornecedor);
-        ;
 
         var gfdFuncionarioDeleteInputDto = modelMapper.map(inputDto.getFuncionario(), GfdFuncionarioDeleteInputDto.class);
 

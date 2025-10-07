@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@Builder
 public class GfdFuncionarioGetAllInputDto extends Filtro {
     private Integer id;
     private String nome;
@@ -25,6 +26,7 @@ public class GfdFuncionarioGetAllInputDto extends Filtro {
     @NoArgsConstructor
     @Getter
     @Setter
+    @Builder
     public static class FornecedorDto {
         private Integer codigo;
 
