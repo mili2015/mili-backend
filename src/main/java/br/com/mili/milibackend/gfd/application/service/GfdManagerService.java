@@ -135,7 +135,6 @@ public class GfdManagerService implements IGfdManagerService {
         // busca o fornecedor
         var fornecedor = getFornecedorByCodOrIdUseCase.execute(codUsuario, idFornecedor);
 
-        //todo: colocar no dto isAnalista pare evitar isso
         if (!validatePermissionFornecedorUseCase.execute(codUsuario, fornecedor.getCodigo())) {
             throw new ForbiddenException(GFD_FUNCIONARIO_SEM_PERMISSAO.getMensagem(), GFD_FUNCIONARIO_SEM_PERMISSAO.getCode());
         }

@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface GfdLocalTrabalhoRepository extends JpaRepository<GfdLocalTrabalho, GfdLocalTrabalhoPk> {
 
-    @Query("SELECT g FROM GfdLocalTrabalho g WHERE g.id.idFuncionario IN (:id)")
+    @Query("SELECT g FROM GfdLocalTrabalho g LEFT JOIN FETCH g.funcionario WHERE g.funcionario.id IN (:id)")
     List<GfdLocalTrabalho> findByInIdFuncionario(List<Integer> id);
 
     @Modifying

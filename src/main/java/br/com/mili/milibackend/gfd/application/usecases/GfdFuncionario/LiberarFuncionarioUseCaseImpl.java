@@ -30,7 +30,7 @@ public class LiberarFuncionarioUseCaseImpl implements LiberarFuncionarioUseCase 
                 GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO.getMensagem(),
                 GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO.getCode()));
 
-        // verifica se o funcionario tem algum algum documento pendente
+        // verifica se o funcionario tem algum documento pendente
         // caso afirmativo, é obrigado a enviar a justificativa
         var documents = gfdFuncionarioRepository.getAllDocuments(inputDto.getId());
 
