@@ -4,6 +4,8 @@ import br.com.mili.milibackend.shared.page.Filtro;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -21,6 +23,7 @@ public class GfdFuncionarioGetAllInputDto extends Filtro {
     private Integer ativo;
 
     private FornecedorDto fornecedor;
+    private List<Integer> locaisTrabalho = new ArrayList<>();
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -29,6 +32,13 @@ public class GfdFuncionarioGetAllInputDto extends Filtro {
     @Builder
     public static class FornecedorDto {
         private Integer codigo;
+    }
 
+    public List<Integer> getLocaisTrabalho () {
+        if(locaisTrabalho == null){
+            locaisTrabalho = new ArrayList<>();
+        }
+
+        return locaisTrabalho;
     }
 }

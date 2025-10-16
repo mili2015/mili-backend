@@ -62,6 +62,9 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                   AND C.ID_TIPO_DOCUMENTO = B.ID
                   AND C.ID_FUNCIONARIO = A.ID_FUNCIONARIO
             
+                 -- Locais de trabalho
+                 LEFT JOIN GFD_LOCAL_TRABALHO LT ON LT.ID_FUNCIONARIO = A.ID_FUNCIONARIO
+            
                  WHERE (:idFuncionario IS NULL OR A.ID_FUNCIONARIO = :idFuncionario)
                    AND (:nome IS NULL OR LOWER(A.NOME) LIKE LOWER(:nome))
                    AND A.ATIVO = :ativo
@@ -74,6 +77,9 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                       OR (:periodoInicio IS NOT NULL AND :periodoFim IS NULL AND A.PERIODO_INICIAL >= :periodoInicio)
                       OR (:periodoInicio IS NULL AND :periodoFim IS NOT NULL AND A.PERIODO_INICIAL <= :periodoFim)
                    )
+            
+                   -- Filtro Locais de trabalho
+                   AND (:idsLocalTrabalho IS NULL OR LT.CTEMP_CODIGO in (:idsLocalTrabalho))
             
                  GROUP BY
                      A.ATIVO,
@@ -104,9 +110,12 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             LocalDate periodoInicio,
             LocalDate periodoFim,
             Integer idFornecedor,
+            Integer ativo,
+            List<Integer> idsLocalTrabalho,
+
+            //paginação
             Integer offset,
-            Integer pageSize,
-            Integer ativo
+            Integer pageSize
     );
 
     @Query(value = """
@@ -122,10 +131,14 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             LocalDate periodoInicio,
             LocalDate periodoFim,
             Integer idFornecedor,
-            Integer ativo
+            Integer ativo,
+            List<Integer> idsLocalTrabalho
     );
 
 
+    /*
+    * Consulta para verificar se o usuário possui documento pendentes para enviar a justificativa
+    * */
     String QUERY_GFD_FUNCIONARIO_DOCUMENTOS = """
                  SELECT
                      SUM(CASE WHEN C.STATUS = 'ENVIADO'       THEN 1 ELSE 0 END) AS total_enviado,
@@ -155,6 +168,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                    ON C.CTFOR_CODIGO = A.CTFOR_CODIGO
                   AND C.ID_TIPO_DOCUMENTO = B.ID
                   AND C.ID_FUNCIONARIO = A.ID_FUNCIONARIO
+            
                  WHERE (:idFuncionario IS NULL OR A.ID_FUNCIONARIO = :idFuncionario)
                  ORDER BY A.ID_FUNCIONARIO
             """;

@@ -48,20 +48,24 @@ public class GetAllGfdFuncionarioUseCaseImpl implements GetAllGfdFuncionarioUseC
                 inputDto.getPeriodoInicio(),
                 inputDto.getPeriodoFim(),
                 inputDto.getFornecedor() != null ? inputDto.getFornecedor().getCodigo() : null,
+                inputDto.getAtivo() != null ? inputDto.getAtivo() : 1,
+                !inputDto.getLocaisTrabalho().isEmpty() ? inputDto.getLocaisTrabalho() : null,
+
+                //paginação
                 pageNumber * pageSize,
-                pageSize,
-                inputDto.getAtivo() != null ? inputDto.getAtivo() : 1
+                pageSize
         );
 
         var totalCount = gfdFuncionarioRepository.getAllCount(
                 inputDto.getId(),
-                inputDto.getNome(),
-                inputDto.getFuncao(),
+                nome,
+                funcao,
                 inputDto.getTipoContratacao(),
                 inputDto.getPeriodoInicio(),
                 inputDto.getPeriodoFim(),
                 inputDto.getFornecedor() != null ? inputDto.getFornecedor().getCodigo() : null,
-                inputDto.getAtivo() != null ? inputDto.getAtivo() : 1
+                inputDto.getAtivo() != null ? inputDto.getAtivo() : 1,
+                !inputDto.getLocaisTrabalho().isEmpty() ? inputDto.getLocaisTrabalho() : null
         );
 
         var locaisPorFuncionarioMap = buildLocaisPorFuncionarioMap(gfdFuncionarioStatusProjection);

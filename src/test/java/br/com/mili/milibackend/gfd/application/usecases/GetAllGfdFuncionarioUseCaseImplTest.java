@@ -16,15 +16,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class GetAllGfdFuncionarioUseCaseImplTest {
 
     @InjectMocks
@@ -51,6 +54,7 @@ class GetAllGfdFuncionarioUseCaseImplTest {
         inputDto.setFornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(99));
         inputDto.getPageable().setSize(5);
         inputDto.getPageable().setPage(2);
+        inputDto.setLocaisTrabalho(List.of(1));
 
         var proj1 = Mockito.mock(GfdFuncionarioStatusProjection.class);
         when(proj1.getCtforCodigo()).thenReturn(99);
@@ -60,28 +64,23 @@ class GetAllGfdFuncionarioUseCaseImplTest {
 
 
         when(repository.getAll(
-                eq(1), eq("%João%"), eq("%Dev%"),
-                any(), any(), any(),
-                eq(99), eq(5),
-                eq(5), eq(1)
-        )).thenReturn((List<GfdFuncionarioStatusProjection>) List.of(proj1, proj2));
+                1, "%João%", "%Dev%", null, null, null, 99, 1, List.of(1), 5, 5
+        )).thenReturn(List.of(proj1, proj2));
 
         when(repository.getAllCount(
-                eq(1), eq("João"), eq("Dev"),
-                any(), any(), any(),
-                eq(99), eq(1)
+                1, "%João%", "%Dev%", null, null, null, 99, 1, List.of(1)
         )).thenReturn(2);
 
         var dto1 = GfdFuncionarioGetAllOutputDto.builder()
                 .id(1)
-                .nome("Ana")
+                .nome("João Rodrigues")
                 .funcao("Dev")
                 .fornecedor(new GfdFuncionarioGetAllOutputDto.FornecedorDto(99))
                 .build();
 
         var dto2 = GfdFuncionarioGetAllOutputDto.builder()
                 .id(2)
-                .nome("Bruno")
+                .nome("João Fernnando")
                 .funcao("Dev")
                 .fornecedor(new GfdFuncionarioGetAllOutputDto.FornecedorDto(99))
                 .build();
@@ -97,19 +96,22 @@ class GetAllGfdFuncionarioUseCaseImplTest {
         assertEquals(2, page.getContent().size(), "Deve retornar 2 itens na página");
         assertEquals(2, page.getPage(), "Deve estar na página 2");
         assertEquals(5, page.getSize(), "O tamanho da página deve ser 5");
-        assertEquals("Ana", page.getContent().get(0).getNome());
+        assertEquals("João Rodrigues", page.getContent().get(0).getNome());
         assertEquals(99, page.getContent().get(0).getFornecedor().getCodigo());
     }
-
 
     @Test
     void deve_retornar_pagina_correta_com_locais_trabalho() {
         // Arrange
         var inputDto = new GfdFuncionarioGetAllInputDto();
-        inputDto.setPageable(inputDto.getPageable());
-        inputDto.getPageable().setPage(2);
-        inputDto.getPageable().setSize(5);
+        inputDto.setId(1);
+        inputDto.setNome("João");
+        inputDto.setFuncao("Dev");
+        inputDto.setAtivo(1);
         inputDto.setFornecedor(new GfdFuncionarioGetAllInputDto.FornecedorDto(99));
+        inputDto.getPageable().setSize(5);
+        inputDto.getPageable().setPage(2);
+        inputDto.setLocaisTrabalho(List.of(1));
 
         var proj1 = Mockito.mock(GfdFuncionarioStatusProjection.class);
         when(proj1.getId()).thenReturn(1);
@@ -119,10 +121,13 @@ class GetAllGfdFuncionarioUseCaseImplTest {
         when(proj2.getId()).thenReturn(2);
         when(proj2.getCtforCodigo()).thenReturn(99);
 
-        when(repository.getAll(any(), any(), any(), any(), any(), any(), any(), anyInt(), anyInt(), anyInt()))
-                .thenReturn(List.of(proj1, proj2));
-        when(repository.getAllCount(any(), any(), any(), any(), any(), any(), any(), anyInt()))
-                .thenReturn(2);
+        when(repository.getAll(
+                1, "%João%", "%Dev%", null, null, null, 99, 1, List.of(1), 5, 5
+        )).thenReturn(List.of(proj1, proj2));
+
+        when(repository.getAllCount(
+                1, "%João%", "%Dev%", null, null, null, 99, 1, List.of(1)
+        )).thenReturn(2);
 
         var local1 = new GfdLocalTrabalho();
         local1.setIdFuncionario(1);
@@ -140,8 +145,19 @@ class GetAllGfdFuncionarioUseCaseImplTest {
                         local2
                 ));
 
-        var dto1 = GfdFuncionarioGetAllOutputDto.builder().id(1).fornecedor(new GfdFuncionarioGetAllOutputDto.FornecedorDto(99)).build();
-        var dto2 = GfdFuncionarioGetAllOutputDto.builder().id(2).fornecedor(new GfdFuncionarioGetAllOutputDto.FornecedorDto(99)).build();
+        var dto1 = GfdFuncionarioGetAllOutputDto.builder()
+                .id(1)
+                .nome("João Rodrigues")
+                .funcao("Dev")
+                .fornecedor(new GfdFuncionarioGetAllOutputDto.FornecedorDto(99))
+                .build();
+
+        var dto2 = GfdFuncionarioGetAllOutputDto.builder()
+                .id(2)
+                .nome("João Fernnando")
+                .funcao("Dev")
+                .fornecedor(new GfdFuncionarioGetAllOutputDto.FornecedorDto(99))
+                .build();
 
         when(modelMapper.map(proj1, GfdFuncionarioGetAllOutputDto.class)).thenReturn(dto1);
         when(modelMapper.map(proj2, GfdFuncionarioGetAllOutputDto.class)).thenReturn(dto2);
