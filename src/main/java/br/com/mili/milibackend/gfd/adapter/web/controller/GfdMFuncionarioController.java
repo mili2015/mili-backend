@@ -40,8 +40,8 @@ public class GfdMFuncionarioController {
 
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
-                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
-                  "or hasAuthority('" + ROLE_SESMT + "')"
+            "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+            "or hasAuthority('" + ROLE_SESMT + "')"
     )
     @PostMapping("funcionarios")
     @Transactional
@@ -66,8 +66,8 @@ public class GfdMFuncionarioController {
 
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
-                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
-                  "or hasAuthority('" + ROLE_SESMT + "')"
+            "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+            "or hasAuthority('" + ROLE_SESMT + "')"
     )
     @PutMapping("funcionarios/{id}")
     @Transactional
@@ -92,9 +92,9 @@ public class GfdMFuncionarioController {
     }
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
-                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
-                  "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
-                  "or hasAuthority('" + ROLE_SESMT + "')"
+            "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+            "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+            "or hasAuthority('" + ROLE_SESMT + "')"
     )
     @GetMapping("funcionarios/{id}")
     @Operation(
@@ -135,6 +135,11 @@ public class GfdMFuncionarioController {
             inputDto.setCodUsuario(user.getIdUser());
         }
 
+        if(inputDto.getFuncionario() == null) {
+            inputDto.setFuncionario(new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto() );
+            inputDto.getFuncionario().setFornecedor(new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto.FornecedorDto());
+        }
+
         inputDto.getFuncionario().setId(id);
 
         gfdManagerService.deleteFuncionario(inputDto);
@@ -169,14 +174,14 @@ public class GfdMFuncionarioController {
 
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
-                  "or hasAuthority('" + ROLE_SESMT + "')"
+            "or hasAuthority('" + ROLE_SESMT + "')"
     )
     @PutMapping("funcionarios/{id}/observacao")
     @Transactional
     @Operation(
             summary = "Atualiza a observação de um funcionário",
             description = "Retorna o funcionário. Faz a liberação do funcionário, caso o usuario tenha " +
-                          "algum documento pendente a justificativa se torna obrigatório"
+                    "algum documento pendente a justificativa se torna obrigatório"
     )
     public ResponseEntity<GfdFuncionarioUpdateObservacaoOutputDto> updateObservacao(
             @AuthenticationPrincipal CustomUserPrincipal user,
@@ -190,14 +195,14 @@ public class GfdMFuncionarioController {
     }
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
-                  "or hasAuthority('" + ROLE_SESMT + "')"
+            "or hasAuthority('" + ROLE_SESMT + "')"
     )
     @PutMapping("funcionarios/{id}/liberar")
     @Transactional
     @Operation(
             summary = "Atualiza o status de liberação de um funcionário",
             description = "Retorna o funcionário. Faz a liberação do funcionário, caso o usuario tenha " +
-                          "algum documento pendente a justificativa se torna obrigatório"
+                    "algum documento pendente a justificativa se torna obrigatório"
     )
     public ResponseEntity<GfdFuncionarioLiberarOutputDto> liberar(
             @AuthenticationPrincipal CustomUserPrincipal user,
@@ -212,9 +217,9 @@ public class GfdMFuncionarioController {
     }
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
-                  "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
-                  "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
-                  "or hasAuthority('" + ROLE_SESMT + "')"
+            "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+            "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+            "or hasAuthority('" + ROLE_SESMT + "')"
     )
     @GetMapping("funcionarios")
     @Operation(
