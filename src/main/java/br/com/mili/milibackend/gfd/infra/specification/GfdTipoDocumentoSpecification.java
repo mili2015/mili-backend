@@ -47,4 +47,12 @@ public class GfdTipoDocumentoSpecification {
                     : cb.equal(root.get("classificacao"), classificao);
         };
     }
+
+    public static Specification<GfdTipoDocumento> filtroSetor(String setor) {
+        return (root, query, cb) -> {
+            if (setor == null) return null;
+
+            return cb.equal(root.get("setor"), setor);
+        };
+    }
 }

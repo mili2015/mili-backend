@@ -50,7 +50,12 @@ public class GetAllStatusGfdDocumentsUseCaseImpl implements GetAllGfdDocumentsSt
 
         /* Aqui pegamos todos os documentos recentes do fornecedor ou funcionario,
         de cada tipo, para podermos exibir os status na tela*/
-        var latestDocuments = gfdDocumentoRepository.findLatestDocumentsByPeriodoAndFornecedorOrFuncionario(fornecedor.getCodigo(), inputDto.getIdFuncionario(), inputDto.getPeriodo());
+        var latestDocuments = gfdDocumentoRepository.findLatestDocumentsByPeriodoAndFornecedorOrFuncionario(
+                fornecedor.getCodigo(),
+                inputDto.getIdFuncionario(),
+                inputDto.getPeriodo(),
+                inputDto.getSetor()
+        );
 
         /* busca o tipo do documento enviado */
         var tipoDocumentoInputDto = new GfdTipoDocumentoGetAllInputDto();
@@ -61,8 +66,10 @@ public class GetAllStatusGfdDocumentsUseCaseImpl implements GetAllGfdDocumentsSt
         /**/
 
         adicionarFiltroFuncionario(inputDto, output, fornecedor, gfdCategoriaDocumentoDto, tipoDocumentoInputDto);
+        tipoDocumentoInputDto.setSetor( inputDto.getSetor());
 
         var tipoDocumentos = getAllTipoDocumentoUseCase.execute(tipoDocumentoInputDto);
+
 
         addNonMandatoryDocuments(documentos, latestDocuments, tipoDocumentos);
         addMandatoryDocuments(documentos, latestDocuments, tipoDocumentos);
@@ -72,7 +79,13 @@ public class GetAllStatusGfdDocumentsUseCaseImpl implements GetAllGfdDocumentsSt
         return output;
     }
 
-    private void adicionarFiltroFuncionario(GfdMVerificarDocumentosInputDto inputDto, GfdMVerificarDocumentosOutputDto output, Fornecedor fornecedor, GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto gfdCategoriaDocumentoDto, GfdTipoDocumentoGetAllInputDto tipoDocumentoInputDto) {
+    private void adicionarFiltroFuncionario(
+            GfdMVerificarDocumentosInputDto inputDto,
+            GfdMVerificarDocumentosOutputDto output,
+            Fornecedor fornecedor,
+            GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto gfdCategoriaDocumentoDto,
+            GfdTipoDocumentoGetAllInputDto tipoDocumentoInputDto
+    ) {
         if (inputDto.getIdFuncionario() != null) {
 
             // pega as informacoes de funcionario

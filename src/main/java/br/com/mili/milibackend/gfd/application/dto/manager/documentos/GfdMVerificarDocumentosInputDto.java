@@ -16,5 +16,7 @@ public class GfdMVerificarDocumentosInputDto {
     private Integer idFuncionario;
     private Integer id;
 
+    private String setor;
+
     private LocalDate periodo;
 }

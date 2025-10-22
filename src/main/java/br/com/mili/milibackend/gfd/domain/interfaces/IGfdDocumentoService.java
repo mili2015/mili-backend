@@ -7,6 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface IGfdDocumentoService {
-    List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId, Integer idFuncionario, LocalDate periodo);
+    List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId, Integer idFuncionario, LocalDate periodo, String setor);
     GfdDocumentoDownloadOutputDto download(GfdDocumentoDownloadInputDto inputDto);
 }

@@ -35,8 +35,8 @@ public class GfdDocumentoService implements IGfdDocumentoService {
     private final S3ServiceImpl s3Service;
 
     @Override
-    public List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId, Integer idFuncionario, LocalDate periodo) {
-        var listGfdDocumento = gfdDocumentoRepository.findLatestDocumentsByPeriodoAndFornecedorOrFuncionario(fornecedorId, idFuncionario, periodo);
+    public List<FindLatestDocumentsGroupedByTipoAndFornecedorIdOutputDto> findLatestDocumentsGroupedByTipoAndFornecedorId(Integer fornecedorId, Integer idFuncionario, LocalDate periodo, String setor) {
+        var listGfdDocumento = gfdDocumentoRepository.findLatestDocumentsByPeriodoAndFornecedorOrFuncionario(fornecedorId, idFuncionario, periodo, setor);
 
         return listGfdDocumento.stream()
                 .map(gfdDocumento ->
