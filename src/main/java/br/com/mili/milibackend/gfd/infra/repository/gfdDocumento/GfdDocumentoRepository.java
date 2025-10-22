@@ -16,7 +16,7 @@ public interface GfdDocumentoRepository extends JpaRepository<GfdDocumento, Inte
     @Query("""
                 SELECT d
                 FROM GfdDocumento d
-                     LEFT JOIN FETCH d.gfdTipoDocumento
+                     LEFT JOIN FETCH d.gfdTipoDocumento gtd
                      LEFT JOIN FETCH d.gfdDocumentoPeriodo gdp
                 WHERE d.id IN (
                     SELECT MAX(d2.id)
@@ -27,10 +27,12 @@ public interface GfdDocumentoRepository extends JpaRepository<GfdDocumento, Inte
                           AND (:periodo IS NULL OR :periodo BETWEEN gdp2.periodoInicial AND gdp2.periodoFinal)
                     GROUP BY d2.gfdTipoDocumento.id
                 )
+               AND  (:setor IS NULL OR gtd.setor = :setor)
             """)
     List<GfdDocumento> findLatestDocumentsByPeriodoAndFornecedorOrFuncionario(
             @Param("codFornecedor") Integer codFornecedor,
             @Param("idFuncionario") Integer idFuncionario,
-            @Param("periodo") LocalDate periodo);
+            @Param("periodo") LocalDate periodo,
+            @Param("setor") String setor);
 
 }

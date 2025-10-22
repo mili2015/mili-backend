@@ -11,6 +11,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.GetAllSupplierDocumentsUseCas
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateStatusObservacaoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,19 +50,13 @@ public class GfdMDocumentoController {
     @GetMapping("verificar-docs")
     public ResponseEntity<GfdMVerificarDocumentosOutputDto> verificarDocumentos(
             @AuthenticationPrincipal CustomUserPrincipal user,
-            @RequestParam(value = "id", required = false) Integer fornecedorId,
-            @RequestParam(value = "idFuncionario", required = false) Integer idFuncionario,
-            @RequestParam(value = "periodo", required = false) LocalDate periodo
+            @ParameterObject @ModelAttribute GfdMVerificarDocumentosInputDto inputDto
     ) {
         log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
-        var inputDto = new GfdMVerificarDocumentosInputDto();
         inputDto.setCodUsuario(user.getIdUser());
-        inputDto.setIdFuncionario(idFuncionario);
-        inputDto.setPeriodo(periodo);
 
         if (!gfdPolicy.isFornecedor(user)) {
-            inputDto.setId(fornecedorId);
             inputDto.setCodUsuario(null);
         } else {
             inputDto.setId(null);

@@ -25,6 +25,8 @@ public class GfdTipoDocumentoGetAllInputDto {
 
     private String classificacao;
 
+    private String setor;
+
     @Getter
     @Setter
     @NoArgsConstructor
