@@ -23,6 +23,8 @@ public class GfdTipoDocumentoGetAllOutputDto {
 
     private String classificacao;
 
+    private String setor;
+
     private GfdCategoriaDocumentoDto categoriaDocumento;
 
 

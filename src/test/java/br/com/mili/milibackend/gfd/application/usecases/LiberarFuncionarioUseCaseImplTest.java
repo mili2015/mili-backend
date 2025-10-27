@@ -1,8 +1,8 @@
 package br.com.mili.milibackend.gfd.application.usecases;
 
 import br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException;
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarInputDto;
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarInputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarOutputDto;
 import br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario.LiberarFuncionarioUseCaseImpl;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioLiberacao;
@@ -124,7 +124,7 @@ class LiberarFuncionarioUseCaseImplTest {
         assertEquals(funcionario, liberacaoSalva.getFuncionario());
         assertEquals(input.getLiberado(), liberacaoSalva.getStatusLiberado());
         assertEquals(input.getJustificativa(), liberacaoSalva.getJustificativa());
-        assertEquals(input.getUsuario(), liberacaoSalva.getUsuario());
+        assertEquals(input.getUsuario(), liberacaoSalva.getUsuarioCodigo());
     }
 
     @Test

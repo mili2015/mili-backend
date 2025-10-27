@@ -25,6 +25,9 @@ public class GfdTipoDocumentoCreateInputDto {
     @NotBlank
     private String classificacao;
 
+    @NotBlank
+    private String setor;
+
     @NotNull
     @Valid
     private GfdCategoriaDocumentoDto categoriaDocumento;

@@ -1,7 +1,7 @@
 package br.com.mili.milibackend.gfd.domain.usecases;
 
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarInputDto;
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarInputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarOutputDto;
 
 public interface LiberarFuncionarioUseCase {
     GfdFuncionarioLiberarOutputDto execute(GfdFuncionarioLiberarInputDto inputDto);

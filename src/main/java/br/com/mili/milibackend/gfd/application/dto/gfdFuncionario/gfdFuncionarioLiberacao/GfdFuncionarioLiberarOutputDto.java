@@ -1,4 +1,4 @@
-package br.com.mili.milibackend.gfd.application.dto.gfdFuncionario;
+package br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao;
 
 import lombok.*;
 

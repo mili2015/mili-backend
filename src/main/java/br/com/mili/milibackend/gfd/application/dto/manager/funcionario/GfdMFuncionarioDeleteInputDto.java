@@ -12,6 +12,8 @@ public class GfdMFuncionarioDeleteInputDto {
     private Integer codUsuario;
     private GfdFuncionarioDto funcionario;
 
+
+
     @Getter
     @AllArgsConstructor
     @Setter
