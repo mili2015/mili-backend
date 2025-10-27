@@ -24,6 +24,19 @@ public class GetAllTipoDocumentoUseCaseImpl implements GetAllTipoDocumentoUseCas
     public List<GfdTipoDocumentoGetAllOutputDto> execute(GfdTipoDocumentoGetAllInputDto inputDto) {
         Specification<GfdTipoDocumento> spec = Specification.where(null);
 
+        spec = filtros(inputDto, spec);
+
+        //filtra apenas os ativos
+        spec = spec.and(GfdTipoDocumentoSpecification.filtroAtivo(true));
+
+        var listTipoDocumento = gfdTipoDocumentoRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "id"));
+
+        return listTipoDocumento.stream().map(tipoDocumento ->
+                        modelMapper.map(tipoDocumento, GfdTipoDocumentoGetAllOutputDto.class))
+                .toList();
+    }
+
+    private  Specification<GfdTipoDocumento> filtros(GfdTipoDocumentoGetAllInputDto inputDto, Specification<GfdTipoDocumento> spec) {
         //filtra por nome
         if (inputDto.getNome() != null) {
             spec = spec.and(GfdTipoDocumentoSpecification.filtroNome(inputDto.getNome()));
@@ -45,14 +58,12 @@ public class GetAllTipoDocumentoUseCaseImpl implements GetAllTipoDocumentoUseCas
             spec = spec.and(GfdTipoDocumentoSpecification.filtroClassificacao(inputDto.getClassificacao()));
         }
 
-        //filtra apenas os ativos
-        spec = spec.and(GfdTipoDocumentoSpecification.filtroAtivo(true));
+        // setor
+        if(inputDto.getSetor() != null) {
+            spec = spec.and(GfdTipoDocumentoSpecification.filtroSetor(inputDto.getSetor()));
+        }
 
-        var listTipoDocumento = gfdTipoDocumentoRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "id"));
-
-        return listTipoDocumento.stream().map(tipoDocumento ->
-                        modelMapper.map(tipoDocumento, GfdTipoDocumentoGetAllOutputDto.class))
-                .toList();
+        return spec;
     }
 
     private static Specification<GfdTipoDocumento> filtroGfdTipoDocumento(GfdTipoDocumentoGetAllInputDto.GfdCategoriaDocumentoDto categoriaDocumento, Specification<GfdTipoDocumento> spec) {
