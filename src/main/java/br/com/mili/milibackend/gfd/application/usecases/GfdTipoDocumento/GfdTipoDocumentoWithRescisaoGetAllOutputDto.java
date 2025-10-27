@@ -33,6 +33,8 @@ public class GfdTipoDocumentoWithRescisaoGetAllOutputDto {
 
         private Boolean ativo;
 
+        private String setor;
+
         private String classificacao;
 
         private GfdTipoDocumentoGetAllOutputDto.GfdCategoriaDocumentoDto categoriaDocumento;
