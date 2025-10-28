@@ -6,8 +6,6 @@ import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioLiberacao;
 import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioLiberacaoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioLiberacaoRepository;
 import br.com.mili.milibackend.gfd.infra.specification.GfdFuncionarioLiberacaoSpecification;
-import br.com.mili.milibackend.shared.page.pagination.MyPage;
-import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
@@ -32,9 +30,11 @@ public class GetAllGfdFuncionarioLiberacaoUseCaseImpl implements GetAllGfdFuncio
                 .and(GfdFuncionarioLiberacaoSpecification.filtroStatusLiberado(inputDto.getStatusLiberado()))
                 .and(GfdFuncionarioLiberacaoSpecification.filtroPeriodo(inputDto.getPeriodoInicio(), inputDto.getPeriodoFim()));
 
-        var result = repository.findAll(spec, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "id"));
 
-        return result.stream()
+        var resultPage = repository.findAll(spec, pageRequest);
+
+        return resultPage.getContent().stream()
                 .map(this::toDto)
                 .toList();
     }
