@@ -1,10 +1,9 @@
 package br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario;
 
 import br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException;
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarInputDto;
-import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioLiberarOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarInputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioLiberacao;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.LiberarFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioLiberacaoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
@@ -57,7 +56,7 @@ public class LiberarFuncionarioUseCaseImpl implements LiberarFuncionarioUseCase 
                 .data(LocalDateTime.now())
                 .statusLiberado(inputDto.getLiberado())
                 .justificativa(inputDto.getJustificativa())
-                .usuario(inputDto.getUsuario())
+                .usuarioCodigo(inputDto.getUsuario())
                 .build();
 
         gfdFuncionarioLiberacaoRepository.save(gfdFuncionarioLiberacao);

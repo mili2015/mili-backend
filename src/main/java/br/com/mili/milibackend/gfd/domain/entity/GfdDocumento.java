@@ -37,10 +37,6 @@ public class GfdDocumento {
     @Column(name = "TAMANHO_ARQUIVO")
     private Integer tamanhoArquivo;
 
-    @Lob
-    @Column(name = "ARQUIVO")
-    private byte[] arquivo;
-
     @Column(name = "DATA_CADASTRO")
     private LocalDate dataCadastro;
 

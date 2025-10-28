@@ -21,6 +21,8 @@ public class GfdTipoDocumentoUpdateOutputDto {
 
     private Boolean ativo;
 
+    private String setor;
+
     private String classificacao;
 
     private GfdCategoriaDocumentoDto categoriaDocumento;

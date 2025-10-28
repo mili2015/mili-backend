@@ -1,5 +1,6 @@
 package br.com.mili.milibackend.gfd.domain.entity;
 
+import br.com.mili.milibackend.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,7 +24,7 @@ public class GfdFuncionarioLiberacao {
     private GfdFuncionario funcionario;
 
     @Column(name = "CTUSU_CODIGO")
-    private Integer usuario;
+    private Integer usuarioCodigo;
 
     @Column(name = "DATA")
     private LocalDateTime data;
@@ -33,4 +34,8 @@ public class GfdFuncionarioLiberacao {
 
     @Column(name = "JUSTIFICATIVA")
     private String justificativa;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CTUSU_CODIGO", insertable = false, updatable = false)
+    private User usuario;
 }

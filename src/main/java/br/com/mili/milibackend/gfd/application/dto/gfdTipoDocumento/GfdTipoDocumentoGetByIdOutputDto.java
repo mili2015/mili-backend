@@ -23,6 +23,8 @@ public class GfdTipoDocumentoGetByIdOutputDto {
 
     private String classificacao;
 
+    private String setor;
+
     private GfdCategoriaDocumentoDto categoriaDocumento;
 
     @NoArgsConstructor

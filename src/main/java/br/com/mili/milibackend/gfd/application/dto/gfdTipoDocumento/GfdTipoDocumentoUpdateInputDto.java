@@ -23,6 +23,8 @@ public class GfdTipoDocumentoUpdateInputDto {
 
     private String classificacao;
 
+    private String setor;
+
     @NotNull
     @Valid
     private GfdCategoriaDocumentoDto categoriaDocumento;

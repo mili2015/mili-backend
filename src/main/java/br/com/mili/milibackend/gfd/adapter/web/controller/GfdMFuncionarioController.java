@@ -2,13 +2,19 @@ package br.com.mili.milibackend.gfd.adapter.web.controller;
 
 
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.*;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberacaoGetAllInputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberacaoGetAllOutputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarInputDto;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
+import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioLiberacaoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.LiberarFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.UpdateObservacaoFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.DesactivateFuncionarioUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
+import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
@@ -20,6 +26,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.*;
 
@@ -37,6 +45,7 @@ public class GfdMFuncionarioController {
     private final UpdateObservacaoFuncionarioUseCase updateObservacaoFuncionarioUseCase;
     private final IGfdPolicy gfdPolicy;
     private final DesactivateFuncionarioUseCase desactivateFuncionarioUseCase;
+    private final GetAllGfdFuncionarioLiberacaoUseCase getAllGfdFuncionarioLiberacaoUseCase;
 
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
@@ -237,5 +246,23 @@ public class GfdMFuncionarioController {
         }
 
         return ResponseEntity.ok(gfdManagerService.getAllFuncionarios(inputDto));
+    }
+
+
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "')")
+    @GetMapping("funcionarios/{id}/liberacoes")
+    @Operation(
+            summary = "Retorna o histótico de liberações do funcionário",
+            description = "Retornar o historico de liberações do funcionário, sendo so acessivel por analistas"
+    )
+    public ResponseEntity<List<GfdFuncionarioLiberacaoGetAllOutputDto>> getAllLiberacoesFuncionario(
+            @AuthenticationPrincipal CustomUserPrincipal user,
+            @PathVariable Integer id,
+            @ParameterObject @ModelAttribute @Valid GfdFuncionarioLiberacaoGetAllInputDto inputDto
+    ) {
+        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+
+        inputDto.setFuncionarioId(id);
+        return ResponseEntity.ok(getAllGfdFuncionarioLiberacaoUseCase.execute(inputDto));
     }
 }
