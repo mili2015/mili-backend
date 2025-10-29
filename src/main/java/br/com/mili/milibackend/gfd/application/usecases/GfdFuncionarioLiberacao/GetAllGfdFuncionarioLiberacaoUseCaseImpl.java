@@ -3,7 +3,7 @@ package br.com.mili.milibackend.gfd.application.usecases.GfdFuncionarioLiberacao
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberacaoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberacaoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioLiberacao;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioLiberacaoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.GetAllGfdFuncionarioLiberacaoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioLiberacaoRepository;
 import br.com.mili.milibackend.gfd.infra.specification.GfdFuncionarioLiberacaoSpecification;
 import lombok.RequiredArgsConstructor;

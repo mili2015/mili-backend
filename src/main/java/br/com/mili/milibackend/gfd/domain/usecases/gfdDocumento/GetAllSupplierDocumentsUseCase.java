@@ -1,4 +1,4 @@
-package br.com.mili.milibackend.gfd.domain.usecases;
+package br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento;
 
 import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMDocumentosGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMDocumentosGetAllOutputDto;

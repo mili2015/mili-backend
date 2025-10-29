@@ -19,6 +19,8 @@ public class GfdMUploadDocumentoInputDto {
     private Integer codUsuario;
     private Integer id;
 
+    private boolean isAnalista = false;
+
     @Valid
     private GfdDocumentoDto gfdDocumento;
     private GfdTipoDocumentoDto gfdTipoDocumento;

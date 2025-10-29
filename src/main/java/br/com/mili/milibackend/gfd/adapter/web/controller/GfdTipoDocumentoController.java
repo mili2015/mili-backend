@@ -5,7 +5,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.*;
 import br.com.mili.milibackend.gfd.application.usecases.GfdTipoDocumento.GfdTipoDocumentoWithRescisaoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.usecases.GfdTipoDocumento.GfdTipoDocumentoWithRescisaoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdTipoDocumentoService;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.GfdTipoDocumento.GetAllTipoDocumentoWithRescisaoUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import jakarta.validation.Valid;

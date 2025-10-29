@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class GfdMFuncionarioGetInputDto {
     private Integer codUsuario;
     private GfdFuncionarioDto funcionario;
+    private boolean isAnalista;
 
     @Getter
     @AllArgsConstructor

@@ -22,7 +22,7 @@ public class DesactivateFuncionarioUseCaseImpl implements DesactivateFuncionario
     public void execute(GfdFuncionarioDesactivateInputDto inputDto) {
         var codFornecedor = inputDto.getFuncionario() != null && inputDto.getFuncionario().getFornecedor() != null ? inputDto.getFuncionario().getFornecedor().getCodigo() : null;
 
-        getFornecedorAndValidate.execute(inputDto.getCodUsuario(), codFornecedor);
+        getFornecedorAndValidate.execute(inputDto.getCodUsuario(), codFornecedor, inputDto.isAnalista());
 
         var id = inputDto.getFuncionario().getId();
 

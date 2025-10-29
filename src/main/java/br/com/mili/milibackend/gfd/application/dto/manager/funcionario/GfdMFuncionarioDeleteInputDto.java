@@ -11,6 +11,7 @@ import lombok.*;
 public class GfdMFuncionarioDeleteInputDto {
     private Integer codUsuario;
     private GfdFuncionarioDto funcionario;
+    private boolean isAnalista;
 
 
 
