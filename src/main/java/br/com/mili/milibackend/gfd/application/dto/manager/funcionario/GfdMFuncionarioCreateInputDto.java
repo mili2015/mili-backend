@@ -18,6 +18,7 @@ public class GfdMFuncionarioCreateInputDto {
     private Integer codUsuario;
     @Valid
     private GfdFuncionarioDto funcionario;
+    private boolean isAnalista;
 
     @Valid
     private GfdDocumentoPeriodoDto gfdDocumentoPeriodo;

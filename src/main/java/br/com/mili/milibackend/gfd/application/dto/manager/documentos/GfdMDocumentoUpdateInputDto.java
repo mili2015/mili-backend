@@ -18,6 +18,8 @@ public class GfdMDocumentoUpdateInputDto {
     private Integer codUsuario;
     private GfdDocumentoPeriodoDto gfdDocumentoPeriodo;
 
+    private boolean isAnalista = false;
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter

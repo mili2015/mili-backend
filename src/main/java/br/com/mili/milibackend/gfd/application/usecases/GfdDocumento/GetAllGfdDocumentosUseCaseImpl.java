@@ -4,7 +4,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoGetA
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdDocumentosUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllGfdDocumentosUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import br.com.mili.milibackend.gfd.infra.specification.GfdDocumentoSpecification;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;

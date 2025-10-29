@@ -13,4 +13,5 @@ public class GfdMDocumentoDeleteInputDto {
     private Integer id;
     private Integer codUsuario;
     private Integer fornecedorId;
+    private boolean isAnalista;
 }

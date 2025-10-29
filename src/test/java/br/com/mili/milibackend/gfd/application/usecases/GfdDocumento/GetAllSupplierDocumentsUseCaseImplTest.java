@@ -9,11 +9,10 @@ import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoGetA
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.*;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdDocumentosUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllGfdDocumentosUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdDocumentoPeriodoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
-import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,6 +84,7 @@ class GetAllSupplierDocumentsUseCaseImplTest {
         inputDto = new GfdMDocumentosGetAllInputDto();
         inputDto.setCodUsuario(123);
         inputDto.setTipoDocumentoId(1);
+        inputDto.setAnalista(true);
 
         mappedInputDto = new GfdDocumentoGetAllInputDto();
         mappedInputDto.setCtforCodigo(123);
@@ -131,7 +131,7 @@ class GetAllSupplierDocumentsUseCaseImplTest {
 
         inputDto.setTipoDocumentoId(tiposDocumento.get(1).getId());
 
-        when(getFornecedorByCodOrIdUseCase.execute(eq(inputDto.getCodUsuario()), eq(inputDto.getId()))).thenReturn(fornecedor);
+        when(getFornecedorByCodOrIdUseCase.execute(eq(inputDto.getCodUsuario()), eq(inputDto.getId()), eq(inputDto.isAnalista()))).thenReturn(fornecedor);
         when(gfdTipoDocumentoRepository.findById(eq(inputDto.getTipoDocumentoId()))).thenReturn(Optional.of(tipoDocumento));
         when(modelMapper.map(eq(inputDto), eq(GfdDocumentoGetAllInputDto.class))).thenReturn(mappedInputDto);
         when(getAllGfdDocumentosUseCase.execute(any(GfdDocumentoGetAllInputDto.class))).thenReturn(pageGfdDocumentos);
@@ -157,7 +157,7 @@ class GetAllSupplierDocumentsUseCaseImplTest {
 
     @Test
     void test_deve_retornar_lista_de_documentos_quando_funcionario_estiver_vazio_e_classificao_for_geral() {
-        when(getFornecedorByCodOrIdUseCase.execute(eq(inputDto.getCodUsuario()), eq(inputDto.getId()))).thenReturn(fornecedor);
+        when(getFornecedorByCodOrIdUseCase.execute(eq(inputDto.getCodUsuario()), eq(inputDto.getId()), eq(inputDto.isAnalista()))).thenReturn(fornecedor);
         when(gfdTipoDocumentoRepository.findById(eq(inputDto.getTipoDocumentoId()))).thenReturn(Optional.of(tipoDocumento));
         when(modelMapper.map(eq(inputDto), eq(GfdDocumentoGetAllInputDto.class))).thenReturn(mappedInputDto);
         when(getAllGfdDocumentosUseCase.execute(any(GfdDocumentoGetAllInputDto.class))).thenReturn(pageGfdDocumentos);
@@ -186,7 +186,7 @@ class GetAllSupplierDocumentsUseCaseImplTest {
     void teste_deve_retornar_periodo_na_dto_quando_classificacao_for_competencia() {
         tipoDocumento.setClassificacao(GfdTipoDocumentoTipoClassificacaoEnum.COMPETENCIA.name());
 
-        when(getFornecedorByCodOrIdUseCase.execute(eq(inputDto.getCodUsuario()), eq(inputDto.getId()))).thenReturn(fornecedor);
+        when(getFornecedorByCodOrIdUseCase.execute(eq(inputDto.getCodUsuario()), eq(inputDto.getId()), eq(inputDto.isAnalista()))).thenReturn(fornecedor);
         when(gfdTipoDocumentoRepository.findById(eq(inputDto.getTipoDocumentoId()))).thenReturn(Optional.of(tipoDocumento));
         when(modelMapper.map(eq(inputDto), eq(GfdDocumentoGetAllInputDto.class))).thenReturn(mappedInputDto);
         when(getAllGfdDocumentosUseCase.execute(any(GfdDocumentoGetAllInputDto.class))).thenReturn(pageGfdDocumentos);
@@ -221,7 +221,7 @@ class GetAllSupplierDocumentsUseCaseImplTest {
     void teste_deve_retornar_lista_de_documentos_vazia_quando_nao_houver_documentos() {
         MyPage<GfdDocumentoGetAllOutputDto> emptyPage = new PageBaseImpl<>(new ArrayList<>(), 1, 10, 0L);
 
-        when(getFornecedorByCodOrIdUseCase.execute(eq(inputDto.getCodUsuario()), eq(inputDto.getId()))).thenReturn(fornecedor);
+        when(getFornecedorByCodOrIdUseCase.execute(eq(inputDto.getCodUsuario()), eq(inputDto.getId()), eq(inputDto.isAnalista()))).thenReturn(fornecedor);
         when(gfdTipoDocumentoRepository.findById(eq(inputDto.getTipoDocumentoId()))).thenReturn(Optional.of(tipoDocumento));
         when(modelMapper.map(eq(inputDto), eq(GfdDocumentoGetAllInputDto.class))).thenReturn(mappedInputDto);
         when(getAllGfdDocumentosUseCase.execute(any(GfdDocumentoGetAllInputDto.class))).thenReturn(emptyPage);

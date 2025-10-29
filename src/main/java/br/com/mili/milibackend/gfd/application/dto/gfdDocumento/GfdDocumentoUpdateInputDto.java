@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class GfdDocumentoUpdateInputDto {
     private GfdDocumentoPeriodoDto gfdDocumentoPeriodo;
+    private Integer codUsuario;
 
     @NotNull
     @Valid
@@ -22,8 +23,10 @@ public class GfdDocumentoUpdateInputDto {
         return new Builder();
     }
 
+    @NoArgsConstructor
     public static class Builder {
         private LocalDate periodo;
+        private Integer codUsuario;
         private Integer idDocumento;
         private LocalDate dataEmissao;
         private LocalDate dataValidade;
@@ -32,6 +35,11 @@ public class GfdDocumentoUpdateInputDto {
 
         public Builder periodo(LocalDate periodo) {
             this.periodo = periodo;
+            return this;
+        }
+
+        public Builder codUsuario(Integer codUsuario) {
+            this.codUsuario = codUsuario;
             return this;
         }
 
@@ -51,6 +59,7 @@ public class GfdDocumentoUpdateInputDto {
         public GfdDocumentoUpdateInputDto build() {
             return new GfdDocumentoUpdateInputDto(
                     new GfdDocumentoPeriodoDto(periodo),
+                    codUsuario,
                     new GfdDocumentoDto(idDocumento, dataEmissao, dataValidade, status, observacao)
             );
         }

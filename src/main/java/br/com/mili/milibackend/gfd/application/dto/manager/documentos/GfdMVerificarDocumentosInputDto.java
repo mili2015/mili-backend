@@ -15,6 +15,7 @@ public class GfdMVerificarDocumentosInputDto {
     private Integer codUsuario;
     private Integer idFuncionario;
     private Integer id;
+    private boolean isAnalista = false;
 
     private String setor;
 

@@ -12,8 +12,8 @@ import br.com.mili.milibackend.gfd.application.usecases.GfdDocumento.UploadGfdDo
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.FileProcessingService;
-import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoPeriodoUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.CreateDocumentoPeriodoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.CreateDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
@@ -92,7 +92,7 @@ class UploadGfdDocumentoUseCaseImplTest {
 
         var funcionarioDto = new GfdMUploadDocumentoInputDto.GfdFuncionarioDto(100);
         inputDto.setFuncionario(funcionarioDto);
-
+        inputDto.setAnalista(true);
         fornecedor = new Fornecedor();
         fornecedor.setCodigo(123);
         fornecedor.setAceiteLgpd(1);
@@ -109,7 +109,7 @@ class UploadGfdDocumentoUseCaseImplTest {
         inputDto.setId(1);
         tipoDocumento.setTipo(GfdTipoDocumentoTipoEnum.FUNCIONARIO_CLT);
 
-        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId())).thenReturn(fornecedor);
+        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId(), true)).thenReturn(fornecedor);
         when(gfdTipoDocumentoRepository.findById(10)).thenReturn(Optional.of(tipoDocumento));
 
         var documentoFileData = new DocumentoFileData("bytes" .getBytes(), "application/pdf", "documento.pdf", 1234);
@@ -137,7 +137,7 @@ class UploadGfdDocumentoUseCaseImplTest {
 
     @Test
     void teste_deve_lancar_excecao_quando_forncedor_nao_encontrado() {
-        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId())).thenReturn(fornecedor);
+        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId(), true)).thenReturn(fornecedor);
 
         NotFoundException ex = assertThrows(NotFoundException.class, () -> useCase.execute(inputDto));
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), ex.getMessage());
@@ -148,7 +148,7 @@ class UploadGfdDocumentoUseCaseImplTest {
     @Test
     void teste_deve_lancar_excecao_quando_tipo_documento_invalido_para_funcionario() {
         tipoDocumento.setTipo(GfdTipoDocumentoTipoEnum.FORNECEDOR);
-        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId())).thenReturn(fornecedor);
+        when(getFornecedorByCodOrIdUseCase.execute(1, inputDto.getId(), true)).thenReturn(fornecedor);
         when(gfdTipoDocumentoRepository.findById(10)).thenReturn(Optional.of(tipoDocumento));
 
         BadRequestException ex = assertThrows(BadRequestException.class, () -> useCase.execute(inputDto));

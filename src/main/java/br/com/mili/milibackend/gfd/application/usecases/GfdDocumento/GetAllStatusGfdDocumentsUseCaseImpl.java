@@ -9,8 +9,8 @@ import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocum
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoClassificacaoEnum;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdDocumentsStatusUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllStatusGfdDocumentsUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
 import br.com.mili.milibackend.shared.exception.types.ConflictException;
@@ -28,7 +28,7 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GF
 
 @RequiredArgsConstructor
 @Service
-public class GetAllStatusGfdDocumentsUseCaseImpl implements GetAllGfdDocumentsStatusUseCase {
+public class GetAllStatusGfdDocumentsUseCaseImpl implements GetAllStatusGfdDocumentsUseCase {
     private final GetFornecedorByCodOrIdUseCase getFornecedorByCodOrIdUseCase;
     private final GfdFuncionarioRepository gfdFuncionarioRepository;
     private final GetAllTipoDocumentoUseCase getAllTipoDocumentoUseCase;
@@ -39,7 +39,7 @@ public class GetAllStatusGfdDocumentsUseCaseImpl implements GetAllGfdDocumentsSt
         var output = new GfdMVerificarDocumentosOutputDto();
         var documentos = new LinkedHashSet<GfdMVerificarDocumentosOutputDto.DocumentoDto>();
 
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId());
+        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId(), inputDto.isAnalista());
 
        if(fornecedor.getAceiteLgpd() == null || fornecedor.getAceiteLgpd() == 0){
             throw new ConflictException(GFD_LEI_LGPD_NAO_ACEITA.getMensagem(), GFD_LEI_LGPD_NAO_ACEITA.getCode());

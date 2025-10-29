@@ -40,7 +40,7 @@ class GetFornecedorByCodOrIdUseCaseImplTest {
         when(fornecedorRepository.findById(1)).thenReturn(Optional.of(fornecedor));
 
         // Act
-        var fornecedorOut = useCase.execute(null, 1);
+        var fornecedorOut = useCase.execute(null, 1, true);
 
         // Assert
         assertEquals(fornecedor.getCodigo(), fornecedorOut.getCodigo());
@@ -51,7 +51,7 @@ class GetFornecedorByCodOrIdUseCaseImplTest {
         when(fornecedorRepository.findById(1)).thenReturn(Optional.empty());
 
         // Act
-        NotFoundException ex = assertThrows( NotFoundException.class, () -> useCase.execute(null, 1));
+        NotFoundException ex = assertThrows( NotFoundException.class, () -> useCase.execute(null, 1, true));
 
         // Assert
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), ex.getMessage());
@@ -63,7 +63,7 @@ class GetFornecedorByCodOrIdUseCaseImplTest {
         when(fornecedorRepository.findByCodUsuario(1)).thenReturn(Optional.of(fornecedor));
 
         // Act
-        var fornecedorOut = useCase.execute(1, null);
+        var fornecedorOut = useCase.execute(1, null, false);
 
         // Assert
         assertEquals(fornecedor.getCodigo(), fornecedorOut.getCodigo());
@@ -74,7 +74,7 @@ class GetFornecedorByCodOrIdUseCaseImplTest {
         when(fornecedorRepository.findByCodUsuario(1)).thenReturn(Optional.empty());
 
         // Act
-        NotFoundException ex = assertThrows( NotFoundException.class, () -> useCase.execute(1, null));
+        NotFoundException ex = assertThrows( NotFoundException.class, () -> useCase.execute(1, null, false));
 
         // Assert
         assertEquals(GFD_FORNECEDOR_NAO_ENCONTRADO.getMensagem(), ex.getMessage());

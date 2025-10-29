@@ -4,7 +4,7 @@ import br.com.mili.milibackend.gfd.adapter.exception.GfdDocumentoCodeException;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateStatusObservacaoOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.gfd.domain.usecases.UpdateStatusObservacaoDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.UpdateStatusObservacaoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;

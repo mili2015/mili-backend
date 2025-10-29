@@ -12,5 +12,5 @@ import lombok.Setter;
 public class GfdMFornecedorGetInputDto {
     private Integer codUsuario;
     private Integer id;
-
+    private boolean isAnalista;
 }

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class GfdDocumentoCreateInputDto {
     private GfdDocumentoDto gfdDocumentoDto;
+    private Integer codUsuario;
     private String base64File;
 
     @Getter

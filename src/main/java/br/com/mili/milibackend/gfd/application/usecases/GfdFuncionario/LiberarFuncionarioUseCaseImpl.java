@@ -4,7 +4,7 @@ import br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionarioLiberacao.GfdFuncionarioLiberarOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioLiberacao;
-import br.com.mili.milibackend.gfd.domain.usecases.LiberarFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.LiberarFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioLiberacaoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;

@@ -45,9 +45,12 @@ public class GfdMController {
 
         var inputDto = new GfdMVerificarFornecedorInputDto();
         inputDto.setCodUsuario(user.getIdUser());
+        inputDto.setId(fornecedorId);
 
-        if (!gfdPolicy.isFornecedor(user)) {
-            inputDto.setId(fornecedorId);
+        if (gfdPolicy.isAnalista(user)) {
+            inputDto.setAnalista(true);
+        } else {
+            inputDto.setAnalista(false);
         }
 
         return ResponseEntity.ok(gfdManagerService.verifyFornecedor(inputDto));

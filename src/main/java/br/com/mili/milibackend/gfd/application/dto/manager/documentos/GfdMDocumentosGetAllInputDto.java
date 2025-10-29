@@ -15,6 +15,8 @@ import java.time.LocalDate;
 @ValidaIntervaloData(inicio = "dataValidadeInic", fim = "dataValidadeFinal")
 @ValidaIntervaloData(inicio = "dataEmissaoInic", fim = "dataEmissaoFinal")
 public class GfdMDocumentosGetAllInputDto extends Filtro {
+    private boolean isAnalista = false;
+
 
     private String usuario;
 

@@ -4,7 +4,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdDocumentoPeriodo.GfdDocume
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumentoPeriodo.GfdDocumentoPeriodoCreateOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoPeriodo;
-import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoPeriodoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.CreateDocumentoPeriodoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdDocumentoPeriodoRepository;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
 import lombok.RequiredArgsConstructor;

@@ -3,7 +3,7 @@ package br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdLocalTrabalho;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.GetAllGfdFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.infra.projections.GfdFuncionarioStatusProjection;
 import br.com.mili.milibackend.gfd.infra.repository.GfdLocalTrabalhoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;

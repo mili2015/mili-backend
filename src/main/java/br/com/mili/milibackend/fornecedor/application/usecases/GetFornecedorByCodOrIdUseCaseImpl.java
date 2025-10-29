@@ -14,10 +14,10 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.GF
 public class GetFornecedorByCodOrIdUseCaseImpl implements GetFornecedorByCodOrIdUseCase {
     private final FornecedorRepository fornecedorRepository;
 
-    public Fornecedor execute(Integer codUsuario, Integer id) {
+    public Fornecedor execute(Integer codUsuario, Integer id, boolean isAnalista) {
         Fornecedor fornecedor = null;
 
-        if (id != null) {
+        if (isAnalista) {
             fornecedor = fornecedorRepository.findById(id).orElse(null);
         } else if (codUsuario != null) {
             fornecedor = fornecedorRepository.findByCodUsuario(codUsuario).orElse(null);

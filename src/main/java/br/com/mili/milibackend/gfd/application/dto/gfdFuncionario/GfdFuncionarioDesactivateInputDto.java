@@ -10,6 +10,7 @@ import lombok.*;
 public class GfdFuncionarioDesactivateInputDto {
     private Integer codUsuario;
     private GfdFuncionarioDto funcionario;
+    private boolean isAnalista = false;
 
     @Getter
     @AllArgsConstructor
@@ -27,5 +28,13 @@ public class GfdFuncionarioDesactivateInputDto {
         public static class FornecedorDto {
             private Integer codigo;
         }
+    }
+
+    public GfdFuncionarioDto getFuncionario() {
+        if(funcionario == null) {
+            funcionario = new GfdFuncionarioDto();
+        }
+
+        return funcionario;
     }
 }

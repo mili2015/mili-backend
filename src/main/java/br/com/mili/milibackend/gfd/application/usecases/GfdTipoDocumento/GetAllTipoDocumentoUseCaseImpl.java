@@ -3,7 +3,7 @@ package br.com.mili.milibackend.gfd.application.usecases.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento.GfdTipoDocumentoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.gfd.infra.specification.GfdTipoDocumentoSpecification;
 import lombok.RequiredArgsConstructor;

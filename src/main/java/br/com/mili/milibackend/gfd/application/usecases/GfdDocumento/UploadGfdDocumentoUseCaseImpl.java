@@ -2,6 +2,7 @@ package br.com.mili.milibackend.gfd.application.usecases.GfdDocumento;
 
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.usecases.GetFornecedorByCodOrIdUseCase;
+import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
 import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMUploadDocumentoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.manager.documentos.GfdMUploadDocumentoOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.fileprocess.DocumentoFileData;
@@ -12,9 +13,9 @@ import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import br.com.mili.milibackend.gfd.domain.interfaces.FileProcessingService;
-import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoPeriodoUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.UploadGfdDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.CreateDocumentoPeriodoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.CreateDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.shared.enums.MimeTypeEnum;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
@@ -51,9 +52,11 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
         var base64File = gfdDocumentoDto.getBase64File().file();
         var base64FileName = gfdDocumentoDto.getBase64File().fileName();
 
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId());
 
-       if(fornecedor.getAceiteLgpd() == null || fornecedor.getAceiteLgpd() == 0){
+        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId(), inputDto.isAnalista());
+
+
+        if (fornecedor.getAceiteLgpd() == null || fornecedor.getAceiteLgpd() == 0) {
             throw new ConflictException(GFD_LEI_LGPD_NAO_ACEITA.getMensagem(), GFD_LEI_LGPD_NAO_ACEITA.getCode());
         }
 
@@ -63,7 +66,14 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
 
         DocumentoFileData documentoFileData = fileProcessingService.processFile(base64File, base64FileName, MimeTypeEnum.PDF);
 
-        var gfdDocumentoCreateOutputDto = createGfdDocumento(inputDto, tipoDocumento, fornecedor, documentoFileData, gfdDocumentoDto, base64File);
+        var gfdDocumentoCreateOutputDto = createGfdDocumento(
+                inputDto,
+                tipoDocumento,
+                fornecedor,
+                documentoFileData,
+                gfdDocumentoDto,
+                base64File
+        );
 
         uploadFile(base64File, documentoFileData);
 
@@ -75,7 +85,7 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
     private void createPeriodos(GfdMUploadDocumentoInputDto inputDto, Integer id, GfdTipoDocumento tipoDocumento) {
         var periodoCreateDto = GfdDocumentoPeriodoCreateInputDto.builder()
                 .periodo(inputDto.getGfdDocumentoPeriodo() != null ? inputDto.getGfdDocumentoPeriodo().getPeriodo() : null)
-                .documento(id, inputDto.getGfdDocumento().getDataEmissao(),  inputDto.getGfdDocumento().getDataValidade())
+                .documento(id, inputDto.getGfdDocumento().getDataEmissao(), inputDto.getGfdDocumento().getDataValidade())
                 .tipoDocumento(tipoDocumento.getId(), tipoDocumento.getClassificacao(), tipoDocumento.getDiasValidade())
                 .build();
 
@@ -101,6 +111,7 @@ public class UploadGfdDocumentoUseCaseImpl implements UploadGfdDocumentoUseCase 
 
         var gfdDocumentoCreateInputDto = GfdDocumentoCreateInputDto.builder()
                 .gfdDocumentoDto(createDocumentoInputDto)
+                .codUsuario(inputDto.getCodUsuario())
                 .base64File(base64File).build();
 
         return createDocumentoUseCase.execute(gfdDocumentoCreateInputDto);
