@@ -9,14 +9,15 @@ import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.gfdDocumentoHist
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoHistoricoRepository;
 import br.com.mili.milibackend.gfd.infra.specification.GfdDocumentoHistoricoSpecification;
 import br.com.mili.milibackend.shared.exception.types.BadRequestException;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,16 +44,11 @@ public class GetAllGfdDocumentoHistoricoUseCaseImpl implements GetAllGfdDocument
 
         PageRequest pageRequest = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "id"));
 
-        var resultPage = repository.findAll(spec, pageRequest);
+        var resultPage = repository.getAll(spec, pageRequest);
 
         return resultPage.getContent().stream()
-                .map(this::toDto)
-                .toList();
+                .map(item -> modelMapper.map(item, GfdDocumentoHistoricoGetAllOutputDto.class))
+                .collect(Collectors.toList());
     }
-
-    private GfdDocumentoHistoricoGetAllOutputDto toDto(GfdDocumentoHistorico entity) {
-        return modelMapper.map(entity, GfdDocumentoHistoricoGetAllOutputDto.class);
-    }
-
-
 }
+

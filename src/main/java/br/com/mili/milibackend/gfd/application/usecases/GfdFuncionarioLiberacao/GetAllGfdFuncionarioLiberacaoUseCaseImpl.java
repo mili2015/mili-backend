@@ -6,8 +6,8 @@ import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioLiberacao;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.GetAllGfdFuncionarioLiberacaoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioLiberacaoRepository;
 import br.com.mili.milibackend.gfd.infra.specification.GfdFuncionarioLiberacaoSpecification;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,16 +32,11 @@ public class GetAllGfdFuncionarioLiberacaoUseCaseImpl implements GetAllGfdFuncio
 
         PageRequest pageRequest = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "id"));
 
-        var resultPage = repository.findAll(spec, pageRequest);
+        var resultPage = repository.getAll(spec, pageRequest);
 
         return resultPage.getContent().stream()
-                .map(this::toDto)
+                .map(item -> modelMapper.map(item, GfdFuncionarioLiberacaoGetAllOutputDto.class))
                 .toList();
     }
-
-    private GfdFuncionarioLiberacaoGetAllOutputDto toDto(GfdFuncionarioLiberacao entity) {
-        var dto = modelMapper.map(entity, GfdFuncionarioLiberacaoGetAllOutputDto.class);
-        dto.setFuncionarioId(entity.getFuncionario() != null ? entity.getFuncionario().getId() : null);
-        return dto;
-    }
 }
+
