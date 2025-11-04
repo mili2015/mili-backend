@@ -9,12 +9,11 @@ import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionario
 import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdFuncionarioLiberacaoUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.LiberarFuncionarioUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.UpdateObservacaoFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.GetAllGfdFuncionarioLiberacaoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.LiberarFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.UpdateObservacaoFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.DesactivateFuncionarioUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
-import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
@@ -64,11 +63,8 @@ public class GfdMFuncionarioController {
     ) {
         log.info("{} {}/{}", RequestMethod.POST, ENDPOINT, user.getUsername());
 
-        if (gfdPolicy.isFornecedor(user)) {
-            inputDto.setCodUsuario(user.getIdUser());
-        } else {
-            inputDto.setCodUsuario(null);
-        }
+        inputDto.setCodUsuario(user.getIdUser());
+        inputDto.setAnalista(!gfdPolicy.isFornecedor(user));
 
         return ResponseEntity.ok(gfdManagerService.createFuncionario(inputDto));
     }
@@ -91,11 +87,9 @@ public class GfdMFuncionarioController {
     ) {
         log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
 
-        if (gfdPolicy.isFornecedor(user)) {
-            inputDto.setCodUsuario(user.getIdUser());
-        }
-
+        inputDto.setCodUsuario(user.getIdUser());
         inputDto.getFuncionario().setId(id);
+        inputDto.setAnalista(!gfdPolicy.isFornecedor(user));
 
         return ResponseEntity.ok(gfdManagerService.updateFuncionario(inputDto));
     }
@@ -117,10 +111,8 @@ public class GfdMFuncionarioController {
     ) {
         log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
-        if (gfdPolicy.isFornecedor(user)) {
-            inputDto.setCodUsuario(user.getIdUser());
-        }
-
+        inputDto.setCodUsuario(user.getIdUser());
+        inputDto.setAnalista(gfdPolicy.isAnalista(user));
         inputDto.getFuncionario().setId(id);
 
         return ResponseEntity.ok(gfdManagerService.getFuncionario(inputDto));
@@ -140,12 +132,11 @@ public class GfdMFuncionarioController {
     ) {
         log.info("{} {}/{}", RequestMethod.DELETE, ENDPOINT, user.getUsername());
 
-        if (gfdPolicy.isFornecedor(user)) {
-            inputDto.setCodUsuario(user.getIdUser());
-        }
+        inputDto.setCodUsuario(user.getIdUser());
+        inputDto.setAnalista(gfdPolicy.isAnalista(user));
 
-        if(inputDto.getFuncionario() == null) {
-            inputDto.setFuncionario(new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto() );
+        if (inputDto.getFuncionario() == null) {
+            inputDto.setFuncionario(new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto());
             inputDto.getFuncionario().setFornecedor(new GfdMFuncionarioDeleteInputDto.GfdFuncionarioDto.FornecedorDto());
         }
 
@@ -170,9 +161,8 @@ public class GfdMFuncionarioController {
     ) {
         log.info("{} {}/{}", RequestMethod.DELETE, ENDPOINT, user.getUsername());
 
-        if (gfdPolicy.isFornecedor(user)) {
-            inputDto.setCodUsuario(user.getIdUser());
-        }
+        inputDto.setCodUsuario(user.getIdUser());
+        inputDto.setAnalista(gfdPolicy.isAnalista(user));
 
         inputDto.getFuncionario().setId(id);
 
@@ -180,7 +170,6 @@ public class GfdMFuncionarioController {
 
         return ResponseEntity.noContent().build();
     }
-
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
             "or hasAuthority('" + ROLE_SESMT + "')"
@@ -241,8 +230,12 @@ public class GfdMFuncionarioController {
     ) {
         log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
+        inputDto.setCodUsuario(user.getIdUser());
+
         if (gfdPolicy.isFornecedor(user)) {
-            inputDto.setCodUsuario(user.getIdUser());
+            inputDto.setAnalista(false);
+        } else {
+            inputDto.setAnalista(true);
         }
 
         return ResponseEntity.ok(gfdManagerService.getAllFuncionarios(inputDto));

@@ -4,15 +4,19 @@ import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpda
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.GfdDocumentoUpdateOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumentoPeriodo.GfdDocumentoPeriodoCreateInputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
+import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoHistorico;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
-import br.com.mili.milibackend.gfd.domain.usecases.CreateDocumentoPeriodoUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.UpdateGfdDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.CreateDocumentoPeriodoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.UpdateGfdDocumentoUseCase;
+import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoHistoricoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdDocumentoCodeException.GFD_DOCUMENTO_NAO_ENCONTRADO;
 
@@ -21,6 +25,7 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdDocumentoCodeExce
 public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase {
     private final GfdDocumentoRepository gfdDocumentoRepository;
     private final CreateDocumentoPeriodoUseCase createDocumentoPeriodoUseCase;
+    private final GfdDocumentoHistoricoRepository gfdDocumentoHistoricoRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -39,7 +44,20 @@ public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase 
 
         gfdDocumento.setStatus(GfdDocumentoStatusEnum.valueOf(gfdDocumentoDto.getStatus()));
 
-        gfdDocumentoRepository.save(gfdDocumento);
+       var gfdDocumentoSaved = gfdDocumentoRepository.save(gfdDocumento);
+
+        //criar o historico
+        var funcionarioId = gfdDocumentoSaved.getGfdFuncionario() != null ? gfdDocumentoSaved.getGfdFuncionario().getId() : null;
+        var gfdDocumentoHistorico = GfdDocumentoHistorico.builder()
+                .documentoId(gfdDocumentoSaved.getId())
+                .ctusuCodigo(inputDto.getCodUsuario())
+                .ctforCodigo(gfdDocumentoSaved.getCtforCodigo())
+                .data(LocalDateTime.now())
+                .status(gfdDocumento.getStatus().getDescricao())
+                .funcionarioId(funcionarioId)
+                .build();
+
+        gfdDocumentoHistoricoRepository.save(gfdDocumentoHistorico);
 
         return modelMapper.map(gfdDocumento, GfdDocumentoUpdateOutputDto.class);
     }

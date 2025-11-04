@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class GfdMFuncionarioUpdateInputDto {
     private Integer codUsuario;
+    private boolean isAnalista;
 
     @Valid
     private GfdFuncionarioDto funcionario;

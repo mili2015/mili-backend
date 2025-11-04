@@ -3,7 +3,7 @@ package br.com.mili.milibackend.gfd.application.usecases.GfdFuncionario;
 import br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateObservacaoInputDto;
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateObservacaoOutputDto;
-import br.com.mili.milibackend.gfd.domain.usecases.UpdateObservacaoFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.UpdateObservacaoFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;

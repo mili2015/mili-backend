@@ -11,9 +11,9 @@ import br.com.mili.milibackend.gfd.application.helpers.GfdTipoDocumentoNavigatio
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoClassificacaoEnum;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllGfdDocumentosUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllSupplierDocumentsUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.GetAllTipoDocumentoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllGfdDocumentosUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllSupplierDocumentsUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllTipoDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdDocumentoPeriodoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.GfdTipoDocumentoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
@@ -45,7 +45,7 @@ public class GetAllSupplierDocumentsUseCaseImpl implements GetAllSupplierDocumen
 
     @Override
     public GfdMDocumentosGetAllOutputDto execute(GfdMDocumentosGetAllInputDto inputDto) {
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId());
+        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId(), inputDto.isAnalista());
 
        if(fornecedor.getAceiteLgpd() == null || fornecedor.getAceiteLgpd() == 0){
             throw new ConflictException(GFD_LEI_LGPD_NAO_ACEITA.getMensagem(), GFD_LEI_LGPD_NAO_ACEITA.getCode());

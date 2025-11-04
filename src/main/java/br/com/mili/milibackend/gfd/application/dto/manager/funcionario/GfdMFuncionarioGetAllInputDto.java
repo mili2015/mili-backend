@@ -15,6 +15,7 @@ import java.util.List;
 public class GfdMFuncionarioGetAllInputDto  {
     private Integer codUsuario;
     private GfdMFuncionarioDto funcionario;
+    private boolean isAnalista;
 
     @Getter
     @AllArgsConstructor
