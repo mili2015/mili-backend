@@ -4,6 +4,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionario
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -46,8 +47,6 @@ public class GfdMFuncionarioCreateInputDto {
         @NotEmpty
         private String funcao;
 
-
-
         @NotNull
         private LocalDate periodoInicial;
 
@@ -58,7 +57,8 @@ public class GfdMFuncionarioCreateInputDto {
 
         private Integer ativo;
 
-        private List<LocalTrabalhoDto> locaisTrabalho;
+        @Size(min = 1, message = "É necessário informar pelo menos um local de trabalho")
+        private List<@NotNull LocalTrabalhoDto> locaisTrabalho;
 
         @NotNull
         private GfdTipoContratacaoDto tipoContratacao;

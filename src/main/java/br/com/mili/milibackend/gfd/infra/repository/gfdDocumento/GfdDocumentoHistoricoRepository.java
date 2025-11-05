@@ -1,6 +1,7 @@
 package br.com.mili.milibackend.gfd.infra.repository.gfdDocumento;
 
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoHistorico;
+import br.com.mili.milibackend.gfd.domain.interfaces.IGfdDocumentoHistoricoCustomRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface GfdDocumentoHistoricoRepository extends JpaRepository<GfdDocumentoHistorico, Integer>, JpaSpecificationExecutor<GfdDocumentoHistorico> {
+public interface GfdDocumentoHistoricoRepository extends JpaRepository<GfdDocumentoHistorico, Integer>, JpaSpecificationExecutor<GfdDocumentoHistorico>, IGfdDocumentoHistoricoCustomRepository {
     @EntityGraph(attributePaths = {"usuario"})
     Page<GfdDocumentoHistorico> findAll(@Nullable Specification<GfdDocumentoHistorico> spec, Pageable pageable);
 

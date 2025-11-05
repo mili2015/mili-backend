@@ -64,10 +64,13 @@ public class GfdMController {
         log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
         var inputDto = new GfdMFornecedorGetInputDto();
-        inputDto.setCodUsuario(user.getIdUser());
 
-        if (!gfdPolicy.isFornecedor(user)) {
+        if (gfdPolicy.isAnalista(user)) {
             inputDto.setId(fornecedorId);
+            inputDto.setAnalista(true);
+        } else {
+            inputDto.setCodUsuario(user.getIdUser());
+            inputDto.setAnalista(false);
         }
 
         var fornecedor = gfdManagerService.getFornecedor(inputDto);
