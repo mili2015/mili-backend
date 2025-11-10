@@ -29,6 +29,7 @@ public class GfdFuncionarioUpdateMapper {
         entity.setPeriodoInicial(inputDto.getPeriodoInicial());
         entity.setPeriodoFinal(inputDto.getPeriodoFinal());
         entity.setObservacao(inputDto.getObservacao());
+        entity.setEmail(inputDto.getEmail());
 
         if(inputDto.getTipoContratacao() != null) {
             var tipoContratacao = new GfdTipoContratacao();

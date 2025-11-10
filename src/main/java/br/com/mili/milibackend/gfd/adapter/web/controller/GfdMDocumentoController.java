@@ -57,7 +57,7 @@ public class GfdMDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @ParameterObject @ModelAttribute GfdMVerificarDocumentosInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/verificar-docs", user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
 
@@ -80,7 +80,7 @@ public class GfdMDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @RequestBody @Valid GfdMUploadDocumentoInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.POST, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.POST, ENDPOINT + "/upload", user.getUsername());
 
         if (gfdPolicy.isFornecedor(user)) {
             inputDto.setId(null);
@@ -105,7 +105,7 @@ public class GfdMDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @ParameterObject @ModelAttribute @Valid GfdMDocumentosGetAllInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.POST, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/documentos", user.getUsername());
         inputDto.setUsuario(user.getUsername());
         inputDto.setCodUsuario(user.getIdUser());
 
@@ -127,7 +127,7 @@ public class GfdMDocumentoController {
             @RequestBody @Valid GfdDocumentoUpdateStatusObservacaoInputDto inputDto,
             @AuthenticationPrincipal CustomUserPrincipal user
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.PUT, ENDPOINT + "/documentos/status-observacao", user.getUsername());
 
         return ResponseEntity.ok(updateStatusObservacaoDocumentoUseCase.execute(inputDto));
     }
@@ -139,7 +139,7 @@ public class GfdMDocumentoController {
             @RequestBody @Valid GfdMDocumentoUpdateInputDto inputDto,
             @AuthenticationPrincipal CustomUserPrincipal user
     ) {
-        log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.PUT, ENDPOINT + "/documentos", user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
 
@@ -162,7 +162,7 @@ public class GfdMDocumentoController {
             @ParameterObject @ModelAttribute @Valid GfdMDocumentoDeleteInputDto inputDto,
             @AuthenticationPrincipal CustomUserPrincipal user
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.DELETE, ENDPOINT + "/documentos/" + id, user.getUsername());
 
         inputDto.setId(id);
         inputDto.setCodUsuario(user.getIdUser());
@@ -190,7 +190,7 @@ public class GfdMDocumentoController {
             @ParameterObject @ModelAttribute @Valid GfdMDocumentoDownloadInputDto inputDto,
             @AuthenticationPrincipal CustomUserPrincipal user
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/documentos/" + id + "/download", user.getUsername());
 
         inputDto.setId(id);
         inputDto.setCodUsuario(user.getIdUser());
@@ -222,7 +222,7 @@ public class GfdMDocumentoController {
             @PathVariable("id") Integer idDocumento,
             @ParameterObject @ModelAttribute @Valid GfdDocumentoHistoricoGetAllInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/documentos/" + idDocumento + "/historico", user.getUsername());
 
         if (gfdPolicy.isAnalista(user)) {
             inputDto.setUsuarioId(null);

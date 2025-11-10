@@ -9,10 +9,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.gfdFuncionario
 import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
-import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.GetAllGfdFuncionarioLiberacaoUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.LiberarFuncionarioUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.UpdateObservacaoFuncionarioUseCase;
-import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.DesactivateFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.*;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,6 +42,7 @@ public class GfdMFuncionarioController {
     private final IGfdPolicy gfdPolicy;
     private final DesactivateFuncionarioUseCase desactivateFuncionarioUseCase;
     private final GetAllGfdFuncionarioLiberacaoUseCase getAllGfdFuncionarioLiberacaoUseCase;
+    private final ResendEmailAcademiaGfdFuncionarioUseCase resendEmailAcademiaGfdFuncionarioUseCase;
 
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
@@ -61,7 +59,7 @@ public class GfdMFuncionarioController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @RequestBody @Valid GfdMFuncionarioCreateInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.POST, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.POST, ENDPOINT + "/funcionarios", user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
         inputDto.setAnalista(!gfdPolicy.isFornecedor(user));
@@ -85,7 +83,7 @@ public class GfdMFuncionarioController {
             @PathVariable Integer id,
             @RequestBody @Valid GfdMFuncionarioUpdateInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.PUT, ENDPOINT + "/funcionarios/" + id, user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
         inputDto.getFuncionario().setId(id);
@@ -109,7 +107,7 @@ public class GfdMFuncionarioController {
             @PathVariable Integer id,
             @ParameterObject @ModelAttribute @Valid GfdMFuncionarioGetInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/funcionarios/" + id, user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
         inputDto.setAnalista(gfdPolicy.isAnalista(user));
@@ -130,7 +128,7 @@ public class GfdMFuncionarioController {
             @PathVariable Integer id,
             @ParameterObject @ModelAttribute @Valid GfdMFuncionarioDeleteInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.DELETE, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.DELETE, ENDPOINT + "/funcionarios/" + id, user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
         inputDto.setAnalista(gfdPolicy.isAnalista(user));
@@ -159,7 +157,7 @@ public class GfdMFuncionarioController {
             @PathVariable Integer id,
             @ParameterObject @ModelAttribute @Valid GfdFuncionarioDesactivateInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.DELETE, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.DELETE, ENDPOINT + "/funcionarios/" + id + "/desligar", user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
         inputDto.setAnalista(gfdPolicy.isAnalista(user));
@@ -186,7 +184,7 @@ public class GfdMFuncionarioController {
             @PathVariable Integer id,
             @RequestBody @Valid GfdFuncionarioUpdateObservacaoInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.PUT, ENDPOINT + "/funcionarios/" + id + "/observacao", user.getUsername());
         inputDto.setId(id);
 
         return ResponseEntity.ok(updateObservacaoFuncionarioUseCase.execute(inputDto));
@@ -207,7 +205,7 @@ public class GfdMFuncionarioController {
             @PathVariable Integer id,
             @RequestBody @Valid GfdFuncionarioLiberarInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.PUT, ENDPOINT + "/funcionarios/" + id + "/liberar", user.getUsername());
         inputDto.setId(id);
         inputDto.setUsuario(user.getIdUser());
 
@@ -228,7 +226,7 @@ public class GfdMFuncionarioController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @ParameterObject @ModelAttribute @Valid GfdMFuncionarioGetAllInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/funcionarios", user.getUsername());
 
         inputDto.setCodUsuario(user.getIdUser());
 
@@ -253,9 +251,36 @@ public class GfdMFuncionarioController {
             @PathVariable Integer id,
             @ParameterObject @ModelAttribute @Valid GfdFuncionarioLiberacaoGetAllInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/funcionarios/" + id + "/liberacoes", user.getUsername());
 
         inputDto.setFuncionarioId(id);
         return ResponseEntity.ok(getAllGfdFuncionarioLiberacaoUseCase.execute(inputDto));
+    }
+
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+            "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+            "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+            "or hasAuthority('" + ROLE_SESMT + "')"
+    )
+    @GetMapping("funcionarios/{id}/academia/{academiaId}/resend")
+    @Operation(
+            summary = "Reenvia o email de integração",
+            description = "Reenvia o email de integração, caso o usuário não tenha um email cadastrado, ele sera matriculado e sera feito o envio do email"
+    )
+    public ResponseEntity<Void> academiaReenviarEmail(
+            @AuthenticationPrincipal CustomUserPrincipal user,
+            @PathVariable Integer id,
+            @PathVariable Integer academiaId
+            ) {
+
+
+        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT + "/funcionarios/academia/resend", user.getUsername());
+
+        resendEmailAcademiaGfdFuncionarioUseCase.execute(GfdFuncionarioResendEmailAcademiaInputDto.builder()
+                .idFuncionario(id)
+                .ctempCodigo(academiaId)
+                .build());
+
+        return ResponseEntity.noContent().build();
     }
 }

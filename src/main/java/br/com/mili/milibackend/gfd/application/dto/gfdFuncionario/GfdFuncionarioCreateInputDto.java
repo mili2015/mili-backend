@@ -14,6 +14,7 @@ import java.util.List;
 public class GfdFuncionarioCreateInputDto {
     private FornecedorDto fornecedor;
     private String nome;
+    private String email;
     private String cpf;
     private LocalDate dataNascimento;
     private String paisNacionalidade;

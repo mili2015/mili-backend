@@ -71,7 +71,7 @@ public class GfdCategoriaDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @PathVariable Integer id
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/" + id, user.getUsername());
 
         return ResponseEntity.ok(getByIdGfdCategoriaDocumentoUseCase.execute(id));
     }

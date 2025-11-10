@@ -58,6 +58,12 @@ public class GfdFuncionario {
     @Column(name = "LIBERADO")
     private Integer liberado;
 
+    @Column(name = "EMAIL")
+    private String email;
+
+    @Column(name = "ID_ACADEMIA")
+    private Integer idAcademia;
+
     @OneToMany(mappedBy = "id")
     private List<GfdDocumento> documentos = new ArrayList<>();
 

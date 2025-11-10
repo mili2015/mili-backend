@@ -4,9 +4,12 @@ import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdFuncionarioCustomRepository;
 import br.com.mili.milibackend.gfd.infra.projections.GfdFuncionarioDocumentsProjection;
 import br.com.mili.milibackend.gfd.infra.projections.GfdFuncionarioStatusProjection;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,6 +33,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                      A.OBSERVACAO,
                      A.DESLIGADO,
                      A.LIBERADO,
+                     A.EMAIL,
             
                      SUM(CASE WHEN C.STATUS = 'ENVIADO'       THEN 1 ELSE 0 END) AS total_enviado,
                      SUM(CASE WHEN C.STATUS = 'CONFORME'      THEN 1 ELSE 0 END) AS total_conforme,
@@ -95,6 +99,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                      A.ID_TIPO_CONTRATACAO,
                      A.PERIODO_FINAL,
                      A.LIBERADO,
+                     A.EMAIL,
                      A.OBSERVACAO,
                      A.DESLIGADO
             
@@ -119,10 +124,10 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
     );
 
     @Query(value = """
-                           SELECT COUNT(*) FROM (
-                           """ + QUERY_GFD_FUNCIONARIO + """
-                           )
-                           """, nativeQuery = true)
+            SELECT COUNT(*) FROM (
+            """ + QUERY_GFD_FUNCIONARIO + """
+            )
+            """, nativeQuery = true)
     Integer getAllCount(
             Integer idFuncionario,
             String nome,
@@ -137,8 +142,8 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
 
 
     /*
-    * Consulta para verificar se o usuário possui documento pendentes para enviar a justificativa
-    * */
+     * Consulta para verificar se o usuário possui documento pendentes para enviar a justificativa
+     * */
     String QUERY_GFD_FUNCIONARIO_DOCUMENTOS = """
                  SELECT
                      SUM(CASE WHEN C.STATUS = 'ENVIADO'       THEN 1 ELSE 0 END) AS total_enviado,
@@ -177,4 +182,12 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
     GfdFuncionarioDocumentsProjection getAllDocuments(
             Integer idFuncionario
     );
+
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE GfdFuncionario f SET f.idAcademia = :idAcademia WHERE f.id = :id")
+    void alterarIdAcademia(@Param("id") Integer id, @Param("idAcademia") Integer idAcademia);
+
+    boolean existsByEmail(String email);
 }

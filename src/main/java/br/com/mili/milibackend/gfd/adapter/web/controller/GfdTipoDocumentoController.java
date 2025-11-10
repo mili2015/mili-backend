@@ -43,7 +43,7 @@ public class GfdTipoDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @ParameterObject @ModelAttribute @Valid GfdTipoDocumentoGetAllInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT, user.getUsername());
 
         return ResponseEntity.ok(getAllTipoDocumentoUseCase.execute(inputDto));
     }
@@ -58,7 +58,7 @@ public class GfdTipoDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @ParameterObject @ModelAttribute @Valid GfdTipoDocumentoWithRescisaoGetAllInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/rescisao", user.getUsername());
 
         return ResponseEntity.ok(getAllTipoDocumentoWithRescisaoUseCase.execute(inputDto));
     }
@@ -73,7 +73,7 @@ public class GfdTipoDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @PathVariable Integer id
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/" + id, user.getUsername());
 
         return ResponseEntity.ok(gfdTipoDocumentoService.getById(id));
     }
@@ -84,7 +84,7 @@ public class GfdTipoDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @PathVariable Integer id
     ) {
-        log.info("{} {}/{}", RequestMethod.DELETE, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.DELETE, ENDPOINT + "/" + id, user.getUsername());
 
         gfdTipoDocumentoService.delete(id);
 
@@ -98,7 +98,7 @@ public class GfdTipoDocumentoController {
             @RequestBody @Valid GfdTipoDocumentoUpdateInputDto inputDto,
             @PathVariable Integer id
     ) {
-        log.info("{} {}/{}", RequestMethod.PUT, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.PUT, ENDPOINT + "/" + id, user.getUsername());
 
         inputDto.setId(id);
 
@@ -111,7 +111,7 @@ public class GfdTipoDocumentoController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @RequestBody @Valid GfdTipoDocumentoCreateInputDto inputDto
     ) {
-        log.info("{} {}/{}", RequestMethod.POST, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.POST, ENDPOINT, user.getUsername());
 
         return ResponseEntity.ok(gfdTipoDocumentoService.create(inputDto));
     }

@@ -34,6 +34,7 @@ public class GfdMFuncionarioGetAllOutputDto {
         private String observacao;
         private Integer ativo;
         private Integer liberado;
+        private String email;
         private Integer desligado;
 
         private FornecedorDto fornecedor;
