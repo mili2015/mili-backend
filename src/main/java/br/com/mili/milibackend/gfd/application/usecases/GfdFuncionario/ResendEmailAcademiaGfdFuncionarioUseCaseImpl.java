@@ -53,26 +53,23 @@ public class ResendEmailAcademiaGfdFuncionarioUseCaseImpl implements ResendEmail
     }
 
     private AcademiaGetCourseByUserOutputDto getAcademiaGetCourseByUserOutputDto(AcademiaGetUserByEmailOutputDto userAcademia, AcademiaIdCoursesEnum courseEnum, GfdFuncionario funcionario) {
-        var courseFound = getCoursesByUserUseCase.getCourseByUser(userAcademia.getId(), courseEnum.getIdCourse());
+        AcademiaGetCourseByUserOutputDto courseFound = null;
 
+        if (userAcademia != null) {
+            courseFound = getCoursesByUserUseCase.getCourseByUser(userAcademia.getId(), courseEnum.getIdCourse());
+        }
+
+        // ja retorna porque ja é feito o envio da matricula do usuário
         if (courseFound == null) {
-            // ja retorna porque ja é feito o envio da matricula do usuário
             matricular(funcionario);
             return null;
         }
+
         return courseFound;
     }
 
     private AcademiaGetUserByEmailOutputDto getAcademiaGetUserByEmailOutputDto(GfdFuncionario funcionario) {
-        var userAcademia = getByEmailAcademiaUserUseCase.getUserByEmail(funcionario.getEmail());
-
-        if (userAcademia == null) {
-            throw new NotFoundException(
-                    ACADEMIA_USUARIO_NAO_ENCONTRADO.getMensagem(),
-                    ACADEMIA_USUARIO_NAO_ENCONTRADO.getCode()
-            );
-        }
-        return userAcademia;
+        return getByEmailAcademiaUserUseCase.getUserByEmail(funcionario.getEmail());
     }
 
     private AcademiaIdCoursesEnum getAcademiaIdCoursesEnum(GfdFuncionarioResendEmailAcademiaInputDto inputDto) {
@@ -94,8 +91,7 @@ public class ResendEmailAcademiaGfdFuncionarioUseCaseImpl implements ResendEmail
                         GFD_FUNCIONARIO_NAO_ENCONTRADO.getCode())
                 );
 
-        if(funcionario.getEmail() == null)
-        {
+        if (funcionario.getEmail() == null) {
             throw new BadRequestException(
                     GFD_FUNCIONARIO_SEM_EMAIL.getMensagem(),
                     GFD_FUNCIONARIO_SEM_EMAIL.getCode())
