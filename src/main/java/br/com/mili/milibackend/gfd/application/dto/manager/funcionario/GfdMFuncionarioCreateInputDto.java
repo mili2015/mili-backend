@@ -47,7 +47,6 @@ public class GfdMFuncionarioCreateInputDto {
         @NotEmpty
         private String funcao;
 
-        @NotEmpty
         private String email;
 
         @NotNull

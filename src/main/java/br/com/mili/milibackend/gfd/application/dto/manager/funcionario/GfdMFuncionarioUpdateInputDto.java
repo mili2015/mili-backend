@@ -33,7 +33,6 @@ public class GfdMFuncionarioUpdateInputDto {
         @NotEmpty
         private String nome;
 
-        @NotEmpty
         private String email;
 
         @NotEmpty

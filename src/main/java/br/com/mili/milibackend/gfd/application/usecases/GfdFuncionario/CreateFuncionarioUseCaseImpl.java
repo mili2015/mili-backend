@@ -37,29 +37,40 @@ public class CreateFuncionarioUseCaseImpl implements CreateFuncionarioUseCase {
         gfdFuncionario.setLiberado(0);
         gfdFuncionario.setDesligado(0);
 
-
-        boolean emailAlreadyUse = gfdFuncionarioRepository.existsByEmail(gfdFuncionario.getEmail());
-
-        if (emailAlreadyUse) {
-            throw new ConflictException(GFD_FUNCIONARIO_JA_SENDO_USADO.getMensagem(), GFD_FUNCIONARIO_JA_SENDO_USADO.getCode());
-        }
+        validarEmail(gfdFuncionario);
 
         var gfdFuncionarioCreated = gfdFuncionarioRepository.save(gfdFuncionario);
 
         // cria as relações do local de trabalho
         adicionarLocaisTrabalho(inputDto, gfdFuncionario);
 
-        var matricularAcademiaFuncionarioInputDto = MatricularAcademiaFuncionarioInputDto.builder()
-                .id(gfdFuncionarioCreated.getId())
-                .nome(gfdFuncionarioCreated.getNome())
-                .cpf(gfdFuncionarioCreated.getCpf())
-                .email(gfdFuncionarioCreated.getEmail())
-                .locaisTrabalho(gfdFuncionarioCreated.getLocaisTrabalho().stream().map(GfdLocalTrabalho::getCtempCodigo).toList())
-                .build();
-
-        matricularAcademiaFuncionarioUseCase.execute(matricularAcademiaFuncionarioInputDto);
+        matricular(gfdFuncionarioCreated);
 
         return modelMapper.map(gfdFuncionarioCreated, GfdFuncionarioCreateOutputDto.class);
+    }
+
+    private void matricular(GfdFuncionario gfdFuncionarioCreated) {
+        if (gfdFuncionarioCreated.getEmail() != null) {
+            var matricularAcademiaFuncionarioInputDto = MatricularAcademiaFuncionarioInputDto.builder()
+                    .id(gfdFuncionarioCreated.getId())
+                    .nome(gfdFuncionarioCreated.getNome())
+                    .cpf(gfdFuncionarioCreated.getCpf())
+                    .email(gfdFuncionarioCreated.getEmail())
+                    .locaisTrabalho(gfdFuncionarioCreated.getLocaisTrabalho().stream().map(GfdLocalTrabalho::getCtempCodigo).toList())
+                    .build();
+
+            matricularAcademiaFuncionarioUseCase.execute(matricularAcademiaFuncionarioInputDto);
+        }
+    }
+
+    private void validarEmail(GfdFuncionario gfdFuncionario) {
+        if (gfdFuncionario.getEmail() == null || gfdFuncionario.getEmail().isBlank()) return;
+
+        boolean emailAlreadyUse = gfdFuncionarioRepository.existsByEmail(gfdFuncionario.getEmail());
+
+        if (emailAlreadyUse) {
+            throw new ConflictException(GFD_FUNCIONARIO_JA_SENDO_USADO.getMensagem(), GFD_FUNCIONARIO_JA_SENDO_USADO.getCode());
+        }
     }
 
     private void adicionarLocaisTrabalho(GfdFuncionarioCreateInputDto inputDto, GfdFuncionario gfdFuncionario) {

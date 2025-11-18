@@ -21,10 +21,7 @@ import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 import static br.com.mili.milibackend.academia.adapter.web.exceptions.AcademiaCodeException.ACADEMIA_INTEGRACAO_INVALIDA;
-import static br.com.mili.milibackend.academia.adapter.web.exceptions.AcademiaCodeException.ACADEMIA_USUARIO_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_SEM_EMAIL;
 
@@ -91,7 +88,7 @@ public class ResendEmailAcademiaGfdFuncionarioUseCaseImpl implements ResendEmail
                         GFD_FUNCIONARIO_NAO_ENCONTRADO.getCode())
                 );
 
-        if (funcionario.getEmail() == null) {
+        if (funcionario.getEmail() == null || funcionario.getEmail().isEmpty()) {
             throw new BadRequestException(
                     GFD_FUNCIONARIO_SEM_EMAIL.getMensagem(),
                     GFD_FUNCIONARIO_SEM_EMAIL.getCode())

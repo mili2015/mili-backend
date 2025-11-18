@@ -70,6 +70,8 @@ class UpdateGfdFuncionarioUseCaseImplTest {
 
     @Test
     void test_deve_atualizar_funcionario_e_locais() {
+        inputDto.setEmail("teste@email.com");
+
         when(funcionarioRepository.findById(1)).thenReturn(Optional.of(funcionario));
 
         when(modelMapper.map(funcionario, GfdFuncionarioUpdateOutputDto.class))

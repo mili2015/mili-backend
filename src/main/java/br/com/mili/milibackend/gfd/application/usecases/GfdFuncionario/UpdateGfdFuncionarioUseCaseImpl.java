@@ -14,6 +14,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.UpdateGfdFunci
 import br.com.mili.milibackend.gfd.domain.usecases.GfdResponsavelIntegracao.SendEmailResponsavelIntegracaoUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdLocalTrabalhoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
+import br.com.mili.milibackend.shared.exception.types.ConflictException;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_JA_SENDO_USADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_NAO_ENCONTRADO;
 
 @Service
@@ -39,6 +41,8 @@ public class UpdateGfdFuncionarioUseCaseImpl implements UpdateGfdFuncionarioUseC
         var id = inputDto.getId();
 
         var gfdFuncionario = gfdFuncionarioRepository.findById(id).orElse(null);
+
+        validarEmail(inputDto.getEmail());
 
         if (gfdFuncionario == null) {
             throw new NotFoundException(GFD_FUNCIONARIO_NAO_ENCONTRADO.getMensagem(), GFD_FUNCIONARIO_NAO_ENCONTRADO.getCode());
@@ -60,7 +64,19 @@ public class UpdateGfdFuncionarioUseCaseImpl implements UpdateGfdFuncionarioUseC
         return modelMapper.map(gfdFuncionario, GfdFuncionarioUpdateOutputDto.class);
     }
 
+    private void validarEmail(String email) {
+        if (email == null) return;
+
+        boolean emailAlreadyUse = gfdFuncionarioRepository.existsByEmail(email);
+
+        if (emailAlreadyUse) {
+            throw new ConflictException(GFD_FUNCIONARIO_JA_SENDO_USADO.getMensagem(), GFD_FUNCIONARIO_JA_SENDO_USADO.getCode());
+        }
+    }
+
     private void matricularAcademia(GfdFuncionarioUpdateInputDto inputDto, GfdFuncionario gfdFuncionario, Set<Integer> novosLocais) {
+        if (inputDto.getEmail() == null || inputDto.getEmail().isBlank()) return;
+
         var matricularAcademiaFuncionarioInputDto = MatricularAcademiaFuncionarioInputDto.builder()
                 .id(gfdFuncionario.getId())
                 .nome(gfdFuncionario.getNome())
