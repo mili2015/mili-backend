@@ -42,11 +42,12 @@ public class UpdateGfdFuncionarioUseCaseImpl implements UpdateGfdFuncionarioUseC
 
         var gfdFuncionario = gfdFuncionarioRepository.findById(id).orElse(null);
 
-        validarEmail(inputDto.getEmail());
 
         if (gfdFuncionario == null) {
             throw new NotFoundException(GFD_FUNCIONARIO_NAO_ENCONTRADO.getMensagem(), GFD_FUNCIONARIO_NAO_ENCONTRADO.getCode());
         }
+
+        validarEmail(inputDto.getEmail(), gfdFuncionario.getEmail());
 
         boolean funcionarioAlterado = UpdateGfdFuncionarioChangeDetector.hasFuncionarioChanges(inputDto, gfdFuncionario);
         Set<Integer> novosLocais = UpdateGfdFuncionarioChangeDetector.hasLocaisChanges(inputDto, gfdFuncionario);
@@ -64,15 +65,16 @@ public class UpdateGfdFuncionarioUseCaseImpl implements UpdateGfdFuncionarioUseC
         return modelMapper.map(gfdFuncionario, GfdFuncionarioUpdateOutputDto.class);
     }
 
-    private void validarEmail(String email) {
-        if (email == null) return;
+    private void validarEmail(String novoEmail, String emailAtual) {
+        if (novoEmail == null || novoEmail.equals(emailAtual)) return;
 
-        boolean emailAlreadyUse = gfdFuncionarioRepository.existsByEmail(email);
+        boolean emailAlreadyUse = gfdFuncionarioRepository.existsByEmail(novoEmail);
 
         if (emailAlreadyUse) {
             throw new ConflictException(GFD_FUNCIONARIO_JA_SENDO_USADO.getMensagem(), GFD_FUNCIONARIO_JA_SENDO_USADO.getCode());
         }
     }
+
 
     private void matricularAcademia(GfdFuncionarioUpdateInputDto inputDto, GfdFuncionario gfdFuncionario, Set<Integer> novosLocais) {
         if (inputDto.getEmail() == null || inputDto.getEmail().isBlank()) return;
