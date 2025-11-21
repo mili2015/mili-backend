@@ -4,6 +4,7 @@ import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionario
 import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateOutputDto;
 import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionario;
 import br.com.mili.milibackend.gfd.domain.usecases.GfdResponsavelIntegracao.SendEmailResponsavelIntegracaoUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.MatricularAcademiaFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.infra.repository.GfdLocalTrabalhoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
@@ -35,6 +36,9 @@ class UpdateGfdFuncionarioUseCaseImplTest {
     private SendEmailResponsavelIntegracaoUseCase sendEmailResponsavelIntegracaoUseCase;
 
     @Mock
+    private MatricularAcademiaFuncionarioUseCase matricularAcademiaFuncionarioUseCase;
+
+    @Mock
     private ModelMapper modelMapper;
 
     @InjectMocks
@@ -42,6 +46,7 @@ class UpdateGfdFuncionarioUseCaseImplTest {
 
     private GfdFuncionario funcionario;
     private GfdFuncionarioUpdateInputDto inputDto;
+
 
     @BeforeEach
     void setUp() {
@@ -53,20 +58,28 @@ class UpdateGfdFuncionarioUseCaseImplTest {
         inputDto.setId(1);
         inputDto.setNome("João Atualizado");
         inputDto.setCpf("12345678901");
-        inputDto.setDataNascimento(LocalDate.of(1990,1,1));
+        inputDto.setDataNascimento(LocalDate.of(1990, 1, 1));
         inputDto.setFuncao("Analista");
         inputDto.setFornecedor(new GfdFuncionarioUpdateInputDto.FornecedorDto(10));
         inputDto.setLocaisTrabalho(List.of(
                 new GfdFuncionarioUpdateInputDto.LocalTrabalhoDto(1),
                 new GfdFuncionarioUpdateInputDto.LocalTrabalhoDto(2)
         ));
+
     }
 
     @Test
-    void execute_shouldUpdateFuncionarioAndLocais() {
+    void test_deve_atualizar_funcionario_e_locais() {
+        inputDto.setEmail("teste@email.com");
+
         when(funcionarioRepository.findById(1)).thenReturn(Optional.of(funcionario));
+
         when(modelMapper.map(funcionario, GfdFuncionarioUpdateOutputDto.class))
                 .thenReturn(new GfdFuncionarioUpdateOutputDto());
+
+        when(matricularAcademiaFuncionarioUseCase.execute(any())).thenReturn(1);
+
+        when(funcionarioRepository.save(any())).thenReturn(funcionario);
 
         GfdFuncionarioUpdateOutputDto output = updateUseCase.execute(inputDto);
 
@@ -77,7 +90,7 @@ class UpdateGfdFuncionarioUseCaseImplTest {
     }
 
     @Test
-    void execute_shouldThrowNotFoundException_whenFuncionarioNotExists() {
+    void test_deve_lancar_NotFoundException_quando_funcionario_nao_existir() {
         when(funcionarioRepository.findById(1)).thenReturn(Optional.empty());
 
         NotFoundException exception = assertThrows(NotFoundException.class, () -> {

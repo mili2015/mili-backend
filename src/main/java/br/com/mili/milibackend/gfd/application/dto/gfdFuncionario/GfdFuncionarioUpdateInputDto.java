@@ -22,6 +22,7 @@ public class GfdFuncionarioUpdateInputDto {
     private String funcao;
     private LocalDate periodoInicial;
     private LocalDate periodoFinal;
+    private String email;
     private String observacao;
     private List<LocalTrabalhoDto> locaisTrabalho;
 

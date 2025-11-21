@@ -41,7 +41,7 @@ public class GfdMController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @RequestParam(value = "id", required = false) Integer fornecedorId
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/verificar-fornecedor", user.getUsername());
 
         var inputDto = new GfdMVerificarFornecedorInputDto();
         inputDto.setCodUsuario(user.getIdUser());
@@ -61,7 +61,7 @@ public class GfdMController {
             @AuthenticationPrincipal CustomUserPrincipal user,
             @RequestParam(value = "id", required = false) Integer fornecedorId
     ) {
-        log.info("{} {}/{}", RequestMethod.GET, ENDPOINT, user.getUsername());
+        log.info("{} {} {}", RequestMethod.GET, ENDPOINT + "/fornecedores", user.getUsername());
 
         var inputDto = new GfdMFornecedorGetInputDto();
 

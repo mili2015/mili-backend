@@ -32,6 +32,7 @@ public class GfdMFuncionarioGetOutputDto {
         private String observacao;
         private Integer ativo;
         private Integer liberado;
+        private String email;
         private FornecedorDto fornecedor;
         private List<LocalTrabalhoDto> locaisTrabalho = new ArrayList<>();
 

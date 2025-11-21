@@ -26,6 +26,7 @@ public class GfdFuncionarioGetAllOutputDto {
     private Character liberado;
     private Integer desligado;
     private FornecedorDto fornecedor;
+    private String email;
 
 
     private Integer totalEnviado;

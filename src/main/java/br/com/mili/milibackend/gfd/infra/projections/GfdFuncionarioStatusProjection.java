@@ -17,6 +17,7 @@ public interface GfdFuncionarioStatusProjection {
     String getObservacao();
     Character getAtivo();
     Character getLiberado();
+    String getEmail();
     Integer getDesligado();
 
     Integer getTotalEnviado();

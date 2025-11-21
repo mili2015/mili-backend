@@ -47,6 +47,8 @@ public class GfdMFuncionarioCreateInputDto {
         @NotEmpty
         private String funcao;
 
+        private String email;
+
         @NotNull
         private LocalDate periodoInicial;
 
