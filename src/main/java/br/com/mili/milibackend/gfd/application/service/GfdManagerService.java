@@ -27,6 +27,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.UpdateGfdDocumen
 import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.CreateFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.GetAllGfdFuncionarioUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdFuncionario.UpdateGfdFuncionarioUseCase;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdManager.VerifyFornecedorUseCase;
 import br.com.mili.milibackend.gfd.infra.email.GfdDocumentoEmailTemplate;
 import br.com.mili.milibackend.shared.exception.types.ConflictException;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
@@ -34,6 +35,7 @@ import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.PageBaseImpl;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,13 +44,17 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeEx
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdMCodeException.*;
 
 @Service
+@RequiredArgsConstructor
 public class GfdManagerService implements IGfdManagerService {
 
     private final IGfdDocumentoService gfdDocumentoService;
     private final ModelMapper modelMapper;
     private final IGfdFuncionarioService gfdFuncionarioService;
     private final IEnvioEmailService envioEmailService;
-    private final String baseUrl;
+
+    @Value("${frontend.url.origin}")
+    private String baseUrl;
+
     private final GetAllGfdFuncionarioUseCase getAllGfdFuncionarioUseCase;
     private final GetFornecedorByCodOrIdUseCase getFornecedorByCodOrIdUseCase;
     private final UpdateGfdDocumentoUseCase updateGfdDocumentoUseCase;
@@ -57,30 +63,11 @@ public class GfdManagerService implements IGfdManagerService {
     private final CreateFuncionarioUseCase createFuncionarioUseCase;
     private final UpdateGfdFuncionarioUseCase updateGfdFuncionarioUseCase;
     private final FornecedorRepository fornecedorRepository;
-
-    public GfdManagerService(IGfdDocumentoService gfdDocumentoService, ModelMapper modelMapper, IGfdFuncionarioService gfdFuncionarioService, IEnvioEmailService envioEmailService, @Value("${frontend.url.origin}") String baseUrl, GetAllGfdFuncionarioUseCase getAllGfdFuncionarioUseCase, GetFornecedorByCodOrIdUseCase getFornecedorByCodOrIdUseCase, UpdateGfdDocumentoUseCase updateGfdDocumentoUseCase, DeleteGfdDocumentoUseCase deleteGfdDocumentoUseCase, ValidatePermissionFornecedorUseCase validatePermissionFornecedorUseCase, CreateFuncionarioUseCase createFuncionarioUseCase, UpdateGfdFuncionarioUseCase updateGfdFuncionarioUseCase, FornecedorRepository fornecedorRepository) {
-        this.gfdDocumentoService = gfdDocumentoService;
-        this.modelMapper = modelMapper;
-        this.gfdFuncionarioService = gfdFuncionarioService;
-        this.envioEmailService = envioEmailService;
-        this.baseUrl = baseUrl;
-        this.getAllGfdFuncionarioUseCase = getAllGfdFuncionarioUseCase;
-        this.getFornecedorByCodOrIdUseCase = getFornecedorByCodOrIdUseCase;
-        this.updateGfdDocumentoUseCase = updateGfdDocumentoUseCase;
-        this.deleteGfdDocumentoUseCase = deleteGfdDocumentoUseCase;
-        this.validatePermissionFornecedorUseCase = validatePermissionFornecedorUseCase;
-        this.createFuncionarioUseCase = createFuncionarioUseCase;
-        this.updateGfdFuncionarioUseCase = updateGfdFuncionarioUseCase;
-        this.fornecedorRepository = fornecedorRepository;
-    }
+    private final VerifyFornecedorUseCase verifyFornecedorUseCase;
 
     @Override
     public GfdMVerificarFornecedorOutputDto verifyFornecedor(GfdMVerificarFornecedorInputDto inputDto) {
-        var fornecedor = getFornecedorByCodOrIdUseCase.execute(inputDto.getCodUsuario(), inputDto.getId(), inputDto.isAnalista());
-
-        String razaoSocial = fornecedor.getRazaoSocial();
-
-        return new GfdMVerificarFornecedorOutputDto(representanteCadastrado(fornecedor), razaoSocial != null ? razaoSocial : "Bem-Vindo");
+        return verifyFornecedorUseCase.execute(inputDto);
     }
 
 
@@ -293,7 +280,5 @@ public class GfdManagerService implements IGfdManagerService {
     }
 
 
-    private boolean representanteCadastrado(Fornecedor fornecedor) {
-        return fornecedor.getContato() != null && fornecedor.getEmail() != null && fornecedor.getCelular() != null && (fornecedor.getAceiteLgpd() != null && fornecedor.getAceiteLgpd().equals(1));
-    }
+ 
 }

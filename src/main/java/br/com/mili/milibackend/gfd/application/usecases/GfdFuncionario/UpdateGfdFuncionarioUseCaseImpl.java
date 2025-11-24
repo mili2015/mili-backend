@@ -42,7 +42,6 @@ public class UpdateGfdFuncionarioUseCaseImpl implements UpdateGfdFuncionarioUseC
 
         var gfdFuncionario = gfdFuncionarioRepository.findById(id).orElse(null);
 
-
         if (gfdFuncionario == null) {
             throw new NotFoundException(GFD_FUNCIONARIO_NAO_ENCONTRADO.getMensagem(), GFD_FUNCIONARIO_NAO_ENCONTRADO.getCode());
         }
