@@ -31,7 +31,7 @@ public class LiberarFuncionarioUseCaseImpl implements LiberarFuncionarioUseCase 
 
         // verifica se o funcionario tem algum documento pendente
         // caso afirmativo, é obrigado a enviar a justificativa
-        var documents = gfdFuncionarioRepository.getAllDocuments(inputDto.getId());
+        var documents = gfdFuncionarioRepository.getAllDocuments(inputDto.getId(), null);
 
         var documentosPendentes = documents.getTotalEnviado() > 0 ||
                                   documents.getTotalNaoConforme() > 0 ||
