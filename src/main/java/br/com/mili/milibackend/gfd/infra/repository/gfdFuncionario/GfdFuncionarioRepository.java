@@ -140,6 +140,23 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
             List<Integer> idsLocalTrabalho
     );
 
+    @Modifying
+    @Transactional
+    @Query(value = """
+                    UPDATE GfdFuncionario g
+                    SET g.liberado = :liberado
+                    WHERE g.id = :idFuncionario
+            """)
+    void updateLiberado(@Param("idFuncionario") Integer idFuncionario, @Param("liberado") Integer liberado);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+                    UPDATE GfdFuncionario g
+                    SET g.liberado = :liberado
+                    WHERE g.fornecedor.codigo = :ctforCodigo
+            """)
+    void updateLiberadoFornecedor(Integer ctforCodigo, @Param("liberado") Integer liberado);
 
     /*
      * Consulta para verificar se o usuário possui documento pendentes para enviar a justificativa
@@ -167,6 +184,12 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                                     ORDER BY C.ID DESC
                                 ) AS RN
                          FROM CT_FORNECEDOR_DOCUMENTOS C
+           
+                         --PERIODO \s
+                         JOIN GFD_DOCUMENTO_PERIODO GDP\s
+                            ON C.ID = GDP.ID_DOCUMENTO\s
+                         WHERE (:periodo IS null\s
+                            OR :periodo between GDP.PERIODO_INICIAL and GDP.PERIODO_FINAL)
                      ) SUB
                      WHERE SUB.RN = 1
                  ) C
@@ -180,7 +203,8 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
 
     @Query(value = QUERY_GFD_FUNCIONARIO_DOCUMENTOS, nativeQuery = true)
     GfdFuncionarioDocumentsProjection getAllDocuments(
-            Integer idFuncionario
+            Integer idFuncionario,
+            LocalDate periodo
     );
 
 

@@ -12,4 +12,5 @@ import lombok.Setter;
 public class GfdMVerificarFornecedorOutputDto {
     private Boolean representanteCadastrado;
     private String razaoSocial;
+    private Boolean documentosPendente;
 }

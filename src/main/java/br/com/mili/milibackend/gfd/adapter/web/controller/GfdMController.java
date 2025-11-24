@@ -7,6 +7,7 @@ import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.GfdMVerif
 import br.com.mili.milibackend.gfd.application.dto.manager.funcionario.GfdMVerificarFornecedorOutputDto;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdManager.VerifyFornecedorUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.*;
 
-
+/**
+ * Controller para gerenciar os endpoints de GFD
+ */
 @Slf4j
 @RestController
 @RequestMapping(GfdMController.ENDPOINT)
@@ -30,10 +33,12 @@ public class GfdMController {
 
     private final IGfdManagerService gfdManagerService;
     private final IGfdPolicy gfdPolicy;
+    private final VerifyFornecedorUseCase verifyFornecedorUseCase;
 
-    public GfdMController(IGfdManagerService gfdManagerService, IGfdPolicy gfdPolicy) {
+    public GfdMController(IGfdManagerService gfdManagerService, IGfdPolicy gfdPolicy, VerifyFornecedorUseCase verifyFornecedorUseCase) {
         this.gfdManagerService = gfdManagerService;
         this.gfdPolicy = gfdPolicy;
+        this.verifyFornecedorUseCase = verifyFornecedorUseCase;
     }
 
     @GetMapping("verificar-fornecedor")
@@ -53,7 +58,7 @@ public class GfdMController {
             inputDto.setAnalista(false);
         }
 
-        return ResponseEntity.ok(gfdManagerService.verifyFornecedor(inputDto));
+        return ResponseEntity.ok(verifyFornecedorUseCase.execute(inputDto));
     }
 
     @GetMapping("fornecedores")

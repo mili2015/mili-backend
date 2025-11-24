@@ -76,7 +76,7 @@ class LiberarFuncionarioUseCaseImplTest {
         when(documentosMock.getTotalEnviado()).thenReturn(1);
 
 
-        when(funcionarioRepository.getAllDocuments(1)).thenReturn(documentosMock);
+        when(funcionarioRepository.getAllDocuments(1, null)).thenReturn(documentosMock);
 
         var input = new GfdFuncionarioLiberarInputDto();
         input.setId(1);
@@ -87,7 +87,7 @@ class LiberarFuncionarioUseCaseImplTest {
         assertEquals(GfdFuncionarioCodeException.GFD_FUNCIONARIO_LIBERACAO_COM_DOCUMENTO_PENDENTE.getMensagem(), ex.getMessage());
 
         verify(funcionarioRepository).findById(1);
-        verify(funcionarioRepository).getAllDocuments(1);
+        verify(funcionarioRepository).getAllDocuments(1, null);
         verifyNoMoreInteractions(liberacaoRepository);
     }
 
@@ -98,7 +98,7 @@ class LiberarFuncionarioUseCaseImplTest {
         GfdFuncionarioDocumentsProjection documentosMock = mock(GfdFuncionarioDocumentsProjection.class);
         when(documentosMock.getTotalEnviado()).thenReturn(1);
 
-        when(funcionarioRepository.getAllDocuments(1)).thenReturn(documentosMock);
+        when(funcionarioRepository.getAllDocuments(1, null)).thenReturn(documentosMock);
 
 
         var input = new GfdFuncionarioLiberarInputDto();
@@ -116,7 +116,7 @@ class LiberarFuncionarioUseCaseImplTest {
         assertEquals(1, funcionario.getLiberado());
 
         verify(funcionarioRepository).findById(1);
-        verify(funcionarioRepository).getAllDocuments(1);
+        verify(funcionarioRepository).getAllDocuments(1, null);
         verify(funcionarioRepository).save(funcionario);
         verify(liberacaoRepository).save(liberacaoCaptor.capture());
 
@@ -134,7 +134,7 @@ class LiberarFuncionarioUseCaseImplTest {
         GfdFuncionarioDocumentsProjection documentosMock = mock(GfdFuncionarioDocumentsProjection.class);
         when(documentosMock.getTotalEnviado()).thenReturn(0);
 
-        when(funcionarioRepository.getAllDocuments(1)).thenReturn(documentosMock);
+        when(funcionarioRepository.getAllDocuments(1, null)).thenReturn(documentosMock);
 
         var input = new GfdFuncionarioLiberarInputDto();
         input.setId(1);
@@ -151,7 +151,7 @@ class LiberarFuncionarioUseCaseImplTest {
         assertEquals(1, funcionario.getLiberado());
 
         verify(funcionarioRepository).findById(1);
-        verify(funcionarioRepository).getAllDocuments(1);
+        verify(funcionarioRepository).getAllDocuments(1, null);
         verify(funcionarioRepository).save(funcionario);
         verify(liberacaoRepository).save(any());
     }
