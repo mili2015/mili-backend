@@ -74,6 +74,7 @@ public class UpdateGfdFuncionarioUseCaseImpl implements UpdateGfdFuncionarioUseC
         }
     }
 
+
     private void matricularAcademia(GfdFuncionarioUpdateInputDto inputDto, GfdFuncionario gfdFuncionario, Set<Integer> novosLocais) {
         if (inputDto.getEmail() == null || inputDto.getEmail().isBlank()) return;
 
