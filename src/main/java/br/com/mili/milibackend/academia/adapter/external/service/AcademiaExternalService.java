@@ -9,6 +9,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -47,8 +49,15 @@ public class AcademiaExternalService {
     }
 
 
+    private WebClient webClientWithLog() {
+        return WebClient.builder()
+                .filter(logResponse())
+                .build();
+    }
+
     public Optional<AcademiaExternalGetUserByEmailResponse> getUserByEmailResponse(String email) {
-        var userArray = webClient.get()
+        var userArray = webClientWithLog()
+                .get()
                 .uri(wordpressApi("/users?search=" + email))
                 .headers(h -> h.setBasicAuth(wpUser, wpAppPassword))
                 .retrieve()
@@ -70,7 +79,8 @@ public class AcademiaExternalService {
 
     public AcademiaExternalSaveUserResponse createUser(AcademiaExternalCreateUserRequest input) {
 
-        return webClient.post()
+        return webClientWithLog()
+                .post()
                 .uri(wordpressApi("/users"))
                 .headers(h -> h.setBasicAuth(wpUser, wpAppPassword))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +95,8 @@ public class AcademiaExternalService {
     }
 
     public AcademiaExternalSaveUserResponse updateUser(AcademiaExternalUpdateUserRequest input) {
-        return webClient.post()
+        return webClientWithLog()
+                .post()
                 .uri(wordpressApi("/users/" + input.getUserId()))
                 .headers(h -> h.setBasicAuth(wpUser, wpAppPassword))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -104,7 +115,8 @@ public class AcademiaExternalService {
                 .courseIds(courseIds)
                 .build();
 
-        return webClient.post()
+        return webClientWithLog()
+                .post()
                 .uri(ldApi("/users/" + userId + "/courses"))
                 .headers(h -> h.setBasicAuth(wpUser, wpAppPassword))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -130,7 +142,8 @@ public class AcademiaExternalService {
             uriBuilder.append("?include=").append(joinedIds);
         }
 
-        return webClient.get()
+        return webClientWithLog()
+                .get()
                 .uri(ldApi(uriBuilder.toString()))
                 .headers(h -> h.setBasicAuth(wpUser, wpAppPassword))
                 .retrieve()
@@ -141,6 +154,29 @@ public class AcademiaExternalService {
                 .bodyToMono(new ParameterizedTypeReference<List<AcademiaExternalGetCousesByIdResponse>>() {
                 })
                 .block();
+    }
+
+
+    private ExchangeFilterFunction logResponse() {
+        return ExchangeFilterFunction.ofResponseProcessor(response ->
+                response.bodyToMono(String.class)
+                        .defaultIfEmpty("")
+                        .flatMap(body -> {
+                            var requestUri = response.request().getURI();
+                            var method = response.request().getMethod();
+
+                            log.info("RESPONSE {} {} => Status: {} BODY: {}",
+                                    method, requestUri, response.statusCode(), body
+                            );
+
+                            // reconstruir o ClientResponse com o body para não consumir o stream
+                            ClientResponse newResponse = ClientResponse.from(response)
+                                    .body(body)
+                                    .build();
+
+                            return Mono.just(newResponse);
+                        })
+        );
     }
 
 }
