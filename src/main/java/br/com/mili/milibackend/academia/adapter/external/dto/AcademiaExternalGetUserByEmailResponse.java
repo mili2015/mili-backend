@@ -1,6 +1,7 @@
 package br.com.mili.milibackend.academia.adapter.external.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class AcademiaExternalGetUserByEmailResponse {
     private Meta meta;
 
     @JsonProperty("elementor_introduction")
-    private String elementorIntroduction;
+    private JsonNode elementorIntroduction;
 
     @JsonProperty("_links")
     private Links links;
