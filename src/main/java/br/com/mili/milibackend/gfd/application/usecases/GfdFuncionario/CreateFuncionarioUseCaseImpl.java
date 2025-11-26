@@ -14,6 +14,7 @@ import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionari
 import br.com.mili.milibackend.shared.exception.types.ConflictException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeEx
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreateFuncionarioUseCaseImpl implements CreateFuncionarioUseCase {
     private final ModelMapper modelMapper;
     private final GfdFuncionarioRepository gfdFuncionarioRepository;
@@ -44,13 +46,17 @@ public class CreateFuncionarioUseCaseImpl implements CreateFuncionarioUseCase {
         // cria as relações do local de trabalho
         adicionarLocaisTrabalho(inputDto, gfdFuncionario);
 
-        matricular(gfdFuncionarioCreated);
+        try {
+            matricular(gfdFuncionarioCreated);
+        } catch (Exception ex) {
+            log.error("Erro ao matricular o funcionário: " + gfdFuncionarioCreated.getId(), ex);
+        }
 
         return modelMapper.map(gfdFuncionarioCreated, GfdFuncionarioCreateOutputDto.class);
     }
 
     private void matricular(GfdFuncionario gfdFuncionarioCreated) {
-        if (gfdFuncionarioCreated.getEmail() != null) {
+        if (gfdFuncionarioCreated.getEmail() != null && !gfdFuncionarioCreated.getEmail().isBlank()) {
             var matricularAcademiaFuncionarioInputDto = MatricularAcademiaFuncionarioInputDto.builder()
                     .id(gfdFuncionarioCreated.getId())
                     .nome(gfdFuncionarioCreated.getNome())
