@@ -50,7 +50,7 @@ public class CreateFuncionarioUseCaseImpl implements CreateFuncionarioUseCase {
     }
 
     private void matricular(GfdFuncionario gfdFuncionarioCreated) {
-        if (gfdFuncionarioCreated.getEmail() != null) {
+        if (gfdFuncionarioCreated.getEmail() != null && !gfdFuncionarioCreated.getEmail().isBlank()) {
             var matricularAcademiaFuncionarioInputDto = MatricularAcademiaFuncionarioInputDto.builder()
                     .id(gfdFuncionarioCreated.getId())
                     .nome(gfdFuncionarioCreated.getNome())
