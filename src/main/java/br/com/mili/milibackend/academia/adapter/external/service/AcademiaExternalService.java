@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,6 +95,29 @@ public class AcademiaExternalService {
                 .block();
     }
 
+    public void updateMetaPlainPass(Integer userId, String plainPass) {
+        var meta = new HashMap<String, String>();
+        meta.put("import_plain_pass", plainPass);
+
+        var payload = new HashMap<String, Object>();
+        payload.put("meta", meta);
+
+        webClientWithLog()
+                .put()
+                .uri(wordpressApi("/users/" + userId))
+                .headers(h -> h.setBasicAuth(wpUser, wpAppPassword))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response ->
+                        response.bodyToMono(String.class)
+                                .map(body -> new InternalServerException("WORDPRESS" + " " + body, ACADEMIA_EXTERNAL_ERROR.getCode()))
+                )
+                .bodyToMono(AcademiaExternalSaveUserResponse.class)
+                .block();
+    }
+
+
     public AcademiaExternalSaveUserResponse updateUser(AcademiaExternalUpdateUserRequest input) {
         return webClientWithLog()
                 .post()
@@ -155,7 +179,6 @@ public class AcademiaExternalService {
                 })
                 .block();
     }
-
 
     private ExchangeFilterFunction logResponse() {
         return ExchangeFilterFunction.ofResponseProcessor(response ->
