@@ -28,6 +28,7 @@ public class CreateAcademiaUserUseCaseImpl implements CreateAcademiaUserUseCase 
                 .build();
 
         var response = academiaExternalService.createUser(request);
+        academiaExternalService.updateMetaPlainPass(response.getId(), inputDto.getPassword());
 
         return AcademiaUserSaveOutputDto.builder()
                 .id(response.getId())
