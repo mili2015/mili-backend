@@ -1,7 +1,7 @@
 package br.com.mili.milibackend.gfd.application.dto.manager.documentos;
 
 import br.com.mili.milibackend.shared.infra.aws.dto.AttachmentDto;
-import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
+import br.com.mili.milibackend.shared.validation.validaIntervaloData.annotation.ValidaIntervaloData;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,7 @@
 package br.com.mili.milibackend.gfd.application.dto.manager.funcionario;
 
-import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
+import br.com.mili.milibackend.shared.validation.validaDataAntigasOuFuturas.ValidaDataAntigasOuFuturas;
+import br.com.mili.milibackend.shared.validation.validaIntervaloData.annotation.ValidaIntervaloData;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -51,9 +52,11 @@ public class GfdMFuncionarioCreateInputDto {
         private String email;
 
         @NotNull
+        @ValidaDataAntigasOuFuturas
         private LocalDate periodoInicial;
 
         @NotNull
+        @ValidaDataAntigasOuFuturas
         private LocalDate periodoFinal;
 
         private String observacao;

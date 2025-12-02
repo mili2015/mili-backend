@@ -1,6 +1,5 @@
 package br.com.mili.milibackend.gfd.application.dto.manager.funcionario;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
