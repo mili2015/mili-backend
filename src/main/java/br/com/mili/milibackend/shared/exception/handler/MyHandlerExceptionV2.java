@@ -23,7 +23,7 @@ public class MyHandlerExceptionV2 {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<MyResponse> handleCustomException(CustomException ex) {
-        logger.error("customException", ex);
+        logger.error("handleMethodArgumentNotValidException", ex);
 
         MyResponse errorResponse = new MyResponse(ex.getStatus(), ex.getMessage(), ex.getCode());
         return new ResponseEntity<MyResponse>(errorResponse, HttpStatus.valueOf(ex.getStatus()));

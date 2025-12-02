@@ -1,6 +1,6 @@
 package br.com.mili.milibackend.gfd.application.dto.manager.funcionario;
 
-import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
+import br.com.mili.milibackend.gfd.application.dto.gfdFuncionario.GfdFuncionarioUpdateInputDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +26,6 @@ public class GfdMFuncionarioUpdateInputDto {
     @Setter
     @EqualsAndHashCode
     @NoArgsConstructor
-    @ValidaIntervaloData(inicio = "periodoInicial", fim = "periodoFinal")
     public static class GfdFuncionarioDto {
         private Integer id;
         private FornecedorDto fornecedor;
