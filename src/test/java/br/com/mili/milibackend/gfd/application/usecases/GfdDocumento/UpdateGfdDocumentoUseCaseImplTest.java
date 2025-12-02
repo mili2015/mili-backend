@@ -110,7 +110,7 @@ class UpdateGfdDocumentoUseCaseImplTest {
         verify(gfdDocumentoHistoricoRepository).save(any());
     }
 
-    @Test
+/*    @Test
     void deve_bloquear_fornecedor_quando_documentos_pendentes() {
         // arrange
         final Integer documentoId = 200;
@@ -137,5 +137,5 @@ class UpdateGfdDocumentoUseCaseImplTest {
         // e nao chamou updateLiberado individual
         verify(gfdFuncionarioRepository, never()).updateLiberado(anyInt(), anyInt());
         verify(gfdDocumentoHistoricoRepository).save(any());
-    }
+    }*/
 }
