@@ -85,10 +85,10 @@ public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase 
             return;
         }
 
-        // caso o documento for da empresa
+/*        // caso o documento for da empresa
         // procura a empresa do documento e verifica se todos os documentos da empresa estão em conforme
         // caso contrario todos os funcionários vão automaticamente estar com status não liberado
-        updateStatusLiberadoPorFornecedor(ctforCodigo, documentosStatusFornecedor);
+        updateStatusLiberadoPorFornecedor(ctforCodigo, documentosStatusFornecedor);*/
     }
 
     private void updateStatusLiberadoPorFornecedor(Integer ctforCodigo, GfdDocumentCountProjection documentosStatusFornecedor) {
