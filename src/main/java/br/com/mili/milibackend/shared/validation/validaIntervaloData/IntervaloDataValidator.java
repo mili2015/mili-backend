@@ -1,6 +1,6 @@
-package br.com.mili.milibackend.shared.validation;
+package br.com.mili.milibackend.shared.validation.validaIntervaloData;
 
-import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
+import br.com.mili.milibackend.shared.validation.validaIntervaloData.annotation.ValidaIntervaloData;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

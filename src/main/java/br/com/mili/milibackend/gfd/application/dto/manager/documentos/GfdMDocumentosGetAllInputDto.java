@@ -2,7 +2,7 @@ package br.com.mili.milibackend.gfd.application.dto.manager.documentos;
 
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
 import br.com.mili.milibackend.shared.page.Filtro;
-import br.com.mili.milibackend.shared.validation.annotation.ValidaIntervaloData;
+import br.com.mili.milibackend.shared.validation.validaIntervaloData.annotation.ValidaIntervaloData;
 import lombok.*;
 
 import java.time.LocalDate;
