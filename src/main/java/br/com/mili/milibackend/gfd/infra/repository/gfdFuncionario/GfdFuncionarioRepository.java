@@ -42,9 +42,9 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                     COALESCE(SUM(CASE WHEN C.STATUS IS NULL AND B.OBRIGATORIEDADE = 1 THEN 1 ELSE 0 END), 0) AS nao_enviado
 
                FROM GFD_FORNECEDOR_FUNCIONARIO A
-               JOIN GFD_TIPO_CONTRATACAO TC\s
+               JOIN GFD_TIPO_CONTRATACAO TC
                    ON TC.ID = A.ID_TIPO_CONTRATACAO
-               JOIN GFD_TIPO_DOCUMENTO B\s
+               JOIN GFD_TIPO_DOCUMENTO B
                    ON B.ID_CATEGORIA_DOC = TC.ID_CATEGORIA_DOC
                   AND B.ATIVO = 1
                   AND (
@@ -109,7 +109,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                    A.OBSERVACAO,
                    A.DESLIGADO
 
-               ORDER BY A.ID_FUNCIONARIO DESC;
+               ORDER BY A.ID_FUNCIONARIO DESC
             """;
 
     @Query(value = QUERY_GFD_FUNCIONARIO + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY", nativeQuery = true)
