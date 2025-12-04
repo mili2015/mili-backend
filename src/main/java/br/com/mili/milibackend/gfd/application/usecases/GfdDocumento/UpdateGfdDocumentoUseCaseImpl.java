@@ -121,8 +121,6 @@ public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase 
                 && totalNaoConforme == 0
         ) {
             gfdFuncionarioRepository.updateLiberado(funcionarioId, 1);
-        } else {
-            gfdFuncionarioRepository.updateLiberado(funcionarioId, 0);
         }
     }
 
