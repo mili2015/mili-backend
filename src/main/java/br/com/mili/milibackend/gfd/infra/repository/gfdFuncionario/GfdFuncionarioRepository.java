@@ -109,7 +109,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                    A.OBSERVACAO,
                    A.DESLIGADO
 
-               ORDER BY A.ID_FUNCIONARIO DESC
+               ORDER BY A.NOME ASC
             """;
 
     @Query(value = QUERY_GFD_FUNCIONARIO + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY", nativeQuery = true)
@@ -204,7 +204,7 @@ public interface GfdFuncionarioRepository extends JpaRepository<GfdFuncionario, 
                   AND C.ID_FUNCIONARIO = A.ID_FUNCIONARIO
             
                  WHERE (:idFuncionario IS NULL OR A.ID_FUNCIONARIO = :idFuncionario)
-                 ORDER BY A.ID_FUNCIONARIO
+                 ORDER BY A.NOME ASC
             """;
 
     @Query(value = QUERY_GFD_FUNCIONARIO_DOCUMENTOS, nativeQuery = true)
