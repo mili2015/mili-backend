@@ -7,6 +7,8 @@ import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.gfdHistoricoDocu
 import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.gfdHistoricoDocumento.GfdDocumentoHistoricoGetAllOutputDto;
 import br.com.mili.milibackend.gfd.application.dto.manager.documentos.*;
 import br.com.mili.milibackend.gfd.application.policy.IGfdPolicy;
+import br.com.mili.milibackend.gfd.application.dto.gfdDocumento.relatorio.GfdDocumentoRelatorioFiltroDto;
+import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.RelatorioGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.interfaces.IGfdManagerService;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllStatusGfdDocumentsUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.GetAllSupplierDocumentsUseCase;
@@ -14,14 +16,16 @@ import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.UpdateStatusObse
 import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.UploadGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.gfdDocumentoHistorico.GetAllGfdDocumentoHistoricoUseCase;
 import br.com.mili.milibackend.shared.infra.security.model.CustomUserPrincipal;
+import br.com.mili.milibackend.shared.logoperation.LogOperation;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +49,7 @@ public class GfdMDocumentoController {
     private final GetAllStatusGfdDocumentsUseCase getAllStatusGfdDocumentsUseCase;
     private final GetAllGfdDocumentoHistoricoUseCase getAllGfdDocumentoHistoricoUseCase;
     private final IGfdPolicy gfdPolicy;
+    private final RelatorioGfdDocumentoUseCase relatorioGfdDocumentoUseCase;
 
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
@@ -144,7 +149,7 @@ public class GfdMDocumentoController {
         inputDto.setCodUsuario(user.getIdUser());
 
         if (gfdPolicy.isAnalista(user)) {
-           inputDto.setAnalista(true);
+            inputDto.setAnalista(true);
         } else {
             inputDto.setAnalista(false);
         }
@@ -233,5 +238,23 @@ public class GfdMDocumentoController {
         inputDto.getGfdDocumentoHistorico().setDocumentoId(idDocumento);
 
         return ResponseEntity.ok(getAllGfdDocumentoHistoricoUseCase.execute(inputDto));
+    }
+
+    @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
+            "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
+            "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
+            "or hasAuthority('" + ROLE_SESMT + "')"
+    )
+    @GetMapping("documentos/relatorio")
+    @LogOperation
+    public ResponseEntity<byte[]> gerarRelatorio(
+            @ParameterObject @ModelAttribute @Valid GfdDocumentoRelatorioFiltroDto filtro
+    ) {
+        byte[] relatorio = relatorioGfdDocumentoUseCase.execute(filtro);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-gfd.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(relatorio);
     }
 }
