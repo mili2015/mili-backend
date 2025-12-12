@@ -7,6 +7,7 @@ import br.com.mili.milibackend.fornecedor.domain.interfaces.service.IFornecedorS
 import br.com.mili.milibackend.fornecedor.domain.usecases.ValidatePermissionFornecedorUseCase;
 import br.com.mili.milibackend.fornecedor.infra.repository.fornecedorRepository.FornecedorRepository;
 import br.com.mili.milibackend.fornecedor.infra.specification.FornecedorSpecification;
+import br.com.mili.milibackend.fornecedor.application.factory.GetAllFornecedorSpecificationFactory;
 import br.com.mili.milibackend.gfd.domain.entity.GfdTipoFornecedor;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdTipoFornecedor.GetByIdGfdTipoFornecedorUseCase;
 import br.com.mili.milibackend.shared.exception.types.ForbiddenException;
@@ -34,6 +35,7 @@ public class FornecedorService implements IFornecedorService {
     private final GetByIdGfdTipoFornecedorUseCase getByIdGfdTipoFornecedorUseCase;
 
     private final ModelMapper modelMapper;
+    private final GetAllFornecedorSpecificationFactory getAllFornecedorSpecificationFactory;
 
 
     public FornecedorGetByCodUsuarioOutputDto getByCodUsuario(FornecedorGetByCodUsuarioInputDto inputDto) {
@@ -91,22 +93,7 @@ public class FornecedorService implements IFornecedorService {
     }
 
     public MyPage<FornecedorGetAllOutputDto> getAll(FornecedorGetAllInputDto inputDto) {
-        Specification<Fornecedor> spec = Specification.where(null);
-
-        //filtra por codigo
-        if (inputDto.getCodigo() != null) {
-            spec = spec.and(FornecedorSpecification.filtroCodigo(inputDto.getCodigo()));
-        }
-
-        //filtra por razao social
-        if (inputDto.getRazaoSocial() != null) {
-            spec = spec.and(FornecedorSpecification.filtroRazaoSocial(inputDto.getRazaoSocial()));
-        }
-
-        //filtra por cgcCpf
-        if (inputDto.getCgcCpf() != null) {
-            spec = spec.and(FornecedorSpecification.filtroCgcCpf(inputDto.getCgcCpf()));
-        }
+        Specification<Fornecedor> spec = getAllFornecedorSpecificationFactory.aplicarFiltro(inputDto);
 
         //page
         var pageNumber = inputDto.getPageable().getPage() > 0 ? inputDto.getPageable().getPage() - 1 : 0;
@@ -121,6 +108,8 @@ public class FornecedorService implements IFornecedorService {
         return new PageBaseImpl<>(fornecedorGetAllOutputDto, pageFornecedor.getPageable().getPageNumber() + 1, pageFornecedor.getSize(), pageFornecedor.getTotalElements()) {
         };
     }
+
+    
 
     private Fornecedor recuperarFornecedor(Integer codUsuario, Integer id) {
         Fornecedor fornecedor = null;

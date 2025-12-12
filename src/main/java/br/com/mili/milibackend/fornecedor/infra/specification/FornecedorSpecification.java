@@ -25,4 +25,11 @@ public class FornecedorSpecification {
             return cb.equal(root.get("codigo"), codigo);
         };
     }
+
+    public static Specification<Fornecedor> filtroAtivoGfd(Boolean ativoGfd) {
+        return (root, query, cb) -> {
+            if (ativoGfd == null) return null;
+            return cb.equal(root.get("ativoGfd"), ativoGfd);
+        };
+    }
 }
