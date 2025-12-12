@@ -241,7 +241,6 @@ public class GfdMDocumentoController {
     }
 
     @PreAuthorize("hasAuthority('" + ROLE_ANALISTA + "') " +
-            "or hasAuthority('" + ROLE_FORNECEDOR + "')" +
             "or hasAuthority('" + ROLE_VISUALIZACAO + "')" +
             "or hasAuthority('" + ROLE_SESMT + "')"
     )
