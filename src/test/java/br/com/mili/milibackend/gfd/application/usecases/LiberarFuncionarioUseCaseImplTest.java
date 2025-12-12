@@ -121,7 +121,7 @@ class LiberarFuncionarioUseCaseImplTest {
         verify(liberacaoRepository).save(liberacaoCaptor.capture());
 
         var liberacaoSalva = liberacaoCaptor.getValue();
-        assertEquals(funcionario, liberacaoSalva.getFuncionario());
+        assertEquals(funcionario.getId(), liberacaoSalva.getFuncionarioId());
         assertEquals(input.getLiberado(), liberacaoSalva.getStatusLiberado());
         assertEquals(input.getJustificativa(), liberacaoSalva.getJustificativa());
         assertEquals(input.getUsuario(), liberacaoSalva.getUsuarioCodigo());

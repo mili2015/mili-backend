@@ -42,6 +42,8 @@ public class GfdTipoDocumento {
     @Column(name = "SETOR")
     private String setor;
 
+    @Column(name = "AUTOMATIZAR_BLOQUEIO")
+    private Boolean automatizarBloqueio;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_CATEGORIA_DOC")

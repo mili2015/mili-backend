@@ -103,6 +103,9 @@ public class Fornecedor {
     @Column(name = "BLOQUEADO")
     private String bloqueado;
 
+    @Column(name = "ATIVO_GFD")
+    private Boolean ativoGfd;
+
     @OneToMany(mappedBy = "ctforCodigo", fetch = FetchType.LAZY)
     private List<GfdDocumento> documentos;
 

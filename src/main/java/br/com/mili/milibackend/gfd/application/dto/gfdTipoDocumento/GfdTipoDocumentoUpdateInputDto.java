@@ -26,6 +26,9 @@ public class GfdTipoDocumentoUpdateInputDto {
     private String setor;
 
     @NotNull
+    private Boolean automatizarBloqueio;
+
+    @NotNull
     @Valid
     private GfdCategoriaDocumentoDto categoriaDocumento;
 

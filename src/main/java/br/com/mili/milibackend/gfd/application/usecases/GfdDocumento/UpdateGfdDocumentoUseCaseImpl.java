@@ -6,11 +6,13 @@ import br.com.mili.milibackend.gfd.application.dto.gfdDocumentoPeriodo.GfdDocume
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumento;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoHistorico;
 import br.com.mili.milibackend.gfd.domain.entity.GfdDocumentoStatusEnum;
+import br.com.mili.milibackend.gfd.domain.entity.GfdFuncionarioLiberacao;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.CreateDocumentoPeriodoUseCase;
 import br.com.mili.milibackend.gfd.domain.usecases.gfdDocumento.UpdateGfdDocumentoUseCase;
 import br.com.mili.milibackend.gfd.infra.projections.GfdDocumentCountProjection;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoHistoricoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
+import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioLiberacaoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import jakarta.transaction.Transactional;
@@ -30,6 +32,7 @@ public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase 
     private final CreateDocumentoPeriodoUseCase createDocumentoPeriodoUseCase;
     private final GfdDocumentoHistoricoRepository gfdDocumentoHistoricoRepository;
     private final GfdFuncionarioRepository gfdFuncionarioRepository;
+    private final GfdFuncionarioLiberacaoRepository gfdFuncionarioLiberacaoRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -50,8 +53,16 @@ public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase 
 
         var gfdDocumentoSaved = gfdDocumentoRepository.save(gfdDocumento);
 
-        //criar o historico
         var funcionarioId = gfdDocumentoSaved.getGfdFuncionario() != null ? gfdDocumentoSaved.getGfdFuncionario().getId() : null;
+
+        criarHistorico(inputDto, gfdDocumentoSaved, gfdDocumento, funcionarioId);
+
+        liberarFuncionario(funcionarioId, gfdDocumentoSaved.getCtforCodigo());
+
+        return modelMapper.map(gfdDocumento, GfdDocumentoUpdateOutputDto.class);
+    }
+
+    private void criarHistorico(GfdDocumentoUpdateInputDto inputDto, GfdDocumento gfdDocumentoSaved, GfdDocumento gfdDocumento, Integer funcionarioId) {
         var gfdDocumentoHistorico = GfdDocumentoHistorico.builder()
                 .documentoId(gfdDocumentoSaved.getId())
                 .ctusuCodigo(inputDto.getCodUsuario())
@@ -62,10 +73,6 @@ public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase 
                 .build();
 
         gfdDocumentoHistoricoRepository.save(gfdDocumentoHistorico);
-
-        liberarFuncionario(funcionarioId, gfdDocumentoSaved.getCtforCodigo());
-
-        return modelMapper.map(gfdDocumento, GfdDocumentoUpdateOutputDto.class);
     }
 
     private void liberarFuncionario(Integer funcionarioId, Integer ctforCodigo) {
@@ -81,31 +88,9 @@ public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase 
         // se tudo tiver conforme automaticamente atualiza o liberado do funcionario
         if (funcionarioId != null) {
             updateStatusLiberadoFuncionario(funcionarioId, inicioMesAnterior, documentosStatusFornecedor);
-
-            return;
-        }
-
-/*        // caso o documento for da empresa
-        // procura a empresa do documento e verifica se todos os documentos da empresa estão em conforme
-        // caso contrario todos os funcionários vão automaticamente estar com status não liberado
-        updateStatusLiberadoPorFornecedor(ctforCodigo, documentosStatusFornecedor);*/
-    }
-
-    private void updateStatusLiberadoPorFornecedor(Integer ctforCodigo, GfdDocumentCountProjection documentosStatusFornecedor) {
-        var naoEnviado = documentosStatusFornecedor.getNaoEnviado();
-        var totalEnviado = documentosStatusFornecedor.getTotalEnviado();
-        var totalEmAnalise = documentosStatusFornecedor.getTotalEmAnalise();
-        var totalNaoConforme = documentosStatusFornecedor.getTotalNaoConforme();
-
-        boolean documentosPendentes = naoEnviado > 0
-                || totalEnviado > 0
-                || totalEmAnalise > 0
-                || totalNaoConforme > 0;
-
-        if (documentosPendentes) {
-            gfdFuncionarioRepository.updateLiberadoFornecedor(ctforCodigo, 0);
         }
     }
+
 
     private void updateStatusLiberadoFuncionario(Integer funcionarioId, LocalDate inicioMesAnterior, GfdDocumentCountProjection documentosStatusFornecedor) {
         var documentosStatus = gfdFuncionarioRepository.getAllDocuments(funcionarioId, inicioMesAnterior);
@@ -121,6 +106,16 @@ public class UpdateGfdDocumentoUseCaseImpl implements UpdateGfdDocumentoUseCase 
                 && totalNaoConforme == 0
         ) {
             gfdFuncionarioRepository.updateLiberado(funcionarioId, 1);
+
+            var gfdFuncionarioLiberacao = GfdFuncionarioLiberacao.builder()
+                    .funcionarioId(funcionarioId)
+                    .data(LocalDateTime.now())
+                    .statusLiberado(1)
+                    .justificativa("ATUALIZAÇÃO AUTOMÁTICA")
+                    .usuarioCodigo(2)
+                    .build();
+
+            gfdFuncionarioLiberacaoRepository.save(gfdFuncionarioLiberacao);
         }
     }
 

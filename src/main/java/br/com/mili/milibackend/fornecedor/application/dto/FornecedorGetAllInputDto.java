@@ -11,4 +11,5 @@ public class FornecedorGetAllInputDto extends Filtro {
     private Integer codigo;
     private String cgcCpf;
     private String razaoSocial;
+    private Boolean ativoGfd;
 }

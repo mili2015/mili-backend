@@ -10,8 +10,8 @@ import br.com.mili.milibackend.gfd.infra.projections.GfdDocumentCountProjection;
 import br.com.mili.milibackend.gfd.infra.projections.GfdFuncionarioDocumentsProjection;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoHistoricoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdDocumento.GfdDocumentoRepository;
+import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioLiberacaoRepository;
 import br.com.mili.milibackend.gfd.infra.repository.gfdFuncionario.GfdFuncionarioRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +39,10 @@ class UpdateGfdDocumentoUseCaseImplTest {
     private GfdDocumentoHistoricoRepository gfdDocumentoHistoricoRepository;
     @Mock
     private GfdFuncionarioRepository gfdFuncionarioRepository;
+
+    @Mock
+    private GfdFuncionarioLiberacaoRepository gfdFuncionarioLiberacaoRepository;
+
     @Mock
     private ModelMapper modelMapper;
 

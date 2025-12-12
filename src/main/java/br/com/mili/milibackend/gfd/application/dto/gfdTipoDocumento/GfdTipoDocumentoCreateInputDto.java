@@ -22,6 +22,9 @@ public class GfdTipoDocumentoCreateInputDto {
     @NotNull
     private Boolean obrigatoriedade;
 
+    @NotNull
+    private Boolean automatizarBloqueio;
+
     @NotBlank
     private String classificacao;
 

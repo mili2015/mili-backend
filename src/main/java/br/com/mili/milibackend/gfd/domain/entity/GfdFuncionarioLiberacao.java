@@ -19,8 +19,11 @@ public class GfdFuncionarioLiberacao {
     @SequenceGenerator(name = "SEQ_GFD_FUNCIONARIO_LIBERACAO", sequenceName = "SEQ_GFD_FUNCIONARIO_LIBERACAO", allocationSize = 1)
     private Integer id;
 
+    @Column(name = "ID_FUNCIONARIO")
+    private Integer funcionarioId;
+
     @ManyToOne
-    @JoinColumn(name = "ID_FUNCIONARIO")
+    @JoinColumn(name = "ID_FUNCIONARIO", insertable = false, updatable = false)
     private GfdFuncionario funcionario;
 
     @Column(name = "CTUSU_CODIGO")
