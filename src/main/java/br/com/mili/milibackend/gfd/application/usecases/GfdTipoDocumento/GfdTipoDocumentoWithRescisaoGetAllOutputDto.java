@@ -33,6 +33,8 @@ public class GfdTipoDocumentoWithRescisaoGetAllOutputDto {
 
         private Boolean ativo;
 
+        private Boolean automatizarBloqueio;
+
         private String setor;
 
         private String classificacao;

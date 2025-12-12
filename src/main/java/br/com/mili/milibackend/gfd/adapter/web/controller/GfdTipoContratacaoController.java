@@ -19,7 +19,7 @@ import static br.com.mili.milibackend.shared.roles.GfdRolesConstants.*;
 
 @Slf4j
 @RestController
-@RequestMapping(GfdTipoContratacaoController.ENDPOINT) // corrigido aqui
+@RequestMapping(GfdTipoContratacaoController.ENDPOINT)
 @RequiredArgsConstructor
 public class GfdTipoContratacaoController {
 
