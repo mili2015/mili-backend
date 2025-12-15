@@ -1,6 +1,7 @@
 package br.com.mili.milibackend.fornecedor.application.service;
 
 import br.com.mili.milibackend.fornecedor.application.dto.*;
+import br.com.mili.milibackend.fornecedor.application.factory.GetAllFornecedorSpecificationFactory;
 import br.com.mili.milibackend.fornecedor.domain.entity.Fornecedor;
 import br.com.mili.milibackend.fornecedor.domain.usecases.ValidatePermissionFornecedorUseCase;
 import br.com.mili.milibackend.fornecedor.infra.dto.FornecedorResumoDto;
@@ -10,6 +11,7 @@ import br.com.mili.milibackend.gfd.domain.usecases.gfdTipoFornecedor.GetByIdGfdT
 import br.com.mili.milibackend.shared.exception.types.NotFoundException;
 import br.com.mili.milibackend.shared.page.pagination.MyPage;
 import br.com.mili.milibackend.shared.page.pagination.MyPageable;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,6 +51,8 @@ class FornecedorServiceTest {
     @Mock
     private GetByIdGfdTipoFornecedorUseCase getByIdGfdTipoFornecedorUseCase;
 
+    @Mock
+    private GetAllFornecedorSpecificationFactory getAllFornecedorSpecificationFactory;
 
     @Test
     void test_GetByCodUsuario__deveRetornarFornecedor_quandoEncontrado() {

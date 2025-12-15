@@ -1,6 +1,5 @@
 package br.com.mili.milibackend.gfd.application.dto.gfdTipoDocumento;
 
-import br.com.mili.milibackend.gfd.domain.entity.GfdTipoDocumentoTipoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +19,8 @@ public class GfdTipoDocumentoGetAllOutputDto {
     private Boolean obrigatoriedade;
 
     private Boolean ativo;
+
+    private Boolean automatizarBloqueio;
 
     private String classificacao;
 
