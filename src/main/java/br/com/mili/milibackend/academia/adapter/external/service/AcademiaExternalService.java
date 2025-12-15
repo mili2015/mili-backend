@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -159,17 +161,17 @@ public class AcademiaExternalService {
                 .append(userId)
                 .append("/courses");
 
+        Map<String, String> include = new HashMap<>();
+
         if (courseIds != null && !courseIds.isEmpty()) {
-            String joinedIds = courseIds.stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.joining(","));
-            uriBuilder.append("?include=").append(joinedIds);
+            include.put("include", courseIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
         }
 
         return webClientWithLog()
-                .get()
+                .method(HttpMethod.GET)
                 .uri(ldApi(uriBuilder.toString()))
                 .headers(h -> h.setBasicAuth(wpUser, wpAppPassword))
+                .bodyValue(include)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, resp ->
                         resp.bodyToMono(String.class)

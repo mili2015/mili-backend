@@ -70,15 +70,12 @@ public class ResendEmailAcademiaGfdFuncionarioUseCaseImpl implements ResendEmail
     }
 
     private AcademiaIdCoursesEnum getAcademiaIdCoursesEnum(GfdFuncionarioResendEmailAcademiaInputDto inputDto) {
-        AcademiaIdCoursesEnum courseEnum = AcademiaIdCoursesEnum.fromCtempCodigo(inputDto.getCtempCodigo());
-
-        if (courseEnum == null) {
-            throw new BadRequestException(
-                    ACADEMIA_INTEGRACAO_INVALIDA.getMensagem(),
-                    ACADEMIA_INTEGRACAO_INVALIDA.getCode()
-            );
-        }
-        return courseEnum;
+        return AcademiaIdCoursesEnum.fromCtempCodigo(inputDto.getCtempCodigo()).orElseThrow(
+                () -> new BadRequestException(
+                        ACADEMIA_INTEGRACAO_INVALIDA.getMensagem(),
+                        ACADEMIA_INTEGRACAO_INVALIDA.getCode()
+                )
+        );
     }
 
     private GfdFuncionario getGfdFuncionario(GfdFuncionarioResendEmailAcademiaInputDto inputDto) {
