@@ -23,11 +23,12 @@ public class GetCoursesByUserUseCaseImpl implements GetCoursesByUserUseCase {
             return null;
         }
 
-        AcademiaExternalGetCousesByIdResponse c = courses.get(0);
+        var course = courses.get(0);
+
         return AcademiaGetCourseByUserOutputDto.builder()
-                .id(c.getId() != null ? c.getId() : null)
-                .title(c.getTitle() != null ? c.getTitle().getRendered() : null)
-                .link(c.getLink())
+                .id(course.getId() != null ? course.getId() : null)
+                .title(course.getTitle() != null ? course.getTitle().getRendered() : null)
+                .link(course.getLink())
                 .build();
     }
 }

@@ -1,16 +1,13 @@
 package br.com.mili.milibackend.academia.adapter.external.dto;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,7 +36,7 @@ public class AcademiaExternalGetCousesByIdResponse {
     private List<String> classList;
     private LinksDto _links;
 
-    @Data
+    @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -47,7 +44,7 @@ public class AcademiaExternalGetCousesByIdResponse {
         private String rendered;
     }
 
-    @Data
+    @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -55,7 +52,7 @@ public class AcademiaExternalGetCousesByIdResponse {
         private String rendered;
     }
 
-    @Data
+    @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -64,7 +61,7 @@ public class AcademiaExternalGetCousesByIdResponse {
         private boolean isProtected;
     }
 
-    @Data
+    @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -83,7 +80,7 @@ public class AcademiaExternalGetCousesByIdResponse {
         private String footnotes;
     }
 
-    @Data
+    @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -100,7 +97,7 @@ public class AcademiaExternalGetCousesByIdResponse {
         private List<CuriesItem> curies;
     }
 
-    @Data
+    @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -109,7 +106,7 @@ public class AcademiaExternalGetCousesByIdResponse {
         private Map<String, Object> targetHints;
     }
 
-    @Data
+    @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -119,7 +116,7 @@ public class AcademiaExternalGetCousesByIdResponse {
         private String href;
     }
 
-    @Data
+    @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor

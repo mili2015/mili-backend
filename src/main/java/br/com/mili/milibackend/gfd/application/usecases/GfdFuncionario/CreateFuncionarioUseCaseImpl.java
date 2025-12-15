@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import static br.com.mili.milibackend.academia.adapter.web.exceptions.AcademiaCodeException.ACADEMIA_USUARIO_MATRICULADO;
 import static br.com.mili.milibackend.gfd.adapter.exception.GfdFuncionarioCodeException.GFD_FUNCIONARIO_JA_SENDO_USADO;
 
 @Service
@@ -48,8 +49,12 @@ public class CreateFuncionarioUseCaseImpl implements CreateFuncionarioUseCase {
 
         try {
             matricular(gfdFuncionarioCreated);
+        } catch (ConflictException ex) {
+            if (ex.getCode().equals(ACADEMIA_USUARIO_MATRICULADO.getMensagem())) {
+                log.error("Usuário já esta matriculado ID:{}, {}", gfdFuncionarioCreated.getId(), ex.getMessage());
+            }
         } catch (Exception ex) {
-            log.error("Erro ao matricular o funcionário: " + gfdFuncionarioCreated.getId(), ex);
+            log.error("Erro ao matricular o funcionário: ID:{}, {}", gfdFuncionarioCreated.getId(), ex.getMessage());
         }
 
         return modelMapper.map(gfdFuncionarioCreated, GfdFuncionarioCreateOutputDto.class);

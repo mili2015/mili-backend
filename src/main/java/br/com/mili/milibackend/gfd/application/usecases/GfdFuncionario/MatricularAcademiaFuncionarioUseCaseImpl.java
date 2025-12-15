@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static br.com.mili.milibackend.shared.util.GeneratorPassword.senhaAlphaNumerica;
 
@@ -33,9 +34,13 @@ public class MatricularAcademiaFuncionarioUseCaseImpl implements MatricularAcade
         Integer academiaId = recuperarAcademiaId(inputDto);
         gfdFuncionarioRepository.alterarIdAcademia(inputDto.getId(), academiaId);
 
-        var locaisTrabalhoPermitidos = inputDto.getLocaisTrabalho().stream()
-                .filter(local -> local.equals(AcademiaIdCoursesEnum.TRES_BARRAS.getCtempCodigo()))
-                .toList();
+        var locaisTrabalhoPermitidos =
+                inputDto.getLocaisTrabalho().stream()
+                        .filter(local ->
+                                local.equals(AcademiaIdCoursesEnum.TRES_BARRAS.getCtempCodigo())
+                                        || local.equals(AcademiaIdCoursesEnum.CURITIBA_FAB.getCtempCodigo())
+                        )
+                        .toList();
 
         //futuramente remover apos validar as integrações
         if (locaisTrabalhoPermitidos.isEmpty()) {
@@ -80,13 +85,12 @@ public class MatricularAcademiaFuncionarioUseCaseImpl implements MatricularAcade
     }
 
     private void matricular(List<Integer> locaisTrabalhoPermitidos, Integer idAcademia) {
-        var idCursos = locaisTrabalhoPermitidos.stream().map(localTrabalho -> {
-            if (localTrabalho.equals(AcademiaIdCoursesEnum.TRES_BARRAS.getCtempCodigo())) {
-                return AcademiaIdCoursesEnum.TRES_BARRAS.getIdCourse();
-            }
-
-            return null;
-        }).toList();
+        var idCursos =
+                locaisTrabalhoPermitidos.stream()
+                        .map(AcademiaIdCoursesEnum::fromCtempCodigo)
+                        .flatMap(Optional::stream)
+                        .map(AcademiaIdCoursesEnum::getIdCourse)
+                        .toList();
 
         var academiaUserEnrollOutputDto = AcademiaUserEnrollInputDto.builder()
                 .userId(idAcademia)
